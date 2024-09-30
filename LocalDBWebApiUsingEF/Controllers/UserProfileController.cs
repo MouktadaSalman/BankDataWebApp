@@ -34,41 +34,55 @@ namespace DataTierWebServer.Controllers
             return await _context.UserProfiles.ToListAsync();
         }
 
-        // GET: api/userprofile/Mike
+        // GET: api/userprofile/byname/Mike
         [HttpGet("byname/{name}")]
         public async Task<ActionResult<UserProfile>> GetUserProfileByName(string name)
         {
-          if (_context.UserProfiles == null)
-          {
-              return NotFound();
-          }
-            var userProfile = await _context.UserProfiles.FirstOrDefaultAsync(up => up.FName == name);
-
-            if (userProfile == null)
+            try
             {
-                return NotFound();
-            }
+                if (_context.UserProfiles == null)
+                {
+                    return NotFound();
+                }
+                var userProfile = await _context.UserProfiles.FirstOrDefaultAsync(up => up.FName == name);
 
-            return userProfile;
+                if (userProfile == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(userProfile);
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }            
         }
 
-
-        // GET: api/userprofile/5
+        // GET: api/userprofile/byemail/Mike
         [HttpGet("byemail/{email}")]
         public async Task<ActionResult<UserProfile>> GetUserProfileByEmail(string email)
         {
-            if (_context.UserProfiles == null)
+            try
             {
-                return NotFound();
-            }
-            var userProfile = await _context.UserProfiles.FirstOrDefaultAsync(up => up.Email == email);
+                if (_context.UserProfiles == null)
+                {
+                    return NotFound();
+                }
+                var userProfile = await _context.UserProfiles.FirstOrDefaultAsync(up => up.Email == email);
 
-            if (userProfile == null)
+                if (userProfile == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(userProfile);
+            }
+            catch(Exception ex)
             {
-                return NotFound();
+                return BadRequest(ex.Message);
             }
-
-            return userProfile;
         }
 
         // PUT: api/userprofile/1
@@ -85,7 +99,7 @@ namespace DataTierWebServer.Controllers
         */
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutUserProfile(int id, UserProfile userProfile)
+        public async Task<IActionResult> PutUserProfile(int id, [FromBody] UserProfile userProfile)
         {
             if (id != userProfile.Id)
             {
@@ -116,7 +130,7 @@ namespace DataTierWebServer.Controllers
         // POST: api/userprofile
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<UserProfile>> PostUserProfile(UserProfile userProfile)
+        public async Task<ActionResult<UserProfile>> PostUserProfile([FromBody] UserProfile userProfile)
         {
           if (_context.UserProfiles == null)
           {

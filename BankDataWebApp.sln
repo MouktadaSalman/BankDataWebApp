@@ -5,6 +5,10 @@ VisualStudioVersion = 17.5.33424.131
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataTierWebServer", "LocalDBWebApiUsingEF\DataTierWebServer.csproj", "{16106B97-7997-4CE3-BA2A-69919028035B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusinessTierWebServer", "BusinessTierWebServer\BusinessTierWebServer.csproj", "{8267FD4B-52FA-4AB3-91B2-00E1131C601A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BankDataLB", "BankDataLB\BankDataLB.csproj", "{82BC6FC2-5370-469A-BBC0-128BC6292AEB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{16106B97-7997-4CE3-BA2A-69919028035B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{16106B97-7997-4CE3-BA2A-69919028035B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{16106B97-7997-4CE3-BA2A-69919028035B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8267FD4B-52FA-4AB3-91B2-00E1131C601A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8267FD4B-52FA-4AB3-91B2-00E1131C601A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8267FD4B-52FA-4AB3-91B2-00E1131C601A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8267FD4B-52FA-4AB3-91B2-00E1131C601A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{82BC6FC2-5370-469A-BBC0-128BC6292AEB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{82BC6FC2-5370-469A-BBC0-128BC6292AEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{82BC6FC2-5370-469A-BBC0-128BC6292AEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{82BC6FC2-5370-469A-BBC0-128BC6292AEB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

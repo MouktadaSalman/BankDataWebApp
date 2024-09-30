@@ -15,8 +15,7 @@ namespace DataTierWebServer.Controllers
     [Route("api/[controller]")]
     [ApiController]
     public class AccountController : Controller
-    {
-        
+    {        
         private readonly DBManager _context;
 
         public AccountController(DBManager context)
@@ -28,7 +27,6 @@ namespace DataTierWebServer.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Account>>> GetAccounts()
         {
-
             if (_context.Accounts == null)
             {
                 return NotFound();
@@ -67,7 +65,7 @@ namespace DataTierWebServer.Controllers
             {
                 return NotFound();
             }
-            return Ok(account.History);
+            return Ok(account.History.Select(h => h.HistoryString).ToList());
         }
 
         // GET: api/account/1/1000
@@ -97,7 +95,7 @@ namespace DataTierWebServer.Controllers
             _context.Entry(account).State = EntityState.Modified;
 
             await _context.SaveChangesAsync();
-            return NoContent();
+            return Ok();
         }
 
         // PUT: api/account/1
@@ -152,7 +150,6 @@ namespace DataTierWebServer.Controllers
             {
                 return Problem("Entity set 'DBManager.Accounts'  is null.");
             }
-
 
             _context.Accounts.Add(account);
             await _context.SaveChangesAsync();

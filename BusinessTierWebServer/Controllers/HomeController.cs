@@ -1,8 +1,8 @@
-﻿using LocalDBWebAPI.Models;
+﻿using BusinessTierWebServer.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
-namespace LocalDBWebAPI.Controllers
+namespace BusinessTierWebServer.Controllers
 {
     public class HomeController : Controller
     {

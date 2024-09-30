@@ -7,7 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Data.SQLite" Version="1.0.118" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="RestSharp" Version="112.0.0" />
   </ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\BankDataLB\BankDataLB.csproj" />
+	</ItemGroup>
 
 </Project>

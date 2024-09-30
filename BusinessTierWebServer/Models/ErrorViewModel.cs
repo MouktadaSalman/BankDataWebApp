@@ -1,4 +1,4 @@
-namespace LocalDBWebAPI.Models
+namespace BusinessTierWebServer.Models
 {
     public class ErrorViewModel
     {

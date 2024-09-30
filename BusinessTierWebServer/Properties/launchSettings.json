@@ -1,12 +1,12 @@
 {
   "profiles": {
-    "BankWebServer": {
+    "BusinessTierWebServer": {
       "commandName": "Project",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "dotnetRunMessages": true,
-      "applicationUrl": "http://localhost:5181"
+      "applicationUrl": "http://localhost:5265"
     },
     "IIS Express": {
       "commandName": "IISExpress",
@@ -20,7 +20,7 @@
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "http://localhost:7590",
+      "applicationUrl": "http://localhost:28872",
       "sslPort": 0
     }
   }
