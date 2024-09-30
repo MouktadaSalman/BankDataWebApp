@@ -20,12 +20,12 @@
 
         private static int GeneratRandomBalance()
         {
-            return (int)_random.Next(0, 100000);
+            return _random.Next(0, 100000);
         }
 
         public Account GenerateAccount()
         {
-            return new Account(GenerateAcctNo(), _userProfile.FName , _userProfile.LName, _userProfile.Email, _userProfile.Age, GeneratRandomBalance(), _userProfile.Address);
+            return new Account(GenerateAcctNo(), "Savings Account", GeneratRandomBalance(), _userProfile.Id);
         }
 
     }

@@ -132,10 +132,10 @@ namespace DataTierWebServer.Controllers
         [HttpPost]
         public async Task<ActionResult<UserProfile>> PostUserProfile([FromBody] UserProfile userProfile)
         {
-          if (_context.UserProfiles == null)
-          {
-              return Problem("Entity set 'DBManager.UserProfiles'  is null.");
-          }
+            if (_context.UserProfiles == null)
+            {
+                return Problem("Entity set 'DBManager.UserProfiles'  is null.");
+            }
             
             _context.UserProfiles.Add(userProfile);
             await _context.SaveChangesAsync();

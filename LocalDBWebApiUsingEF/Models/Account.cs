@@ -6,35 +6,25 @@ namespace DataTierWebServer.Models
     {
         [Key]
         public uint AcctNo { get; set; }
-        public string FirstName { get; set; } //get from userprofile
-        public string LastName { get; set; } //get from userprofile
-        public string Email { get; set; } //get from userprofile
-        public uint Age { get; set; } //get from userprofile
-        public int Balance { get; set; } 
-        public string Address { get; set; } //get from userprofile
+        public string AccountName { get; set; }
+        public int Balance { get; set; }
+        public int UserId { get; set; }
         public ICollection<UserHistory> History { get; set; }
 
         public Account()
         {
             AcctNo = 0;
-            FirstName = string.Empty;
-            LastName = string.Empty;
-            Email = string.Empty;
-            Age = 0;
+            AccountName = string.Empty;
             Balance = 0;
-            Address = string.Empty;
             History = new List<UserHistory>();
         }
-        public Account(uint acctNo, string? firstName, string? lastName,string? email, uint age, int balance, string? address)
+        public Account(uint acctNo, string? accountName, int balance, int userId)
         {
             AcctNo = acctNo;
-            FirstName = firstName;
-            LastName = lastName;
-            Email = email;
-            Age = age;
             Balance = balance;
-            Address = address;
+            AccountName = accountName;
             History = new List<UserHistory>();
+            UserId = userId;
         }
     }
 
