@@ -91,12 +91,13 @@ namespace BusinessTierWebServer.Controllers
         }
 
         // Put: api/bankaccount/{acctNo}/{amount}
-        [HttpPut("{acctNo}/{amount}")]
-        public IActionResult Transaction(uint acctNo, int amount)
+        [HttpPut("{type}/{acctNo}/{amount}")]
+        public IActionResult Transaction(string type, uint acctNo, int amount)
         {
             RestClient client = new RestClient(_dataServerApiUrl);
-            RestRequest request = new RestRequest($"/api/account/{acctNo}/{amount}", Method.Put);
+            RestRequest request = new RestRequest($"/api/account/{type}/{acctNo}/{amount}", Method.Put);
             RestResponse response = client.Execute(request);
+
             if (response.IsSuccessful)
             {
                 return Ok($"Successful transaction of amount :{amount}");

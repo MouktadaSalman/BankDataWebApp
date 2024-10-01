@@ -52,7 +52,6 @@ namespace DataTierWebServer.Controllers
                 }
 
                 return Ok(userProfile);
-
             }
             catch (Exception ex)
             {
