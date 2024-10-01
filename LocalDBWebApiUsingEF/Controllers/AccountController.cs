@@ -31,23 +31,27 @@ namespace DataTierWebServer.Controllers
             {
                 return NotFound();
             }
-            return await _context.Accounts.ToListAsync();
+            List<Account> accounts = await _context.Accounts.ToListAsync();
+            return Ok(accounts);
         }
 
         // GET: api/account/5
-        [HttpGet("{acctNo}")]
-        public async Task<ActionResult<Account>> GetAccountById(uint acctNo)
+        [HttpGet("{Id}")]
+        public async Task<ActionResult<Account>> GetAccountsById(int Id)
         {
             if (_context.Accounts == null)
             {
                 return NotFound();
             }
-            var account = await _context.Accounts.FindAsync(acctNo);
-            if (account == null)
+            var accounts = await _context.Accounts
+                .Where(a => a.UserId == Id)
+                .ToListAsync();
+
+            if (accounts == null)
             {
                 return NotFound();
             }
-            return account;
+            return Ok(accounts);
         }        
 
         [HttpGet("history/{acctNo}")]
@@ -141,10 +145,10 @@ namespace DataTierWebServer.Controllers
             return NoContent();
         }
 
-        // POST: api/userprofile
+        // POST: api/account
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Account>> PostAccount(Account account)
+        public async Task<ActionResult<Account>> PostAccount([FromBody]Account account)
         {
             if (_context.Accounts == null)
             {
@@ -157,7 +161,7 @@ namespace DataTierWebServer.Controllers
             return CreatedAtAction("GetAccount", new { acctNo = account.AcctNo }, account);
         }
 
-        // DELETE: api/userprofile/5
+        // DELETE: api/account/5
         [HttpDelete("{acctNo}")]
         public async Task<IActionResult> DeleteAccount(uint acctNo)
         {
