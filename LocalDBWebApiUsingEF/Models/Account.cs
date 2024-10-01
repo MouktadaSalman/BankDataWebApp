@@ -6,7 +6,7 @@ namespace DataTierWebServer.Models
     {
         [Key]
         public uint AcctNo { get; set; }
-        public string AccountName { get; set; }
+        public string? AccountName { get; set; }
         public int Balance { get; set; }
         public int UserId { get; set; }
         public ICollection<UserHistory> History { get; set; }

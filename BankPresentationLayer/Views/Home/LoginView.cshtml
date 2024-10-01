@@ -1,0 +1,30 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="~/css/login.css">
+</head>
+<body>
+    <div class="login-container">
+        <h2>Login</h2>
+        <form id="loginForm">
+            <label for="SName">Username:</label><br>
+            <input type="text" id="SName" name="SName" required><br><br>
+
+            <label for="SPass">Password:</label><br>
+            <input type="password" id="SPass" name="SPass" required><br><br>
+
+            <button type="button" id="loginButton" class="btn" onclick="performAuth()">Login</button>
+        </form>
+        <p>Don't have an account? <a href="@Url.Action("CreateProfileView", "Home")">Create an account</a></p>
+    </div>
+
+    <script src="~/js/site.js"></script>
+</body>
+</html>

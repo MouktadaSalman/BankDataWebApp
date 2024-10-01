@@ -1,0 +1,214 @@
+/* General Styles */
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: #e6f7ff;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background-color: #4aa5d5;
+    padding: 10px;
+    color: white;
+    display: flex;
+}
+
+    header .logo {
+        font-size: 24px;
+        font-weight: bold;
+        display: inline-block;
+    }
+
+    header .profileInfo {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+        header .profileInfo .container {
+            position: relative;
+            width: 80px;
+        }
+
+        header .profileInfo .avatar {
+            width: 100%;
+            height: 100%;
+            opacity: 1;
+            display: block;
+            transition: opacity 0.5s ease;
+            backface-visibility: hidden;
+            border-radius: 50%;
+        }
+
+        header .profileInfo .middle {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transition: opacity 0.5s ease;
+            opacity: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+        }
+
+        header .profileInfo .container:hover .avatar {
+            opacity: 0.3; /* Dim the avatar on hover */
+        }
+
+        header .profileInfo .container:hover .middle {
+            opacity: 1; /* Show the text overlay on hover */
+        }
+
+/* Text on Hover */
+.text {
+    background-color: #4CAF50;
+    color: white;
+    font-size: 12px;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%; /* Make the hover text size match the avatar */
+    text-align: center;
+}
+
+header .profileInfo h3 {
+    margin: 0;
+    font-size: 16px;
+    color: white;
+}
+
+header .profileInfo p {
+    margin: 0;
+    color: white;
+}
+
+header .btn {
+    background-color: #4aa5d5;
+    border: none;
+    color: white;
+    padding: 10px 10px;
+    display: inline-block;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Main Container */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Grid Layout */
+.dashboardGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.card {
+    background-color: #a0dfff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card {
+    background-color: #a0dfff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Account Summary */
+.accountSummary h2 {
+    color: #1a5f7a;
+    margin-bottom: 20px;
+}
+
+.accountSummary .accountDetails p {
+    margin: 5px 0;
+    font-size: 16px;
+}
+
+/* Transaction History */
+.transactionHistory h2 {
+    color: #1a5f7a;
+    margin-bottom: 20px;
+}
+
+.transactionHistory .filterOptions {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+    .transactionHistory .filterOptions input,
+    .transactionHistory .filterOptions button {
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+    }
+
+    .transactionHistory .filterOptions button {
+        background-color: #1a5f7a;
+        color: white;
+        cursor: pointer;
+        border: none;
+    }
+
+.transactionList {
+    list-style: none;
+    padding: 0;
+}
+
+    .transactionList li {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid #eee;
+    }
+
+        .transactionList li:last-child {
+            border-bottom: none;
+        }
+
+/* Money Transfer */
+.moneyTransfer h2 {
+    color: #1a5f7a;
+    margin-bottom: 20px;
+}
+
+.moneyTransfer form input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.moneyTransfer form .transferButton {
+    width: 100%;
+    padding: 12px;
+    background-color: #1a5f7a;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+    .moneyTransfer form .transferButton:hover {
+        background-color: #14485c;
+    }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .dashboardGrid {
+        grid-template-columns: 1fr;
+    }
+}

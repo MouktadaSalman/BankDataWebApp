@@ -1,0 +1,95 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bank Dashboard</title>
+    <link rel="stylesheet" href="~/css/site.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">User Dashboard</div>
+
+                <div class="profileInfo">
+                    <div class="container">
+                        <img src="~/images/avatar.png" alt="User Avatar" class="avatar">
+                        <div class="middle">
+                            <button class="text" id="openModal">Update Profile</button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 id="userName"></h3>
+                        <p id="userEmail"></p>
+                        <p id="userPhone"></p>
+                    </div>
+                </div>
+
+                <nav>
+                    <button id="logoutBtn" class="btn">Log Out</button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="dashboardGrid">
+            <div id="myModal" class="modal" style="display:none;">
+                <div class="modal-content">
+                    <button class="close">&times;</button>
+                    <h3>Update Profile</h3>
+                    <form>
+                        <label for="name">Name:</label><br>
+                        <input type="text" id="name" name="name"><br><br>
+                        <label for="email">Email:</label><br>
+                        <input type="email" id="email" name="email"><br><br>
+                        <label for="phone">Phone:</label><br>
+                        <input type="text" id="phone" name="phone"><br><br>
+                        <label for="address">Address:</label><br>
+                        <input type="text" id="Address" name="address"><br><br>
+                        <button type="submit" id="saveButton" class="btn" onclick="saveProfile()">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+
+            <section class="accountSummary card">
+                <h2>Account Summary</h2>
+                <div class="accountDetails">
+                    <p>Account Number: <span id="accountNumber">2135</span></p>
+                    <p>Current Balance: <span id="accountBalance">$10,00000</span></p>
+                </div>
+            </section>
+
+            <section class="transactionHistory card">
+                <h2>Transaction History</h2>
+                <div class="filterOptions">
+                    <input type="date" id="startDate">
+                    <input type="date" id="endDate">
+                    <button id="filterTransactions" class="btn">Filter</button>
+                </div>
+                <ul id="transactionList" class="transaction-list">
+                    <li class="transactionItem">+$387 someDetails</li>
+                </ul>
+            </section>
+
+            <section class="moneyTransfer card">
+                <h2>Money Transfer</h2>
+                <form id="transfer">
+                    <input type="text" id="transferTo" placeholder="Transfer To(Account Number)">
+                    <input type="text" id="transferAmount" placeholder="Amount">
+                    <input type="textArea" id="transferDetails" placeholder="Transfer Description">
+                    <button type="submit" id="transfer" class="transferButton">Transfer</button>
+                </form>
+            </section>
+        </div>
+    </main>
+
+    <script src="~/js/site.js"></script>
+</body>
+</html>
