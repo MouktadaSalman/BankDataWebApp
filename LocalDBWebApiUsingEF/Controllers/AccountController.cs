@@ -73,8 +73,8 @@ namespace DataTierWebServer.Controllers
         }
 
         // GET: api/account/1/1000
-        [HttpPut("{acctNo}/{amount}")]
-        public async Task<ActionResult<Account>> UpdateBalance(uint acctNo, int amount)
+        [HttpPut("{type}/{acctNo}/{amount}")]
+        public async Task<ActionResult<Account>> UpdateBalance(string type, uint acctNo, int amount)
         {
             if (_context.Accounts == null)
             {
@@ -91,7 +91,7 @@ namespace DataTierWebServer.Controllers
             var historyEntry = new UserHistory
             {
                 AccountId = account.AcctNo,
-                HistoryString = $"Balance updated by {amount} on {DateTime.Now} +   " +
+                HistoryString = $"Transaction type: {type} | Balance updated by {amount} on {DateTime.Now} +   " +
                 $"Old Balance: {account.Balance - amount} ----- New Balance: {account.Balance}"
             };
             account.History.Add(historyEntry);

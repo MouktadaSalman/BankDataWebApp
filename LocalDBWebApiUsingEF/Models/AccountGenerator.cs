@@ -2,10 +2,7 @@
 {
     public class AccountGenerator
     {
-
         private static Random _random = new Random(1234);
-
-
         private readonly UserProfile _userProfile;
 
         public AccountGenerator (UserProfile userProfile)
@@ -27,6 +24,5 @@
         {
             return new Account(GenerateAcctNo(), "Savings Account", GeneratRandomBalance(), _userProfile.Id);
         }
-
     }
 }
