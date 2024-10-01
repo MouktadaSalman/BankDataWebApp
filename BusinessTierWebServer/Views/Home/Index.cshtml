@@ -20,6 +20,22 @@
             <div class="header-content">
                 <div class="logo">User Dashboard</div>
 
+                <div class="profileInfo">
+                    <div class="container">
+                        <img src="~/images/avatar.png" alt="User Avatar" class="avatar">
+                        <div class="middle">
+                            <button class="text" id="openModal">Update Profile</button>
+
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 id="userName">Ahmed Youseif</h3>
+                        <p id="userEmail">Ahmedo@gmail.com</p>
+                        <p id="userPhone">2313253</p>
+                    </div>
+                </div>
+
                 <nav>
                     <button id="logoutBtn" class="btn">Log Out</button>
 
@@ -32,31 +48,12 @@
     <main class="container">
         <div class="dashboardGrid">
 
-            <section class="userProfile card">
-                <h2>User Profile</h2>
 
-                <div class="profileInfo">
-                    <div class="container">
-                        <img src="~/images/avatar.png" alt="User Avatar" class="image avatar">
-                        <div class="middle">
-                            <div class="text" id="openModal">Update Profile</div>
-                            
-                        </div>
-                    </div>
-
-                    <div>
-                        <h3 id="userName">Ahmed Youseif</h3>
-                        <p id="userEmail">Ahmedo@gmail.com</p>
-                        <p id="userPhone">2313253</p>
-                    </div>
-                </div>
-            </section>
+            <!-- Removed User Profile Section from here -->
             <!-- The Modal -->
-            
-
             <div id="myModal" class="modal" style="display:none;">
                 <div class="modal-content">
-                    
+
                     <button class="close">&times;</button>
                     <h3>Update Profile</h3>
                     <form>
@@ -118,10 +115,6 @@
                     <input type="textArea" id="transferDetails" placeholder="Transfer Description">
                     <button type="submit" id="transfer" class="transferButton">Transfer</button>
                 </form>
-
-
-
-
             </section>
         </div>
     </main>
