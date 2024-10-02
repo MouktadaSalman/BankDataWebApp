@@ -43,6 +43,17 @@ namespace BankPresentationLayer.Controllers
             return View();
         }
 
+        public IActionResult LogOut()
+        {
+            // Clear the user's session (for example, clear authentication session or token)
+            HttpContext.Response.Cookies.Delete("SessionID");
+
+            // Redirect to the login page
+            return RedirectToAction("Login");
+        }
+
+
+
         [HttpGet("defaultview")]
         public IActionResult GetDefaultView()
         {
