@@ -12,7 +12,7 @@ namespace BankPresentationLayer.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly string _dataServerApiUrl = "http://localhost:5265";
-        private readonly ConcurrentDictionary<string, UserProfile> usersInSession = new ConcurrentDictionary<string, UserProfile>();
+        private static readonly ConcurrentDictionary<string, UserProfile> usersInSession = new ConcurrentDictionary<string, UserProfile>();
 
         public HomeController(ILogger<HomeController> logger)
         {
@@ -58,13 +58,20 @@ namespace BankPresentationLayer.Controllers
             return RedirectToAction("Login");
         }
 
-        [HttpGet("authenticate")]
-        public IActionResult GetAuthenticatedView()
+        [HttpGet("authenticate/{name}")]
+        public IActionResult GetAuthenticatedView(string name)
         {
             if (Request.Cookies.ContainsKey("SessionID"))
             {
                 var sessionId = Request.Cookies["SessionID"];
-                if (sessionId != null && usersInSession.ContainsKey(sessionId))
+                _logger.LogInformation("User is authenticated with SessionID: {SessionID}", sessionId);
+
+                UserProfile currentUser;
+                usersInSession.TryGetValue(sessionId, out currentUser);
+
+                _logger.LogWarning("Expected: {Name}, Found: {UserName}", name, currentUser?.FName);
+
+                if (currentUser.FName.Equals(name))
                 {
                     _logger.LogInformation("User is authenticated with SessionID: {SessionID}", sessionId);
 
@@ -98,6 +105,8 @@ namespace BankPresentationLayer.Controllers
                 }
 
                 UserProfile? userProfile = JsonConvert.DeserializeObject<UserProfile>(restResponse.Content);                
+                _logger.LogInformation("Username: {Username}, Password: {Password} entered", user.Username, user.Password);
+                _logger.LogInformation("Username: {Username}, Password: {Password} found", userProfile.FName, userProfile.Password);
 
                 if (user.Username.Equals(userProfile.FName) && user.Password.Equals(userProfile.Password))
                 {
@@ -106,11 +115,16 @@ namespace BankPresentationLayer.Controllers
                     var sessionID = Guid.NewGuid().ToString(); // Generate ubnique session ID
                     Response.Cookies.Append("SessionID", sessionID, new CookieOptions
                     {
-                        HttpOnly = true,
-                        Secure = true,
+                        Secure = true, // Only send over HTTPS
+                        HttpOnly = true, // Prevent JavaScript access
+                        SameSite = SameSiteMode.Strict, // Protect against CSRF
+                        Expires = DateTimeOffset.UtcNow.AddHours(1)
                     });
 
+                    _logger.LogInformation("Allocated User session Id: {SessionId}", sessionID);
+                    
                     usersInSession.TryAdd(sessionID, userProfile);
+                    
                     return Json(new { login = true });
                 }
 
@@ -160,7 +174,6 @@ namespace BankPresentationLayer.Controllers
                 _logger.LogError(ex, "An error occurred while loading user profile");
                 return StatusCode(500, "An error occurred while processing the request");
             }
-
         }
     }
 }
