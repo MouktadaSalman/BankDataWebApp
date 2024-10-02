@@ -73,8 +73,8 @@ function loadView(status) {
 function performAuth() {
     console.log('performAuth function called'); // Debug log
 
-    var name = document.getElementById('SName').value;
-    var password = document.getElementById('SPass').value;
+    var name = document.getElementById('Name').value;
+    var password = document.getElementById('Pass').value;
     var data = {
         Username: name,
         Password: password
@@ -99,12 +99,13 @@ function performAuth() {
             return response.json();
         })
         .then(data => {
-            const jsonObject = data;
-            if (jsonObject.login) {
-                loadView('/authenticated');
+            if (data.login) {
+                console.log('Login successful');
+                // loadView('authenticated');
+                window.location.href = `/authenticate/${name}`;
             }
             else {
-                loadView('/error');
+                loadView('error');
             }
         })
         .catch(error => {
