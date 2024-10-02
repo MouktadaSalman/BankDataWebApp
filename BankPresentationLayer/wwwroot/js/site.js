@@ -3,19 +3,36 @@
 
 // Write your JavaScript code.
 
+// Dummy info for now, later we can get it from the database
+var userProfile = {
+    name: "Ahmed Youseif",
+    email: "ahmed.y@gmail.com",
+    phone: "1234567890",
+    address: "1 someStreet st"
+};
 
+// Update the profile display on the main page (Added)
+var userNameElement = document.getElementById('userName');
+var userEmailElement = document.getElementById('userEmail');
+var userPhoneElement = document.getElementById('userPhone');
+
+if (userNameElement) userNameElement.innerText = userProfile.name;
+if (userEmailElement) userEmailElement.innerText = userProfile.email;
+if (userPhoneElement) userPhoneElement.innerText = userProfile.phone;
 
 const signUpButton = document.getElementById('signUp');
 const signInButton = document.getElementById('signIn');
 const container = document.getElementById('container');
-let users = [];
 
-signUpButton.addEventListener('click', () =>
-    container.classList.add('right-panel-active'));
+if (signUpButton) {
+    signUpButton.addEventListener('click', () =>
+        container.classList.add('right-panel-active'));
+}
 
-signInButton.addEventListener('click', () =>
-    container.classList.remove('right-panel-active'));
-
+if (signInButton) {
+    signInButton.addEventListener('click', () =>
+        container.classList.remove('right-panel-active'));
+}
 
 // Get the modal
 var modal = document.getElementById("myModal");
@@ -28,6 +45,8 @@ var closeModalButton = document.getElementsByClassName("close")[0];
 
 var saveProfileButton = document.getElementById("saveButton");
 
+
+var editProfileButton = document.getElementById("editProfileButton");
 
 
 
@@ -67,7 +86,7 @@ function performAuth() {
 
     fetch(apiUrl, requestOption)
         .then(response => {
-            if(!response.ok) {
+            if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
             return response.json();
@@ -75,13 +94,12 @@ function performAuth() {
         .then(data => {
             const jsonObject = data;
             if (jsonObject.login) {
-                users.push(name);
                 loadView('/authenticated');
             }
             else {
                 loadView('/error');
             }
-        })        
+        })
         .catch(error => {
             console.error('Fetch error:', error);
         });
@@ -126,15 +144,29 @@ saveProfileButton.onclick = function () {
     modal.style.display = "none";
 }
 
+// Add event listener to "Edit" button (Added)
+if (editProfileButton) {
+    editProfileButton.onclick = function () {
+        // Hide the viewProfile section and show the editProfileForm
+        var viewProfileDiv = document.getElementById('viewProfile');
+        var editProfileForm = document.getElementById('editProfileForm');
 
-// When the user clicks on the "Update Profile" text in the image, open the modal
-openModalButton.onclick = function () {
-    modal.style.display = "block";
+        if (viewProfileDiv) viewProfileDiv.style.display = "none";
+        if (editProfileForm) editProfileForm.style.display = "block";
+
+        // Populate the edit form fields with current user data
+        document.getElementById('editName').value = userProfile.name;
+        document.getElementById('editEmail').value = userProfile.email;
+        document.getElementById('editPhone').value = userProfile.phone;
+        document.getElementById('editAddress').value = userProfile.address;
+    }
 }
 
 // When the user clicks on <span> (x), close the modal
-closeModalButton.onclick = function () {
-    modal.style.display = "none";
+if (closeModalButton) {
+    closeModalButton.onclick = function () {
+        modal.style.display = "none";
+    }
 }
 
 //When the user clicks anywhere outside of the modal, close it
@@ -143,4 +175,3 @@ window.onclick = function (event) {
         modal.style.display = "none";
     }
 }
-
