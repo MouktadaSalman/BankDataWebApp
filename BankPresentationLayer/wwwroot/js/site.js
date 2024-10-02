@@ -34,6 +34,13 @@ if (signInButton) {
         container.classList.remove('right-panel-active'));
 }
 
+document.addEventListener("DOMContentLoaded", function () {
+    const loginButton = document.getElementById('loginButton');
+    if (loginButton) {
+        loginButton.addEventListener('click', performAuth);
+    }
+});
+
 // Get the modal
 var modal = document.getElementById("myModal");
 
@@ -47,6 +54,8 @@ var saveProfileButton = document.getElementById("saveButton");
 
 
 var editProfileButton = document.getElementById("editProfileButton");
+
+
 
 function loadView(status) {
     var apiUrl = '/defaultview';
@@ -103,6 +112,39 @@ function performAuth() {
         });
 }
 
+function loadUserProfile() {
+
+    const apiUrl = '/loadprofile';
+
+    const header = {
+        'Content-Type': 'application/json'
+    };
+
+    const requestOption = {
+        method: 'GET',
+        headers: header
+    }
+
+    fetch(apiUrl, requestOption)
+        .then(response => {
+            if(!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(userProfile => {
+
+            document.getElementById('userName').textContent = userProfile.fName + " " + userProfile.lName;
+            document.getElementById('userEmail').textContent = userProfile.email;
+            document.getElementById('userPhone').textContent = userProfile.phoneNumber;
+        })        
+        .catch(error => {
+            console.error('Fetch error:', error);
+            alert('Unable to load user profile. Please try again.');
+        });
+
+}
+
 function saveProfile() {
 
     var name = document.getElementById("editName").value; // Modified
@@ -139,24 +181,8 @@ function saveProfile() {
     var editProfileForm = document.getElementById('editProfileForm');
     if (viewProfileDiv) viewProfileDiv.style.display = "block";
     if (editProfileForm) editProfileForm.style.display = "none";
-
-    // Save profile to database
-    //$.ajax({
-    //    type: "POST",
-    //    url: "/Profile/SaveProfile",
-    //    data: JSON.stringify(profile),
-    //    contentType: "application/json",
-    //    success: function (data) {
-    //        console.log(data);
-    //        modal.style.display = "none";
-    //    },
-    //    error: function (data) {
-    //        console.log(data);
-    //    }
-    //});
 }
 
-// Update event handler for saveProfileButton (Modified)
 if (saveProfileButton) {
     saveProfileButton.onclick = function (event) {
         event.preventDefault(); // Prevent default form submission
