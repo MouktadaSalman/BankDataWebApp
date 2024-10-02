@@ -174,7 +174,6 @@ namespace BankPresentationLayer.Controllers
                 _logger.LogError(ex, "An error occurred while loading user profile");
                 return StatusCode(500, "An error occurred while processing the request");
             }
-
         }
     }
 }

@@ -3,23 +3,6 @@
 
 // Write your JavaScript code.
 
-// Dummy info for now, later we can get it from the database
-var userProfile = {
-    name: "Ahmed Youseif",
-    email: "ahmed.y@gmail.com",
-    phone: "1234567890",
-    address: "1 someStreet st"
-};
-
-// Update the profile display on the main page (Added)
-var userNameElement = document.getElementById('userName');
-var userEmailElement = document.getElementById('userEmail');
-var userPhoneElement = document.getElementById('userPhone');
-
-if (userNameElement) userNameElement.innerText = userProfile.name;
-if (userEmailElement) userEmailElement.innerText = userProfile.email;
-if (userPhoneElement) userPhoneElement.innerText = userProfile.phone;
-
 const signUpButton = document.getElementById('signUp');
 const signInButton = document.getElementById('signIn');
 const container = document.getElementById('container');
@@ -138,6 +121,18 @@ function loadUserProfile() {
             document.getElementById('userName').textContent = userProfile.fName + " " + userProfile.lName;
             document.getElementById('userEmail').textContent = userProfile.email;
             document.getElementById('userPhone').textContent = userProfile.phoneNumber;
+
+            document.getElementById('viewName').innerText = userProfile.fName + " " + userProfile.lName;
+            document.getElementById('viewEmail').innerText = userProfile.email;
+            document.getElementById('viewPhone').innerText = userProfile.phoneNumber;
+            document.getElementById('viewAddress').innerText = userProfile.address;
+
+            document.getElementById('editName').value = userProfile.fName + " " + userProfile.lName;
+            document.getElementById('editEmail').value = userProfile.email;
+            document.getElementById('editPhone').value = userProfile.phoneNumber;
+            document.getElementById('editAddress').value = userProfile.address;
+
+
         })        
         .catch(error => {
             console.error('Fetch error:', error);
@@ -153,19 +148,19 @@ function saveProfile() {
     var phone = document.getElementById("editPhone").value; // Modified
     var address = document.getElementById("editAddress").value; // Modified
 
-    const userNameElement = document.getElementById('userName');
-    const userEmailElement = document.getElementById('userEmail');
-    const userPhoneElement = document.getElementById('userPhone');
+    document.getElementById('userName').innerText = name;
+    document.getElementById('userEmail').innerText = email;
+    document.getElementById('userPhone').innerText = phone;
 
-    userNameElement.innerText = name;
-    userEmailElement.innerText = email;
-    userPhoneElement.innerText = phone;
+    document.getElementById('viewName').innerText = name;
+    document.getElementById('viewEmail').innerText = email;
+    document.getElementById('viewPhone').innerText = phone;
+    document.getElementById('viewAddress').innerText = address;
 
-    // Update userProfile object (Added)
-    userProfile.name = name;
-    userProfile.email = email;
-    userProfile.phone = phone;
-    userProfile.address = address;
+    document.getElementById('editName').value = name;
+    document.getElementById('editEmail').value = email;
+    document.getElementById('editPhone').value = phone;
+    document.getElementById('editAddress').value = address;
 
     var profile = {
         name: name,
@@ -196,12 +191,6 @@ if (openModalButton) {
     openModalButton.onclick = function () {
         modal.style.display = "block";
 
-        // Populate the viewProfile fields (Added)
-        document.getElementById('viewName').innerText = userProfile.name;
-        document.getElementById('viewEmail').innerText = userProfile.email;
-        document.getElementById('viewPhone').innerText = userProfile.phone;
-        document.getElementById('viewAddress').innerText = userProfile.address;
-
         // Ensure viewProfile is displayed and editProfileForm is hidden (Added)
         var viewProfileDiv = document.getElementById('viewProfile');
         var editProfileForm = document.getElementById('editProfileForm');
@@ -220,11 +209,7 @@ if (editProfileButton) {
         if (viewProfileDiv) viewProfileDiv.style.display = "none";
         if (editProfileForm) editProfileForm.style.display = "block";
 
-        // Populate the edit form fields with current user data
-        document.getElementById('editName').value = userProfile.name;
-        document.getElementById('editEmail').value = userProfile.email;
-        document.getElementById('editPhone').value = userProfile.phone;
-        document.getElementById('editAddress').value = userProfile.address;
+        // Populate the edit form fields with current user data        
     }
 }
 
