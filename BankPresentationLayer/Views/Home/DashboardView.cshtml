@@ -38,24 +38,44 @@
         </div>
     </header>
 
+
+
+
+
+
+
     <main class="container">
         <div class="dashboardGrid">
+            <!-- Modal -->
             <div id="myModal" class="modal" style="display:none;">
                 <div class="modal-content">
                     <button class="close">&times;</button>
-                    <h3>Update Profile</h3>
-                    <form>
-                        <label for="name">Name:</label><br>
-                        <input type="text" id="name" name="name"><br><br>
-                        <label for="email">Email:</label><br>
-                        <input type="email" id="email" name="email"><br><br>
-                        <label for="phone">Phone:</label><br>
-                        <input type="text" id="phone" name="phone"><br><br>
-                        <label for="address">Address:</label><br>
-                        <input type="text" id="Address" name="address"><br><br>
-                        <button type="submit" id="saveButton" class="btn" onclick="saveProfile()">Save Changes</button>
+                    <h3>Profile Information</h3>
+
+                    <!-- View Mode -->
+                    <div id="viewProfile">
+                        <p>Name: <span id="viewName"></span></p>
+                        <p>Email: <span id="viewEmail"></span></p>
+                        <p>Phone: <span id="viewPhone"></span></p>
+                        <p>Address: <span id="viewAddress"></span></p>
+                        <button id="editProfileButton" class="btn">Edit</button>
+                    </div>
+
+                    <!-- Edit Mode -->
+                    <form id="editProfileForm" style="display:none;">
+                        <label for="editName">Name:</label><br>
+                        <input type="text" id="editName" name="name"><br><br>
+                        <label for="editEmail">Email:</label><br>
+                        <input type="email" id="editEmail" name="email"><br><br>
+                        <label for="editPhone">Phone:</label><br>
+                        <input type="text" id="editPhone" name="phone"><br><br>
+                        <label for="editAddress">Address:</label><br>
+                        <input type="text" id="editAddress" name="address"><br><br>
+                        <button type="button" id="saveButton" class="btn">Save Changes</button>
                     </form>
                 </div>
+            </div>
+
             </div>
 
             <section class="accountSummary card">
