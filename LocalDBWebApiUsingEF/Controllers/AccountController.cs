@@ -91,8 +91,32 @@ namespace DataTierWebServer.Controllers
             var historyEntry = new UserHistory
             {
                 AccountId = account.AcctNo,
-                HistoryString = $"Transaction type: {type} | Balance updated by {amount} on {DateTime.Now} +   " +
-                $"Old Balance: {account.Balance - amount} ----- New Balance: {account.Balance}"
+                Amount = amount,
+                Type = (type.ToLower()) switch
+                {
+                    "receive" => "Receive",
+                    "send" => "Send",
+                    _ => (amount >= 0) ? "Deposit" : "Withdraw"
+                },
+                DateTime = DateTime.Now,
+                Sender = acctNo,
+                HistoryString = (type.ToLower()) switch
+                {
+                    "receive" => $"Account ID: {account.AcctNo} --- " +
+                                 $"Received: ${amount:F2} --- " +
+                                 $"Date and Time: {DateTime.Now:MMMM dd, yyyy HH:mm tt}",
+                    "send" => $"Account ID: {account.AcctNo} --- " +
+                              $"Sent: ${Math.Abs(amount):F2} --- " +
+                              $"Date and Time: {DateTime.Now:MMMM dd, yyyy HH:mm tt}",
+                    _ => (amount >= 0) ?
+                         $"Account ID: {account.AcctNo} --- " +
+                         $"Deposited: ${amount:F2} --- " +
+                         $"Date and Time: {DateTime.Now:MMMM dd, yyyy HH:mm tt}"
+                         :
+                         $"Account ID: {account.AcctNo} --- " +
+                         $"Withdrawn: ${Math.Abs(amount):F2} --- " +
+                         $"Date and Time: {DateTime.Now:MMMM dd, yyyy HH:mm tt}"
+                }
             };
             account.History.Add(historyEntry);
 
