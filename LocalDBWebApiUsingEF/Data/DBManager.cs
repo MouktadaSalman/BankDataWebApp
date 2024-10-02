@@ -16,16 +16,28 @@ namespace DataTierWebServer.Data
 
         public DbSet<UserHistory> UserHistories { get; set; }
 
+        public DbSet<Admin> Admins { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             List<UserProfile> userProfiles = new List<UserProfile>();
             List<Account> accounts = new List<Account>();
             List<UserHistory> userHistory = new List<UserHistory>();
+            List<Admin> admins = new List<Admin>();
 
             UserProfile user;
             Account account;
             AccountGenerator accountGenerator;
+
+            Admin admin;
+
+            for (int i = 0; i < 3; i++)
+            {
+                admin = AdminGenerator.GetNextAdmin();
+                admin.Id = i + 1;
+                admins.Add(admin);
+            }
 
             for (int i = 0; i < 10; i++)
             {
@@ -62,6 +74,7 @@ namespace DataTierWebServer.Data
             modelBuilder.Entity<UserProfile>().HasData(userProfiles);
             modelBuilder.Entity<Account>().HasData(accounts);
             modelBuilder.Entity<UserHistory>().HasData(userHistory);
+            modelBuilder.Entity<Admin>().HasData(admins);
         }
     }
 }
