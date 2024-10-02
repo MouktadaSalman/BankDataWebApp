@@ -43,19 +43,51 @@ namespace DataTierWebServer.Data
 
             Random random = new Random(1234);
             int randomIndex;
+            string[] transactionTypes = { "deposit", "withdraw", "send", "receive" };
+
             for (int i = 0; i < 10; i++)
             {
                 int randomAmount = random.Next(-1000, 1000);
                 randomIndex = random.Next(0, 10);
-                accounts[randomIndex].Balance += randomAmount;
+                string selectedType = transactionTypes[random.Next(transactionTypes.Length)];
+
+                // Adjust the balance based on transaction type
+                if (selectedType == "deposit" || selectedType == "receive")
+                {
+                    accounts[randomIndex].Balance += Math.Abs(randomAmount);
+                }
+                else
+                {
+                    accounts[randomIndex].Balance -= Math.Abs(randomAmount);
+                }
 
                 var historyEntry = new UserHistory
                 {
                     Transaction = i + 1,  // Primary key for UserHistory
-                    AccountId = accounts[randomIndex].AcctNo,  // Foreign key linking to Account
-                    HistoryString = $"Balance updated by {randomAmount} on {DateTime.Now}.  | " +
-                    $"Old Balance: {accounts[randomIndex].Balance - randomAmount} ----- New Balance: {accounts[randomIndex].Balance}"
+                    AccountId = accounts[randomIndex].AcctNo,
+                    Amount = (selectedType == "withdraw" || selectedType == "send") ? -Math.Abs(randomAmount) : Math.Abs(randomAmount),
+                    Type = (selectedType == "deposit" || selectedType == "withdraw") ?
+                           ((randomAmount >= 0) ? "Deposit" : "Withdraw") :
+                           selectedType == "send" ? "Send" : "Receive",
+                    DateTime = DateTime.Now,
+                    Sender = (selectedType == "send" || selectedType == "receive") ? accounts[random.Next(0, 10)].AcctNo : accounts[randomIndex].AcctNo,
+                    HistoryString = (selectedType == "receive") ?
+                        $"Account ID: {accounts[randomIndex].AcctNo} --- " +
+                        $"Received: ${Math.Abs(randomAmount):F2} --- " +
+                        $"Date and Time: {DateTime.Now:MMMM dd, yyyy HH:mm tt}" :
+                        (selectedType == "send") ?
+                        $"Account ID: {accounts[randomIndex].AcctNo} --- " +
+                        $"Sent: ${Math.Abs(randomAmount):F2} --- " +
+                        $"Date and Time: {DateTime.Now:MMMM dd, yyyy HH:mm tt}" :
+                        ((randomAmount >= 0) ?
+                        $"Account ID: {accounts[randomIndex].AcctNo} --- " +
+                        $"Deposited: ${randomAmount:F2} --- " +
+                        $"Date and Time: {DateTime.Now:MMMM dd, yyyy HH:mm tt}" :
+                        $"Account ID: {accounts[randomIndex].AcctNo} --- " +
+                        $"Withdrawn: ${Math.Abs(randomAmount):F2} --- " +
+                        $"Date and Time: {DateTime.Now:MMMM dd, yyyy HH:mm tt}")
                 };
+
                 userHistory.Add(historyEntry);
             }
 
@@ -63,5 +95,6 @@ namespace DataTierWebServer.Data
             modelBuilder.Entity<Account>().HasData(accounts);
             modelBuilder.Entity<UserHistory>().HasData(userHistory);
         }
+
     }
 }
