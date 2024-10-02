@@ -17,7 +17,7 @@
                 <div class="logo">User Dashboard</div>
 
                 <div class="profileInfo">
-                    <div class="container">
+                    <div class="avatar-container">
                         <img src="~/images/avatar.png" alt="User Avatar" class="avatar">
                         <div class="middle">
                             <button class="text" id="openModal">Update Profile</button>
@@ -70,7 +70,7 @@
                 </div>
             </div>
 
-            </div>
+           
 
             <section class="accountSummary card">
                 <h2>Account Summary</h2>
@@ -78,6 +78,23 @@
                     <p>Account Number: <span id="accountNumber">2135</span></p>
                     <p>Current Balance: <span id="accountBalance">$10,00000</span></p>
                 </div>
+
+                <h2>Your Accounts</h2>
+                <ul>
+                    <li>
+                        <p>Account Number: 123456789</p>
+                        <p>Balance: $5,000</p>
+                        <p>Type: Checking</p>
+                    </li>
+                    <li>
+                        <p>Account Number: 987654321</p>
+                        <p>Balance: $2,500</p>
+                        <p>Type: Savings</p>
+                    </li>
+                </ul>
+
+
+
             </section>
 
             <section class="transactionHistory card">
@@ -92,13 +109,41 @@
                 </ul>
             </section>
 
-            <section class="moneyTransfer card">
+            <!-- Add New Account -->
+            <section class="addAccount card">
+                <h2>Add New Account</h2>
+                <form action="/Home/AddAccount" method="post">
+                    <label for="AccountNumber">Account Number:</label>
+                    <input type="text" id="AccountNumber" name="AccountNumber" required>
+
+                    <label for="Balance">Initial Balance:</label>
+                    <input type="number" id="Balance" name="Balance" required>
+
+                    <label for="AccountType">Account Type:</label>
+                    <select id="AccountType" name="AccountType" required>
+                        <option value="Checking">Checking</option>
+                        <option value="Savings">Savings</option>
+                    </select>
+
+                    <button type="submit" class="btn">Add Account</button>
+                </form>
+            </section>
+
+            <section class="moneyTransfer">
                 <h2>Money Transfer</h2>
+                <form id="deposit">
+                    <input type="text" id="depositAmount" placeholder="Enter the deposit">
+                    <button type="submit" class="depositButton">Deposit</button>
+                </form>
+                <form id="withdraw">
+                    <input type="text" id="withdrawAmount" placeholder="Enter the amount to withdraw">
+                    <button type="submit" class="withdrawButton">Withdraw</button>
+                </form>
                 <form id="transfer">
                     <input type="text" id="transferTo" placeholder="Transfer To(Account Number)">
                     <input type="text" id="transferAmount" placeholder="Amount">
-                    <input type="textArea" id="transferDetails" placeholder="Transfer Description">
-                    <button type="submit" id="transfer" class="transferButton">Transfer</button>
+                    <input type="text" id="transferDetails" placeholder="Transfer Description">
+                    <button type="submit" class="transferButton">Transfer</button>
                 </form>
             </section>
         </div>
