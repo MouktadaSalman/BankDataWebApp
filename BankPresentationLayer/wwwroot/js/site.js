@@ -8,6 +8,7 @@
 const signUpButton = document.getElementById('signUp');
 const signInButton = document.getElementById('signIn');
 const container = document.getElementById('container');
+let users = [];
 
 signUpButton.addEventListener('click', () =>
     container.classList.add('right-panel-active'));
@@ -26,7 +27,6 @@ var openModalButton = document.getElementById("openModal");
 var closeModalButton = document.getElementsByClassName("close")[0];
 
 var saveProfileButton = document.getElementById("saveButton");
-
 
 
 
@@ -75,6 +75,7 @@ function performAuth() {
         .then(data => {
             const jsonObject = data;
             if (jsonObject.login) {
+                users.push(name);
                 loadView('/authenticated');
             }
             else {
@@ -86,44 +87,37 @@ function performAuth() {
         });
 }
 
-function saveProfile() {
+function loadUserProfile() {
 
-    var name = document.getElementById("name").value;
-    var email = document.getElementById("email").value;
-    var phone = document.getElementById("phone").value;
-    var address = document.getElementById("address").value;
+    const apiUrl = '/loadprofile';
 
-    const userNameElement = document.getElementById('userName');
-    const userEmailElement = document.getElementById('userEmail');
-    const userPhoneElement = document.getElementById('userPhone');
-
-    userNameElement.innerText = name;
-    userEmailElement.innerText = email;
-    userPhoneElement.innerText = phone
-
-    var profile = {
-        name: name,
-        email: email,
-        phone: phone,
-        address: address,
+    const header = {
+        'Content-Type': 'application/json'
     };
 
-    console.log(profile);
+    const requestOption = {
+        method: 'GET',
+        headers: header
+    }
 
-    // Save profile to database
-    //$.ajax({
-    //    type: "POST",
-    //    url: "/Profile/SaveProfile",
-    //    data: JSON.stringify(profile),
-    //    contentType: "application/json",
-    //    success: function (data) {
-    //        console.log(data);
-    //        modal.style.display = "none";
-    //    },
-    //    error: function (data) {
-    //        console.log(data);
-    //    }
-    //});
+    fetch(apiUrl, requestOption)
+        .then(response => {
+            if(!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(userProfile => {
+
+            document.getElementById('userName').textContent = userProfile.fName + " " + userProfile.lName;
+            document.getElementById('userEmail').textContent = userProfile.email;
+            document.getElementById('userPhone').textContent = userProfile.phoneNumber;
+        })        
+        .catch(error => {
+            console.error('Fetch error:', error);
+            alert('Unable to load user profile. Please try again.');
+        });
+
 }
 
 
