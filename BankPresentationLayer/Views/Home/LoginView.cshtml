@@ -5,25 +5,68 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log in</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
     <title>Login</title>
-    <link rel="stylesheet" href="~/css/login.css">
+    <link rel="stylesheet" href="~/css/login.css" />
 </head>
 <body>
-    <div class="login-container">
-        <h2>Login</h2>
-        <form id="loginForm">
-            <label for="SName">Username:</label><br>
-            <input type="text" id="SName" name="SName" required><br><br>
 
-            <label for="SPass">Password:</label><br>
-            <input type="password" id="SPass" name="SPass" required><br><br>
 
-            <button type="button" id="loginButton" class="btn" onclick="performAuth()">Login</button>
-        </form>
-        <p>Don't have an account? <a href="@Url.Action("CreateProfileView", "Home")">Create an account</a></p>
-    </div>
+    <!-- Log In Form Section -->
+    <section>
+        <div class="container" id="container">
+            <div class="form-container sign-up-container">
+                <form action="#">
+                    <h1 style ="margin-bottom: 5px" >Sign Up</h1>
+                    <span >Fill up the following boxes!</span>
+
+
+                    <input style="margin-bottom: 0px"  type="text" id="FName" name="FirstName" placeholder="Enter your first name" />
+                    <input style="margin-bottom: 0px"  type="text" id="LName" name="LastName" placeholder="Enter your last name" />
+                    <input style="margin-bottom: 0px"  type="email" id="Email" name="UEmail" placeholder="Enter your email" />
+                    <input style="margin-bottom: 0px"  type="number" id="Age" name="UAge" placeholder="Enter your age" />
+                    <input style="margin-bottom: 0px"  type="text" id="Address" name="UAddress" placeholder="Enter your address" />
+                    <input style="margin-bottom: 0px"  type="number" id="PhoneNo" name="UPhoneNo" placeholder="Enter your phone number" />
+                    <input style="margin-bottom: 0px"  type="password" id="SPass" name="SPassword" placeholder="Password" />
+
+                    <button style="margin-top: 10px" >Sign Up</button>
+                </form>
+            </div>
+            <div class="form-container sign-in-container">
+                <form action="#">
+                    <h1>Sign in</h1>
+
+                    
+                    <input type="text" id="SName" name="SName" placeholder="Enter Username" required />
+                    <input type="password" id="SPass" name="SPass" placeholder="Enter Password" required />
+
+                    <button type="button" id="loginButton" class="btn" onclick="performAuth()">Login</button>
+                </form>
+            </div>
+
+
+
+
+            <div class="overlay-container">
+                <div class="overlay">
+                    <div class="overlay-panel overlay-left">
+                        <h1>Log in</h1>
+                        <p>If you already have an account, you can sign in </p>
+                        <button class="ghost mt-5" id="signIn">Sign In</button>
+                    </div>
+
+
+                    <div class="overlay-panel overlay-right">
+                        <h1>Create, Account!</h1>
+                        <p>Don't have an account? You can Sign up now! </p>
+                        <button class="ghost" id="signUp">Sign Up</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <script src="~/js/site.js"></script>
 </body>

@@ -17,10 +17,6 @@
 
 	<ItemGroup>
 		<!-- Views - Home -->
-		<Content Update="Views\Home\CreateProfileView.cshtml">
-			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-		</Content>
 		<Content Update="Views\Home\DashboardView.cshtml">
 			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
@@ -69,10 +65,6 @@
 		</Content>
 
 		<!-- Static Files - JS -->
-		<Content Update="wwwroot\js\newFile.js">
-			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-		</Content>
 		<Content Update="wwwroot\js\site.js">
 			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
