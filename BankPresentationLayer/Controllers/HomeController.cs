@@ -33,11 +33,7 @@ namespace BankPresentationLayer.Controllers
             return View("~/Views/Home/DashboardView.cshtml");
         }
 
-        // Render the Create Profile page
-        public IActionResult CreateProfile()
-        {
-            return View();
-        }
+       
 
         public IActionResult LoginError()
         {

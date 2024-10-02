@@ -3,6 +3,37 @@
 
 // Write your JavaScript code.
 
+// Dummy info for now, later we can get it from the database
+var userProfile = {
+    name: "Ahmed Youseif",
+    email: "ahmed.y@gmail.com",
+    phone: "1234567890",
+    address: "1 someStreet st"
+};
+
+// Update the profile display on the main page (Added)
+var userNameElement = document.getElementById('userName');
+var userEmailElement = document.getElementById('userEmail');
+var userPhoneElement = document.getElementById('userPhone');
+
+if (userNameElement) userNameElement.innerText = userProfile.name;
+if (userEmailElement) userEmailElement.innerText = userProfile.email;
+if (userPhoneElement) userPhoneElement.innerText = userProfile.phone;
+
+const signUpButton = document.getElementById('signUp');
+const signInButton = document.getElementById('signIn');
+const container = document.getElementById('container');
+
+if (signUpButton) {
+    signUpButton.addEventListener('click', () =>
+        container.classList.add('right-panel-active'));
+}
+
+if (signInButton) {
+    signInButton.addEventListener('click', () =>
+        container.classList.remove('right-panel-active'));
+}
+
 // Get the modal
 var modal = document.getElementById("myModal");
 
@@ -13,6 +44,9 @@ var openModalButton = document.getElementById("openModal");
 var closeModalButton = document.getElementsByClassName("close")[0];
 
 var saveProfileButton = document.getElementById("saveButton");
+
+
+var editProfileButton = document.getElementById("editProfileButton");
 
 function loadView(status) {
     var apiUrl = '/defaultview';
@@ -50,7 +84,7 @@ function performAuth() {
 
     fetch(apiUrl, requestOption)
         .then(response => {
-            if(!response.ok) {
+            if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
             return response.json();
@@ -63,7 +97,7 @@ function performAuth() {
             else {
                 loadView('/error');
             }
-        })        
+        })
         .catch(error => {
             console.error('Fetch error:', error);
         });
@@ -71,10 +105,10 @@ function performAuth() {
 
 function saveProfile() {
 
-    var name = document.getElementById("name").value;
-    var email = document.getElementById("email").value;
-    var phone = document.getElementById("phone").value;
-    var address = document.getElementById("address").value;
+    var name = document.getElementById("editName").value; // Modified
+    var email = document.getElementById("editEmail").value; // Modified
+    var phone = document.getElementById("editPhone").value; // Modified
+    var address = document.getElementById("editAddress").value; // Modified
 
     const userNameElement = document.getElementById('userName');
     const userEmailElement = document.getElementById('userEmail');
@@ -82,7 +116,13 @@ function saveProfile() {
 
     userNameElement.innerText = name;
     userEmailElement.innerText = email;
-    userPhoneElement.innerText = phone
+    userPhoneElement.innerText = phone;
+
+    // Update userProfile object (Added)
+    userProfile.name = name;
+    userProfile.email = email;
+    userProfile.phone = phone;
+    userProfile.address = address;
 
     var profile = {
         name: name,
@@ -92,6 +132,13 @@ function saveProfile() {
     };
 
     console.log(profile);
+
+    // Close modal and switch back to view mode (Added)
+    if (modal) modal.style.display = "none";
+    var viewProfileDiv = document.getElementById('viewProfile');
+    var editProfileForm = document.getElementById('editProfileForm');
+    if (viewProfileDiv) viewProfileDiv.style.display = "block";
+    if (editProfileForm) editProfileForm.style.display = "none";
 
     // Save profile to database
     //$.ajax({
@@ -109,21 +156,56 @@ function saveProfile() {
     //});
 }
 
-
-
-saveProfileButton.onclick = function () {
-    modal.style.display = "none";
+// Update event handler for saveProfileButton (Modified)
+if (saveProfileButton) {
+    saveProfileButton.onclick = function (event) {
+        event.preventDefault(); // Prevent default form submission
+        saveProfile();
+    }
 }
 
-
 // When the user clicks on the "Update Profile" text in the image, open the modal
-openModalButton.onclick = function () {
-    modal.style.display = "block";
+if (openModalButton) {
+    openModalButton.onclick = function () {
+        modal.style.display = "block";
+
+        // Populate the viewProfile fields (Added)
+        document.getElementById('viewName').innerText = userProfile.name;
+        document.getElementById('viewEmail').innerText = userProfile.email;
+        document.getElementById('viewPhone').innerText = userProfile.phone;
+        document.getElementById('viewAddress').innerText = userProfile.address;
+
+        // Ensure viewProfile is displayed and editProfileForm is hidden (Added)
+        var viewProfileDiv = document.getElementById('viewProfile');
+        var editProfileForm = document.getElementById('editProfileForm');
+        if (viewProfileDiv) viewProfileDiv.style.display = "block";
+        if (editProfileForm) editProfileForm.style.display = "none";
+    }
+}
+
+// Add event listener to "Edit" button (Added)
+if (editProfileButton) {
+    editProfileButton.onclick = function () {
+        // Hide the viewProfile section and show the editProfileForm
+        var viewProfileDiv = document.getElementById('viewProfile');
+        var editProfileForm = document.getElementById('editProfileForm');
+
+        if (viewProfileDiv) viewProfileDiv.style.display = "none";
+        if (editProfileForm) editProfileForm.style.display = "block";
+
+        // Populate the edit form fields with current user data
+        document.getElementById('editName').value = userProfile.name;
+        document.getElementById('editEmail').value = userProfile.email;
+        document.getElementById('editPhone').value = userProfile.phone;
+        document.getElementById('editAddress').value = userProfile.address;
+    }
 }
 
 // When the user clicks on <span> (x), close the modal
-closeModalButton.onclick = function () {
-    modal.style.display = "none";
+if (closeModalButton) {
+    closeModalButton.onclick = function () {
+        modal.style.display = "none";
+    }
 }
 
 //When the user clicks anywhere outside of the modal, close it
