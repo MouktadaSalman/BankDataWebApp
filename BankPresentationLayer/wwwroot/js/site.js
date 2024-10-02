@@ -199,18 +199,39 @@ function loadUserAccount() {
         }
         return response.json();
     })
-    .then(userAccount => {
-        console.log("account number: " + userAccount.acctNo + " Account balance: " + userAccount.balance);
+    .then(userAccounts => {
+        const firstAccount = userAccounts[0];
+        console.log("account number: " + firstAccount.acctNo + " Account balance: " + firstAccount.balance);
 
         // Set account details
-        document.getElementById('accountNumber').innerText = userAccount.acctNo;
-        document.getElementById('accountBalance').innerText = userAccount.balance;
+        document.getElementById('accountNumber').innerText = firstAccount.acctNo;
+        document.getElementById('accountBalance').innerText = firstAccount.balance;
 
-        // Populate transaction history
-        const transactionListElement = document.getElementById('transactionList');
-        transactionListElement.innerHTML = ''; // Clear any existing items
+        const accountSummaryList = document.getElementById("accountSummaryList");
+        accountSummaryList.innerHTML = '';// Clear any existing elements
 
-        loadAccountHistory(userAccount.acctNo);
+        userAccounts.forEach(account => {
+            const listItem = document.createElement('li');
+            listItem.className = 'accountItem';
+
+            const accountNumberElement = document.createElement('p');
+            accountNumberElement.innerText = `Account Number: ${account.acctNo}`;
+
+            const accountBalanceElement = document.createElement('p');
+            const formattedBalance = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(account.balance);
+            accountBalanceElement.innerText = `Balance: ${formattedBalance}`;
+
+            const accountTypeElement = document.createElement('p');
+            accountTypeElement.innerText = `Type: ${account.accountName || "Unknown"}`; // Assuming `accountType` is available
+
+            listItem.appendChild(accountNumberElement);
+            listItem.appendChild(accountBalanceElement);
+            listItem.appendChild(accountTypeElement);
+
+            accountSummaryList.appendChild(listItem);
+        });
+
+        loadAccountHistory(firstAccount.acctNo);
         
     })
     .catch(error => {

@@ -210,7 +210,7 @@ namespace BankPresentationLayer.Controllers
                         {
                             BankAccount userAccount = userAccounts.First();
                             _logger.LogInformation("User Bank Acount loaded successfully ");
-                            return Json(userAccount);
+                            return Json(userAccounts);
                         }
 
                         return Unauthorized();
