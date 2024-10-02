@@ -179,6 +179,90 @@ function saveProfile() {
     if (editProfileForm) editProfileForm.style.display = "none";
 }
 
+
+function loadUserAccount() {
+    const apiUrl = '/loadbankaccount';
+
+    const header = {
+        'Content-Type': 'application/json'
+    };
+
+    const requestOption = {
+        method: 'GET',
+        headers: header
+    }
+
+    fetch(apiUrl, requestOption)
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(userAccount => {
+        console.log("account number: " + userAccount.acctNo + " Account balance: " + userAccount.balance);
+
+        // Set account details
+        document.getElementById('accountNumber').innerText = userAccount.acctNo;
+        document.getElementById('accountBalance').innerText = userAccount.balance;
+
+        // Populate transaction history
+        const transactionListElement = document.getElementById('transactionList');
+        transactionListElement.innerHTML = ''; // Clear any existing items
+
+        loadAccountHistory(userAccount.acctNo);
+        
+    })
+    .catch(error => {
+        console.error('Fetch error:', error);
+        alert('Unable to load user profile. Please try again.');
+    });
+
+}
+
+function loadAccountHistory(acctNo){
+    const apiUrl = `/loadhistory/${acctNo}`;
+
+    const header = {
+        'Content-Type': 'application/json'
+    };
+
+    const requestOption = {
+        method: 'GET',
+        headers: header
+    }
+
+    fetch(apiUrl, requestOption)
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+        .then(accountHistory => {
+
+        // Populate transaction history
+        const transactionListElement = document.getElementById('transactionList');
+        transactionListElement.innerHTML = ''; // Clear any existing items
+        
+        accountHistory.forEach(historyEntry => {
+            const listItem = document.createElement('li');
+            listItem.className = 'transactionItem';
+            listItem.innerText = historyEntry; // Set the text to the history string directly
+            transactionListElement.appendChild(listItem);
+        });
+        
+    })
+    .catch(error => {
+        console.error('Fetch error:', error);
+        alert('Unable to load user profile. Please try again.');
+    });
+}
+
+
+
+
+
 if (saveProfileButton) {
     saveProfileButton.onclick = function (event) {
         event.preventDefault(); // Prevent default form submission

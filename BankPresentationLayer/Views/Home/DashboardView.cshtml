@@ -10,7 +10,7 @@
     <title>Bank Dashboard</title>
     <link rel="stylesheet" href="~/css/site.css">
 </head>
-<body onload="loadUserProfile()">
+<body onload="loadUserProfile(); loadUserAccount();" >
     <header>
         <div class="container">
             <div class="header-content">
@@ -75,8 +75,8 @@
             <section class="accountSummary card">
                 <h2>Account Summary</h2>
                 <div class="accountDetails">
-                    <p>Account Number: <span id="accountNumber">2135</span></p>
-                    <p>Current Balance: <span id="accountBalance">$10,00000</span></p>
+                    <p>Account Number: <span id="accountNumber"></span></p>
+                    <p>Current Balance: <span id="accountBalance"></span></p>
                 </div>
 
                 <h2>Your Accounts</h2>
@@ -105,7 +105,7 @@
                     <button id="filterTransactions" class="btn">Filter</button>
                 </div>
                 <ul id="transactionList" class="transaction-list">
-                    <li class="transactionItem">+$387 someDetails</li>
+                    <li class="transactionItem"></li>
                 </ul>
             </section>
 

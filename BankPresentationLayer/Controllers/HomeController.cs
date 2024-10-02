@@ -104,7 +104,8 @@ namespace BankPresentationLayer.Controllers
                     return Json(new { login = false });
                 }
 
-                UserProfile? userProfile = JsonConvert.DeserializeObject<UserProfile>(restResponse.Content);                
+                UserProfile? userProfile = JsonConvert.DeserializeObject<UserProfile>(restResponse.Content);
+                
                 _logger.LogInformation("Username: {Username}, Password: {Password} entered", user.Username, user.Password);
                 _logger.LogInformation("Username: {Username}, Password: {Password} found", userProfile.FName, userProfile.Password);
 
@@ -172,6 +173,114 @@ namespace BankPresentationLayer.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred while loading user profile");
+                return StatusCode(500, "An error occurred while processing the request");
+            }
+        }
+
+        [HttpGet("loadbankaccount")]
+        public IActionResult LoadAccount()
+        {
+            try
+            {
+                if (Request.Cookies.ContainsKey("SessionID"))
+                {
+                    var sessionId = Request.Cookies["SessionID"];
+
+                    if (sessionId != null && usersInSession.ContainsKey(sessionId))
+                    {
+                        UserProfile? currentUser = usersInSession[sessionId];
+
+                        RestClient client = new RestClient(_dataServerApiUrl);
+                        RestRequest request = new RestRequest($"/api/bankaccount/{currentUser.Id}", Method.Get);
+
+                        _logger.LogInformation("Sending request to: {RequestUrl}", request.Resource);
+
+                        RestResponse restResponse = client.Execute(request);
+
+                        if (!restResponse.IsSuccessful)
+                        {
+                            _logger.LogWarning("Failed to get user profile. Status: {StatusCode}, Content: {Content}", restResponse.StatusCode, restResponse.Content);
+
+                            return NoContent();
+                        }
+
+                        List<BankAccount>? userAccounts = JsonConvert.DeserializeObject<List<BankAccount>>(restResponse.Content);
+
+                        if (userAccounts != null && userAccounts.Count > 0)
+                        {
+                            BankAccount userAccount = userAccounts.First();
+                            _logger.LogInformation("User Bank Acount loaded successfully ");
+                            return Json(userAccount);
+                        }
+
+                        return Unauthorized();
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Session ID not found in list of current sessions.");
+                        return Unauthorized();
+                    }
+                }
+
+                return Unauthorized();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while loading bank account");
+                return StatusCode(500, "An error occurred while processing the request");
+            }
+        }
+
+        [HttpGet("loadhistory/{acctNo}")]
+        public IActionResult LoadHistory(uint acctNo)
+        {
+            try
+            {
+                if (Request.Cookies.ContainsKey("SessionID"))
+                {
+                    var sessionId = Request.Cookies["SessionID"];
+
+                    if (sessionId != null && usersInSession.ContainsKey(sessionId))
+                    {
+                        UserProfile? currentUser = usersInSession[sessionId];
+
+                        RestClient client = new RestClient(_dataServerApiUrl);
+                        _logger.LogInformation("history for account number : {acctNo}", acctNo);
+                        RestRequest request = new RestRequest($"/api/bankaccount/history/{acctNo}", Method.Get);
+
+                        _logger.LogInformation("Sending request to: {RequestUrl}", request.Resource);
+
+                        RestResponse restResponse = client.Execute(request);
+
+                        if (!restResponse.IsSuccessful)
+                        {
+                            _logger.LogWarning("Failed to get user profile. Status: {StatusCode}, Content: {Content}", restResponse.StatusCode, restResponse.Content);
+
+                            return NoContent();
+                        }
+
+                        var accountHistory = JsonConvert.DeserializeObject<List<string>>(restResponse.Content);
+
+                        if (accountHistory != null && accountHistory.Count > 0)
+                        {
+                            _logger.LogInformation("User Bank Acount loaded successfully ");
+                            return Json(accountHistory);
+                        }
+
+                        return Unauthorized();
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Session ID not found in list of current sessions.");
+                        return Unauthorized();
+                    }
+                }
+
+                return Unauthorized();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while loading bank account");
                 return StatusCode(500, "An error occurred while processing the request");
             }
         }
