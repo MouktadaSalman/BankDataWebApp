@@ -21,7 +21,7 @@ namespace BusinessTierWebServer.Controllers
         }
 
         // GET: api/userprofile/byname/{name}
-        [HttpGet("{name}")]
+        [HttpGet("name/{name}")]
         public IActionResult GetAdminByName(string name)
         {
             try
@@ -41,7 +41,7 @@ namespace BusinessTierWebServer.Controllers
 
                     if(response.StatusCode == System.Net.HttpStatusCode.NotFound)
                     {
-                        Exception? ex = JsonConvert.DeserializeObject<Exception>(response.Content);
+                        Exception? ex = JsonConvert.DeserializeObject<MissingProfileException>(response.Content);
 
                         throw new DataRetrievalFailException("'GetAdminByName'", ex);
                     }
@@ -51,14 +51,14 @@ namespace BusinessTierWebServer.Controllers
 
             }catch (DataRetrievalFailException ex)
             {
-                _logger.LogWarning(ex, $"{DateTime.Now.ToString()}: {ex.Message}");
+                _logger.LogWarning(ex, $"{DateTime.Now.ToString()}: ");
                 return NotFound(ex.Message);
             }
         }
 
         // GET: api/userprofile/byemail/{email}
-        [HttpGet("{email}")]
-        public IActionResult GetAdminById(string email)
+        [HttpGet("email/{email}")]
+        public IActionResult GetAdminByEmail(string email)
         {
             try
             {
@@ -77,7 +77,7 @@ namespace BusinessTierWebServer.Controllers
 
                     if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
                     {
-                        Exception? ex = JsonConvert.DeserializeObject<Exception>(response.Content);
+                        Exception? ex = JsonConvert.DeserializeObject<MissingProfileException>(response.Content);
 
                         throw new DataRetrievalFailException("'GetAdminByName'", ex);
                     }
