@@ -34,6 +34,13 @@ if (signInButton) {
         container.classList.remove('right-panel-active'));
 }
 
+document.addEventListener("DOMContentLoaded", function () {
+    const loginButton = document.getElementById('loginButton');
+    if (loginButton) {
+        loginButton.addEventListener('click', performAuth);
+    }
+});
+
 // Get the modal
 var modal = document.getElementById("myModal");
 
@@ -138,10 +145,68 @@ function loadUserProfile() {
 
 }
 
+function saveProfile() {
 
+    var name = document.getElementById("editName").value; // Modified
+    var email = document.getElementById("editEmail").value; // Modified
+    var phone = document.getElementById("editPhone").value; // Modified
+    var address = document.getElementById("editAddress").value; // Modified
 
-saveProfileButton.onclick = function () {
-    modal.style.display = "none";
+    const userNameElement = document.getElementById('userName');
+    const userEmailElement = document.getElementById('userEmail');
+    const userPhoneElement = document.getElementById('userPhone');
+
+    userNameElement.innerText = name;
+    userEmailElement.innerText = email;
+    userPhoneElement.innerText = phone;
+
+    // Update userProfile object (Added)
+    userProfile.name = name;
+    userProfile.email = email;
+    userProfile.phone = phone;
+    userProfile.address = address;
+
+    var profile = {
+        name: name,
+        email: email,
+        phone: phone,
+        address: address,
+    };
+
+    console.log(profile);
+
+    // Close modal and switch back to view mode (Added)
+    if (modal) modal.style.display = "none";
+    var viewProfileDiv = document.getElementById('viewProfile');
+    var editProfileForm = document.getElementById('editProfileForm');
+    if (viewProfileDiv) viewProfileDiv.style.display = "block";
+    if (editProfileForm) editProfileForm.style.display = "none";
+}
+
+if (saveProfileButton) {
+    saveProfileButton.onclick = function (event) {
+        event.preventDefault(); // Prevent default form submission
+        saveProfile();
+    }
+}
+
+// When the user clicks on the "Update Profile" text in the image, open the modal
+if (openModalButton) {
+    openModalButton.onclick = function () {
+        modal.style.display = "block";
+
+        // Populate the viewProfile fields (Added)
+        document.getElementById('viewName').innerText = userProfile.name;
+        document.getElementById('viewEmail').innerText = userProfile.email;
+        document.getElementById('viewPhone').innerText = userProfile.phone;
+        document.getElementById('viewAddress').innerText = userProfile.address;
+
+        // Ensure viewProfile is displayed and editProfileForm is hidden (Added)
+        var viewProfileDiv = document.getElementById('viewProfile');
+        var editProfileForm = document.getElementById('editProfileForm');
+        if (viewProfileDiv) viewProfileDiv.style.display = "block";
+        if (editProfileForm) editProfileForm.style.display = "none";
+    }
 }
 
 // Add event listener to "Edit" button (Added)
