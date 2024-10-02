@@ -141,6 +141,22 @@ function loadUserProfile() {
 
 }
 
+const logoutButton = document.getElementById("logoutBtn");
+
+if (logoutButton) {
+
+    document.getElementById("logoutBtn").addEventListener("click", function () {
+        document.cookie = "SessionID=; expires=Wed, 02 Oct 2024 00:00:00 UTC; path=/;";
+
+        window.location.href = "/Home/Login";
+
+    });
+
+
+}
+
+
+
 function saveProfile() {
 
     var name = document.getElementById("editName").value; // Modified
