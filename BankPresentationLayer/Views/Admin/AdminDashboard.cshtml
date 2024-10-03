@@ -1,0 +1,112 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="~/css/dashboard.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">Admin Dashboard</div>
+
+                <!-- Admin Profile Information -->
+                <div class="profileInfo">
+                    <div class="avatar-container">
+                        <img src="~/images/admin-avatar.png" alt="Admin Avatar" class="avatar">
+                        <div class="middle">
+                            <button class="text" id="openProfileModal">Update Profile</button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 id="adminName"></h3>
+                        <p id="adminEmail"></p>
+                        <p id="adminPhone"></p>
+                    </div>
+                </div>
+
+                <nav>
+                    <button id="logoutBtn" class="btn">Log Out</button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="dashboardGrid">
+
+            <!-- Admin Profile Modal -->
+            <div id="profileModal" class="modal" style="display:none;">
+                <div class="modal-content">
+                    <button class="close">&times;</button>
+                    <h3>Admin Profile Information</h3>
+
+                    <!-- View Profile -->
+                    <div id="viewAdminProfile">
+                        <p>Name: <span id="viewAdminName"></span></p>
+                        <p>Email: <span id="viewAdminEmail"></span></p>
+                        <p>Phone: <span id="viewAdminPhone"></span></p>
+                        <button id="editAdminProfileButton" class="btn">Edit</button>
+                    </div>
+
+                    <!-- Edit Profile -->
+                    <form id="editAdminProfileForm" style="display:none;">
+                        <label for="editAdminName">Name:</label><br>
+                        <input type="text" id="editAdminName" name="name"><br><br>
+                        <label for="editAdminEmail">Email:</label><br>
+                        <input type="email" id="editAdminEmail" name="email"><br><br>
+                        <label for="editAdminPhone">Phone:</label><br>
+                        <input type="text" id="editAdminPhone" name="phone"><br><br>
+                        <button type="button" id="saveAdminProfileButton" class="btn">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- User Management Section -->
+            <section id="userManagement" class="user-management card">
+                <h2>User Management</h2>
+                <form id="searchUserForm">
+                    <input type="text" id="searchUser" placeholder="Search user by name or account number">
+                    <button type="submit" class="btn">Search</button>
+                </form>
+                <ul id="userList">
+                    <!-- JavaScript will populate user details -->
+                </ul>
+                <button class="btn" id="createUserButton">Create New User</button>
+            </section>
+
+            <!-- Transaction Management Section -->
+            <section id="transactionManagement" class="transaction-management card">
+                <h2>Transaction Management</h2>
+                <div class="filterOptions">
+                    <input type="date" id="transactionStartDate">
+                    <input type="date" id="transactionEndDate">
+                    <button id="filterTransactions" class="btn">Filter</button>
+                </div>
+                <ul id="transactionList">
+                    <!-- JavaScript will populate transaction details -->
+                </ul>
+            </section>
+
+            <!-- Security and Access Control Section -->
+            <section id="securityAccessControl" class="security-access-control card">
+                <h2>Security and Access Control</h2>
+                <p>Admin Actions Audit Trail</p>
+                <ul id="adminActivityLogs">
+                    <!-- JavaScript will populate admin logs -->
+                </ul>
+            </section>
+        </div>
+    </main>
+
+    <script src="~/js/site.js"></script>
+</body>
+</html>
+
