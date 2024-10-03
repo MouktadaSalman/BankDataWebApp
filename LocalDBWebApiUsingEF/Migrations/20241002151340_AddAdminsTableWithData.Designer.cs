@@ -3,6 +3,7 @@ using System;
 using DataTierWebServer.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataTierWebServer.Migrations
 {
     [DbContext(typeof(DBManager))]
-    partial class DBManagerModelSnapshot : ModelSnapshot
+    [Migration("20241002151340_AddAdminsTableWithData")]
+    partial class AddAdminsTableWithData
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.10");
@@ -34,7 +37,7 @@ namespace DataTierWebServer.Migrations
 
                     b.HasKey("AcctNo");
 
-                    b.ToTable("Accounts", (string)null);
+                    b.ToTable("Accounts");
 
                     b.HasData(
                         new
@@ -144,7 +147,7 @@ namespace DataTierWebServer.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Admins", (string)null);
+                    b.ToTable("Admins");
 
                     b.HasData(
                         new
@@ -201,68 +204,68 @@ namespace DataTierWebServer.Migrations
 
                     b.HasIndex("AccountId");
 
-                    b.ToTable("UserHistories", (string)null);
+                    b.ToTable("UserHistories");
 
                     b.HasData(
                         new
                         {
                             Transaction = 1,
                             AccountId = 2135u,
-                            HistoryString = "Balance updated by -202 on 3/10/2024 9:54:58 AM.  | Old Balance: 35054 ----- New Balance: 34852"
+                            HistoryString = "Balance updated by -202 on 2/10/2024 11:13:40 PM.  | Old Balance: 35054 ----- New Balance: 34852"
                         },
                         new
                         {
                             Transaction = 2,
                             AccountId = 6680u,
-                            HistoryString = "Balance updated by -362 on 3/10/2024 9:54:58 AM.  | Old Balance: 62645 ----- New Balance: 62283"
+                            HistoryString = "Balance updated by -362 on 2/10/2024 11:13:40 PM.  | Old Balance: 62645 ----- New Balance: 62283"
                         },
                         new
                         {
                             Transaction = 3,
                             AccountId = 6680u,
-                            HistoryString = "Balance updated by -322 on 3/10/2024 9:54:58 AM.  | Old Balance: 62283 ----- New Balance: 61961"
+                            HistoryString = "Balance updated by -322 on 2/10/2024 11:13:40 PM.  | Old Balance: 62283 ----- New Balance: 61961"
                         },
                         new
                         {
                             Transaction = 4,
                             AccountId = 7524u,
-                            HistoryString = "Balance updated by 615 on 3/10/2024 9:54:58 AM.  | Old Balance: 49734 ----- New Balance: 50349"
+                            HistoryString = "Balance updated by 615 on 2/10/2024 11:13:40 PM.  | Old Balance: 49734 ----- New Balance: 50349"
                         },
                         new
                         {
                             Transaction = 5,
                             AccountId = 8839u,
-                            HistoryString = "Balance updated by 287 on 3/10/2024 9:54:58 AM.  | Old Balance: 28384 ----- New Balance: 28671"
+                            HistoryString = "Balance updated by 287 on 2/10/2024 11:13:40 PM.  | Old Balance: 28384 ----- New Balance: 28671"
                         },
                         new
                         {
                             Transaction = 6,
                             AccountId = 2135u,
-                            HistoryString = "Balance updated by -166 on 3/10/2024 9:54:58 AM.  | Old Balance: 34852 ----- New Balance: 34686"
+                            HistoryString = "Balance updated by -166 on 2/10/2024 11:13:40 PM.  | Old Balance: 34852 ----- New Balance: 34686"
                         },
                         new
                         {
                             Transaction = 7,
                             AccountId = 3937u,
-                            HistoryString = "Balance updated by 894 on 3/10/2024 9:54:58 AM.  | Old Balance: 89484 ----- New Balance: 90378"
+                            HistoryString = "Balance updated by 894 on 2/10/2024 11:13:40 PM.  | Old Balance: 89484 ----- New Balance: 90378"
                         },
                         new
                         {
                             Transaction = 8,
                             AccountId = 5181u,
-                            HistoryString = "Balance updated by 494 on 3/10/2024 9:54:58 AM.  | Old Balance: 92569 ----- New Balance: 93063"
+                            HistoryString = "Balance updated by 494 on 2/10/2024 11:13:40 PM.  | Old Balance: 92569 ----- New Balance: 93063"
                         },
                         new
                         {
                             Transaction = 9,
                             AccountId = 7791u,
-                            HistoryString = "Balance updated by 170 on 3/10/2024 9:54:58 AM.  | Old Balance: 59353 ----- New Balance: 59523"
+                            HistoryString = "Balance updated by 170 on 2/10/2024 11:13:40 PM.  | Old Balance: 59353 ----- New Balance: 59523"
                         },
                         new
                         {
                             Transaction = 10,
                             AccountId = 5441u,
-                            HistoryString = "Balance updated by -836 on 3/10/2024 9:54:58 AM.  | Old Balance: 12544 ----- New Balance: 11708"
+                            HistoryString = "Balance updated by -836 on 2/10/2024 11:13:40 PM.  | Old Balance: 12544 ----- New Balance: 11708"
                         });
                 });
 
@@ -306,7 +309,7 @@ namespace DataTierWebServer.Migrations
 
                     b.HasIndex("AccountAcctNo");
 
-                    b.ToTable("UserProfiles", (string)null);
+                    b.ToTable("UserProfiles");
 
                     b.HasData(
                         new

@@ -3,6 +3,7 @@ using System;
 using DataTierWebServer.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataTierWebServer.Migrations
 {
     [DbContext(typeof(DBManager))]
-    partial class DBManagerModelSnapshot : ModelSnapshot
+    [Migration("20241003015458_FixConflictWithNewUserHistory")]
+    partial class FixConflictWithNewUserHistory
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.10");
@@ -34,7 +37,7 @@ namespace DataTierWebServer.Migrations
 
                     b.HasKey("AcctNo");
 
-                    b.ToTable("Accounts", (string)null);
+                    b.ToTable("Accounts");
 
                     b.HasData(
                         new
@@ -144,7 +147,7 @@ namespace DataTierWebServer.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Admins", (string)null);
+                    b.ToTable("Admins");
 
                     b.HasData(
                         new
@@ -201,7 +204,7 @@ namespace DataTierWebServer.Migrations
 
                     b.HasIndex("AccountId");
 
-                    b.ToTable("UserHistories", (string)null);
+                    b.ToTable("UserHistories");
 
                     b.HasData(
                         new
@@ -306,7 +309,7 @@ namespace DataTierWebServer.Migrations
 
                     b.HasIndex("AccountAcctNo");
 
-                    b.ToTable("UserProfiles", (string)null);
+                    b.ToTable("UserProfiles");
 
                     b.HasData(
                         new
