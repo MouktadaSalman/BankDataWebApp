@@ -61,6 +61,7 @@ namespace BusinessTierWebServer.Controllers
 
                     if(response.StatusCode == System.Net.HttpStatusCode.NotFound)
                     {
+                        Log("Encountered internal missing data generation", LogLevel.Critical, null);
                         throw new DataRetrievalFailException("Internal DatabaseGenerationFailException occurred");
                     }
 
@@ -104,6 +105,7 @@ namespace BusinessTierWebServer.Controllers
 
                     if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
                     {
+                        Log("Encountered internal missing data generation", LogLevel.Critical, null);
                         throw new DataRetrievalFailException("Internal DatabaseGenerationFailException occurred");
                     }
 
@@ -115,6 +117,41 @@ namespace BusinessTierWebServer.Controllers
 
                 throw new DataRetrievalFailException("Internal unkown exception occurred/Failed to get a response from Data tier");
 
+            }
+            catch (DataRetrievalFailException ex)
+            {
+                Log(null, LogLevel.Warning, ex);
+                return NotFound(ex.Message);
+            }
+        }
+
+        [HttpGet("getaccounts")]
+        public IActionResult GetAllAccounts()
+        {
+            try
+            {
+                Log("Connect to the Data tier web server", LogLevel.Information, null);
+                RestClient client = new RestClient(_dataServerApiUrl);
+                RestRequest request = new RestRequest($"/api/account", Method.Get);
+                RestResponse response = client.Execute(request);
+
+                Log("Attempt to retrieve all accounts", LogLevel.Information, null);
+                if (response.Content != null)
+                {
+                    if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                    { 
+                        Log($"Successful retrieval of accounts", LogLevel.Information, null);
+                        return Ok(response.Content);
+                    }
+
+                    if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                    {
+                        Log("Encountered internal missing data generation", LogLevel.Critical, null);
+                        throw new DataRetrievalFailException("Internal DatabaseGenerationFailException occurred");
+                    }
+                }
+
+                throw new DataRetrievalFailException("Internal unkown exception occurred/Failed to get a response from Data tier");
             }
             catch (DataRetrievalFailException ex)
             {
