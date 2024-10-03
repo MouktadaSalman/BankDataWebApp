@@ -116,6 +116,36 @@ namespace BankPresentationLayer.Controllers
         }
 
 
+        [HttpPost("transaction")]
+        public async Task<IActionResult> MakeTransaction([FromBody] TransactionInfo request)
+        {
+            if (request == null || string.IsNullOrEmpty(request.Type))
+            {
+                return BadRequest(new { success = false, message = "Invalid transaction request" });
+            }
+
+            try
+            {
+                RestClient client = new RestClient(_dataServerApiUrl);
+                RestRequest transactionRequest = new RestRequest($"/api/bankaccount/{request.Type}/{request.AccountNumber}/{request.Amount}", Method.Put);
+                RestResponse response = await client.ExecuteAsync(transactionRequest);
+
+                if (response.IsSuccessful)
+                {
+                    return Ok(new { success = true });
+                }
+                else
+                {
+                    return StatusCode(500, new { success = false, message = "Transaction failed" });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during transaction");
+                return StatusCode(500, new { success = false, message = "Internal server error" });
+            }
+        }
+
 
         [HttpGet("defaultview")]
         public IActionResult GetDefaultView()

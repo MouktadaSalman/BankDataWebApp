@@ -362,6 +362,76 @@ function loadUserAccount() {
 
 }
 
+document.addEventListener("DOMContentLoaded", function () {
+    const depositButton = document.querySelector(".depositButton");
+    const withdrawButton = document.querySelector(".withdrawButton");
+
+    if (depositButton) {
+        depositButton.addEventListener("click", function (event) {
+            event.preventDefault();
+            const amount = document.getElementById("depositAmount").value;
+            const accountNumber = document.getElementById("accountNumber").innerText;
+
+            if (amount && accountNumber) {
+                makeTransaction(accountNumber, amount, "deposit");
+            } else {
+                alert("Please enter a valid deposit amount.");
+            }
+        });
+    }
+
+    if (withdrawButton) {
+        withdrawButton.addEventListener("click", function (event) {
+            event.preventDefault();
+            const amount = document.getElementById("withdrawAmount").value;
+            const accountNumber = document.getElementById("accountNumber").innerText;
+
+            if (amount && accountNumber) {
+                // Make the withdraw amount negative
+                const negativeAmount = -Math.abs(amount);
+                makeTransaction(accountNumber, negativeAmount, "withdraw");
+            } else {
+                alert("Please enter a valid withdraw amount.");
+            }
+        });
+    }
+
+    function makeTransaction(accountNumber, amount, type) {
+
+       
+        const apiUrl = `/transaction`;
+
+        const data = {
+            accountNumber: accountNumber,
+            amount: parseFloat(amount),
+            type: type
+        };
+
+        fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    alert(`${type.charAt(0).toUpperCase() + type.slice(1)} successful!`);
+                    // Optionally, reload the user account to reflect updated balance
+                    loadUserAccount();
+                } else {
+                    alert(`Error during ${type}: ${result.message}`);
+                }
+            })
+            .catch(error => {
+                console.error(`${type} failed`, error);
+                alert(`Error during ${type}. Please try again.`);
+            });
+    }
+});
+
+
 function loadAccountHistory(acctNo){
     const apiUrl = `/loadhistory/${acctNo}`;
 
