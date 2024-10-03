@@ -41,70 +41,70 @@ namespace DataTierWebServer.Migrations
                         {
                             AcctNo = 7791u,
                             AccountName = "Savings Account",
-                            Balance = 59523,
+                            Balance = 59353,
                             UserId = 1
                         },
                         new
                         {
                             AcctNo = 5441u,
                             AccountName = "Savings Account",
-                            Balance = 11708,
+                            Balance = 13292,
                             UserId = 2
                         },
                         new
                         {
                             AcctNo = 6390u,
                             AccountName = "Savings Account",
-                            Balance = 21411,
+                            Balance = 20644,
                             UserId = 3
                         },
                         new
                         {
                             AcctNo = 8839u,
                             AccountName = "Savings Account",
-                            Balance = 28671,
+                            Balance = 29277,
                             UserId = 4
                         },
                         new
                         {
                             AcctNo = 3937u,
                             AccountName = "Savings Account",
-                            Balance = 90378,
+                            Balance = 89484,
                             UserId = 5
                         },
                         new
                         {
                             AcctNo = 7524u,
                             AccountName = "Savings Account",
-                            Balance = 50349,
+                            Balance = 49734,
                             UserId = 6
                         },
                         new
                         {
                             AcctNo = 5181u,
                             AccountName = "Savings Account",
-                            Balance = 93063,
+                            Balance = 92034,
                             UserId = 7
                         },
                         new
                         {
                             AcctNo = 5291u,
                             AccountName = "Savings Account",
-                            Balance = 24207,
+                            Balance = 23418,
                             UserId = 8
                         },
                         new
                         {
                             AcctNo = 2135u,
                             AccountName = "Savings Account",
-                            Balance = 34686,
+                            Balance = 35018,
                             UserId = 9
                         },
                         new
                         {
                             AcctNo = 6680u,
                             AccountName = "Savings Account",
-                            Balance = 61961,
+                            Balance = 62609,
                             UserId = 10
                         });
                 });
@@ -194,7 +194,19 @@ namespace DataTierWebServer.Migrations
                     b.Property<uint>("AccountId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<double>("Amount")
+                        .HasColumnType("REAL");
+
+                    b.Property<DateTime>("DateTime")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("HistoryString")
+                        .HasColumnType("TEXT");
+
+                    b.Property<uint>("Sender")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Type")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Transaction");
@@ -208,61 +220,101 @@ namespace DataTierWebServer.Migrations
                         {
                             Transaction = 1,
                             AccountId = 2135u,
-                            HistoryString = "Balance updated by -202 on 3/10/2024 9:54:58 AM.  | Old Balance: 35054 ----- New Balance: 34852"
+                            Amount = -202.0,
+                            DateTime = new DateTime(2024, 10, 2, 22, 40, 8, 687, DateTimeKind.Local).AddTicks(2150),
+                            HistoryString = "Account ID: 2135 --- Withdrawn: $202.00 --- Date and Time: October 02, 2024 22:40 PM",
+                            Sender = 2135u,
+                            Type = "Withdraw"
                         },
                         new
                         {
                             Transaction = 2,
-                            AccountId = 6680u,
-                            HistoryString = "Balance updated by -362 on 3/10/2024 9:54:58 AM.  | Old Balance: 62645 ----- New Balance: 62283"
+                            AccountId = 8839u,
+                            Amount = 893.0,
+                            DateTime = new DateTime(2024, 10, 2, 22, 40, 8, 687, DateTimeKind.Local).AddTicks(2232),
+                            HistoryString = "Account ID: 8839 --- Received: $893.00 --- Date and Time: October 02, 2024 22:40 PM",
+                            Sender = 2135u,
+                            Type = "Receive"
                         },
                         new
                         {
                             Transaction = 3,
-                            AccountId = 6680u,
-                            HistoryString = "Balance updated by -322 on 3/10/2024 9:54:58 AM.  | Old Balance: 62283 ----- New Balance: 61961"
+                            AccountId = 5181u,
+                            Amount = -41.0,
+                            DateTime = new DateTime(2024, 10, 2, 22, 40, 8, 687, DateTimeKind.Local).AddTicks(2243),
+                            HistoryString = "Account ID: 5181 --- Deposited: $41.00 --- Date and Time: October 02, 2024 22:40 PM",
+                            Sender = 5181u,
+                            Type = "Deposit"
                         },
                         new
                         {
                             Transaction = 4,
-                            AccountId = 7524u,
-                            HistoryString = "Balance updated by 615 on 3/10/2024 9:54:58 AM.  | Old Balance: 49734 ----- New Balance: 50349"
+                            AccountId = 2135u,
+                            Amount = 166.0,
+                            DateTime = new DateTime(2024, 10, 2, 22, 40, 8, 687, DateTimeKind.Local).AddTicks(2250),
+                            HistoryString = "Account ID: 2135 --- Received: $166.00 --- Date and Time: October 02, 2024 22:40 PM",
+                            Sender = 3937u,
+                            Type = "Receive"
                         },
                         new
                         {
                             Transaction = 5,
-                            AccountId = 8839u,
-                            HistoryString = "Balance updated by 287 on 3/10/2024 9:54:58 AM.  | Old Balance: 28384 ----- New Balance: 28671"
+                            AccountId = 5181u,
+                            Amount = -494.0,
+                            DateTime = new DateTime(2024, 10, 2, 22, 40, 8, 687, DateTimeKind.Local).AddTicks(2256),
+                            HistoryString = "Account ID: 5181 --- Sent: $494.00 --- Date and Time: October 02, 2024 22:40 PM",
+                            Sender = 7791u,
+                            Type = "Send"
                         },
                         new
                         {
                             Transaction = 6,
-                            AccountId = 2135u,
-                            HistoryString = "Balance updated by -166 on 3/10/2024 9:54:58 AM.  | Old Balance: 34852 ----- New Balance: 34686"
+                            AccountId = 5441u,
+                            Amount = 836.0,
+                            DateTime = new DateTime(2024, 10, 2, 22, 40, 8, 687, DateTimeKind.Local).AddTicks(2263),
+                            HistoryString = "Account ID: 5441 --- Received: $836.00 --- Date and Time: October 02, 2024 22:40 PM",
+                            Sender = 7524u,
+                            Type = "Receive"
                         },
                         new
                         {
                             Transaction = 7,
-                            AccountId = 3937u,
-                            HistoryString = "Balance updated by 894 on 3/10/2024 9:54:58 AM.  | Old Balance: 89484 ----- New Balance: 90378"
+                            AccountId = 5441u,
+                            Amount = -88.0,
+                            DateTime = new DateTime(2024, 10, 2, 22, 40, 8, 687, DateTimeKind.Local).AddTicks(2268),
+                            HistoryString = "Account ID: 5441 --- Sent: $88.00 --- Date and Time: October 02, 2024 22:40 PM",
+                            Sender = 6390u,
+                            Type = "Send"
                         },
                         new
                         {
                             Transaction = 8,
-                            AccountId = 5181u,
-                            HistoryString = "Balance updated by 494 on 3/10/2024 9:54:58 AM.  | Old Balance: 92569 ----- New Balance: 93063"
+                            AccountId = 6390u,
+                            Amount = -767.0,
+                            DateTime = new DateTime(2024, 10, 2, 22, 40, 8, 687, DateTimeKind.Local).AddTicks(2274),
+                            HistoryString = "Account ID: 6390 --- Deposited: $767.00 --- Date and Time: October 02, 2024 22:40 PM",
+                            Sender = 6390u,
+                            Type = "Deposit"
                         },
                         new
                         {
                             Transaction = 9,
-                            AccountId = 7791u,
-                            HistoryString = "Balance updated by 170 on 3/10/2024 9:54:58 AM.  | Old Balance: 59353 ----- New Balance: 59523"
+                            AccountId = 5291u,
+                            Amount = -789.0,
+                            DateTime = new DateTime(2024, 10, 2, 22, 40, 8, 687, DateTimeKind.Local).AddTicks(2279),
+                            HistoryString = "Account ID: 5291 --- Deposited: $789.00 --- Date and Time: October 02, 2024 22:40 PM",
+                            Sender = 5291u,
+                            Type = "Deposit"
                         },
                         new
                         {
                             Transaction = 10,
-                            AccountId = 5441u,
-                            HistoryString = "Balance updated by -836 on 3/10/2024 9:54:58 AM.  | Old Balance: 12544 ----- New Balance: 11708"
+                            AccountId = 6680u,
+                            Amount = -36.0,
+                            DateTime = new DateTime(2024, 10, 2, 22, 40, 8, 687, DateTimeKind.Local).AddTicks(2284),
+                            HistoryString = "Account ID: 6680 --- Sent: $36.00 --- Date and Time: October 02, 2024 22:40 PM",
+                            Sender = 6390u,
+                            Type = "Send"
                         });
                 });
 

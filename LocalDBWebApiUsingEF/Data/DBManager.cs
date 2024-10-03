@@ -108,5 +108,6 @@ namespace DataTierWebServer.Data
             modelBuilder.Entity<UserHistory>().HasData(userHistory);
             modelBuilder.Entity<Admin>().HasData(admins);
         }
+
     }
 }
