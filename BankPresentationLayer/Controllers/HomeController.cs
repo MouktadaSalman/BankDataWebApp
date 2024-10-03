@@ -295,5 +295,57 @@ namespace BankPresentationLayer.Controllers
                 return StatusCode(500, "An error occurred while processing the request");
             }
         }
+
+
+        [HttpPut("updateprofile")]
+        public IActionResult UpdateUserProfile([FromBody] UserProfile updatedProfile)
+        {
+
+            string updatedProfileJson = JsonConvert.SerializeObject(updatedProfile);
+            _logger.LogInformation($"Update profile called with : {updatedProfileJson}");
+            if (updatedProfile == null || updatedProfile.Id == 0)
+            {
+
+                _logger.LogInformation("ID does not exist");
+                return BadRequest("Invalid profile data.");
+
+            }
+
+
+
+
+            try
+            {
+                RestClient client = new RestClient(_dataServerApiUrl);
+                RestRequest request = new RestRequest($"/api/userprofile/{updatedProfile.Id}", Method.Put);
+                request.AddJsonBody(updatedProfileJson);
+                _logger.LogInformation($"Try and Catch checking if the rest request is successful: {updatedProfileJson}");
+
+                RestResponse response = client.Execute(request);
+
+                if (response.IsSuccessful)
+                {
+                    _logger.LogInformation($"Profile Updated Successfully from homecontroller");
+                    return Ok(updatedProfile);
+                    
+                }
+                else
+                {
+                    _logger.LogError("Error updating profile: {0}", response.Content);
+                    _logger.LogInformation($"Error to Update profile called with : {response.Content}");
+                    return StatusCode((int)response.StatusCode, "Error updating profile.");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while updating the user profile.");
+                _logger.LogInformation($"Catch Exception Update profile called with : {ex}");
+                return StatusCode(500, "Internal server error.");
+            }
+        }
+
+
+
+
     }
 }

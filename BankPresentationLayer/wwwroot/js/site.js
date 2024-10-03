@@ -97,53 +97,52 @@ function performAuth() {
 }
 
 function loadUserProfile() {
-
     const apiUrl = '/loadprofile';
+    const headers = { 'Content-Type': 'application/json' };
 
-    const header = {
-        'Content-Type': 'application/json'
-    };
-
-    const requestOption = {
+    fetch(apiUrl, {
         method: 'GET',
-        headers: header
-    }
-
-    fetch(apiUrl, requestOption)
+        headers: headers
+    })
         .then(response => {
-            if(!response.ok) {
-                throw new Error('Network response was not ok');
-            }
+            if (!response.ok) throw new Error('Network response was not ok');
             return response.json();
         })
         .then(userProfile => {
+            // Update hidden field for user ID
+            document.getElementById('Id').value = userProfile.id;
 
+            // Update visible profile fields
             document.getElementById('userName').textContent = userProfile.fName + " " + userProfile.lName;
             document.getElementById('userEmail').textContent = userProfile.email;
             document.getElementById('userPhone').textContent = userProfile.phoneNumber;
-
             document.getElementById('viewName').innerText = userProfile.fName + " " + userProfile.lName;
             document.getElementById('viewEmail').innerText = userProfile.email;
             document.getElementById('viewPhone').innerText = userProfile.phoneNumber;
             document.getElementById('viewAddress').innerText = userProfile.address;
 
+            
             document.getElementById('editName').value = userProfile.fName + " " + userProfile.lName;
             document.getElementById('editEmail').value = userProfile.email;
             document.getElementById('editPhone').value = userProfile.phoneNumber;
             document.getElementById('editAddress').value = userProfile.address;
 
-
-        })        
+            // Store all additional fields, I will use them later
+            sessionStorage.setItem('username', userProfile.username);
+            sessionStorage.setItem('age', userProfile.age);
+            sessionStorage.setItem('profilePictureUrl', userProfile.profilePictureUrl);
+            sessionStorage.setItem('password', userProfile.password);
+        })
         .catch(error => {
-            console.error('Fetch error:', error);
+            console.error('Error loading profile:', error);
             alert('Unable to load user profile. Please try again.');
         });
-
 }
+
 
 const logoutButton = document.getElementById("logoutBtn");
 
-if (logoutButton) {
+if (logoutButton) { 
 
     document.getElementById("logoutBtn").addEventListener("click", function () {
         document.cookie = "SessionID=; expires=Wed, 02 Oct 2024 00:00:00 UTC; path=/;";
@@ -156,13 +155,13 @@ if (logoutButton) {
 }
 
 
-
 function saveProfile() {
+    var name = document.getElementById("editName").value;
+    var email = document.getElementById("editEmail").value;
+    var phone = document.getElementById("editPhone").value;
+    var address = document.getElementById("editAddress").value;
+    var userId = document.getElementById("Id").value;
 
-    var name = document.getElementById("editName").value; // Modified
-    var email = document.getElementById("editEmail").value; // Modified
-    var phone = document.getElementById("editPhone").value; // Modified
-    var address = document.getElementById("editAddress").value; // Modified
 
     document.getElementById('userName').innerText = name;
     document.getElementById('userEmail').innerText = email;
@@ -178,23 +177,63 @@ function saveProfile() {
     document.getElementById('editPhone').value = phone;
     document.getElementById('editAddress').value = address;
 
+
+    if (!userId) {
+        console.error('User ID is missing.');
+        alert('User ID is missing, unable to update the profile.');
+        return;
+    }
+
+    // Use additional fields from session storage
+    var username = sessionStorage.getItem('username');
+    var age = sessionStorage.getItem('age');
+    var profilePictureUrl = sessionStorage.getItem('profilePictureUrl');
+    var password = sessionStorage.getItem('password');
+
+    // Prepare the profile object
     var profile = {
-        name: name,
-        email: email,
-        phone: phone,
-        address: address,
+        Id: parseInt(userId),
+        FName: name.split(" ")[0],
+        LName: name.split(" ")[1] || "",
+        Email: email,
+        Username: username,
+        Age: parseInt(age),
+        Address: address,
+        PhoneNumber: phone,
+        ProfilePictureUrl: profilePictureUrl,
+        Password: password
     };
 
-    console.log(profile);
+    console.log("Profile to be updated: ", profile);
 
-    // Close modal and switch back to view mode (Added)
-    if (modal) modal.style.display = "none";
-    var viewProfileDiv = document.getElementById('viewProfile');
-    var editProfileForm = document.getElementById('editProfileForm');
-    if (viewProfileDiv) viewProfileDiv.style.display = "block";
-    if (editProfileForm) editProfileForm.style.display = "none";
+    const apiUrl = `/updateprofile`;
+
+    fetch(apiUrl, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(profile)
+    })
+        .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.text();
+        })
+        .then(data => {
+            console.log('Profile updated successfully:', data);
+
+            // Close modal and switch back to view mode
+            if (modal) modal.style.display = "none";
+            var viewProfileDiv = document.getElementById('viewProfile');
+            var editProfileForm = document.getElementById('editProfileForm');
+            if (viewProfileDiv) viewProfileDiv.style.display = "block";
+            if (editProfileForm) editProfileForm.style.display = "none";
+        })
+        .catch(error => {
+            console.error('Error updating profile:', error);
+            alert('Unable to update profile. Please try again.');
+        });
 }
-
 
 function loadUserAccount() {
     const apiUrl = '/loadbankaccount';

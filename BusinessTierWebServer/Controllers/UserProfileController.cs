@@ -35,13 +35,22 @@ namespace BusinessTierWebServer.Controllers
 
         // Put: api/userprofile/{id}
         [HttpPut("{id}")]
-        public IActionResult UpdateUserProfile(int id)
+        public IActionResult UpdateUserProfile(int id, [FromBody] UserProfile updatedProfile)
         {
             RestClient client = new RestClient(_dataServerApiUrl);
             RestRequest request = new RestRequest($"/api/userprofile/{id}", Method.Put);
+            request.AddJsonBody(updatedProfile); 
             RestResponse response = client.Execute(request);
-            UserProfile? value = JsonConvert.DeserializeObject<UserProfile>(response.Content);
-            return Ok(value);
+
+            if (response.IsSuccessful)
+            {
+                UserProfile? value = JsonConvert.DeserializeObject<UserProfile>(response.Content);
+                return Ok(value);
+            }
+            else
+            {
+                return StatusCode((int)response.StatusCode, response.Content);
+            }
         }
 
         // Post: api/userprofile
