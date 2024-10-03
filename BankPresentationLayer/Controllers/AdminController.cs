@@ -61,11 +61,6 @@ namespace BankPresentationLayer.Controllers
                     {
                         throw new DataRetrievalFailException("Internal DatabaseGenerationFailException occurred");
                     }
-
-                    if (response.StatusCode == System.Net.HttpStatusCode.NoContent)
-                    {
-                        throw new DataRetrievalFailException("Internal MissingProfileException occurred");
-                    }
                 }
 
                 throw new DataRetrievalFailException("Internal unkown exception occurred/Failed to get a response from Data tier");
@@ -103,11 +98,6 @@ namespace BankPresentationLayer.Controllers
                     if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
                     {
                         throw new DataRetrievalFailException("Internal DatabaseGenerationFailException occurred");
-                    }
-
-                    if (response.StatusCode == System.Net.HttpStatusCode.NoContent)
-                    {
-                        throw new DataRetrievalFailException("Internal MissingProfileException occurred");
                     }
                 }
 
