@@ -19,6 +19,10 @@ namespace BankDataLB
     {
         public int Transaction { get; set; }
         public uint AccountId { get; set; }
+        public double Amount { get; set; }
+        public string Type { get; set; }
+        public DateTime DateTime { get; set; }
+        public uint Sender { get; set; }
         public string HistoryString { get; set; }
     }
 }

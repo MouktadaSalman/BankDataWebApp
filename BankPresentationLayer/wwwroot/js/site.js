@@ -141,6 +141,22 @@ function loadUserProfile() {
 
 }
 
+const logoutButton = document.getElementById("logoutBtn");
+
+if (logoutButton) {
+
+    document.getElementById("logoutBtn").addEventListener("click", function () {
+        document.cookie = "SessionID=; expires=Wed, 02 Oct 2024 00:00:00 UTC; path=/;";
+
+        window.location.href = "/Home/Login";
+
+    });
+
+
+}
+
+
+
 function saveProfile() {
 
     var name = document.getElementById("editName").value; // Modified
@@ -178,6 +194,111 @@ function saveProfile() {
     if (viewProfileDiv) viewProfileDiv.style.display = "block";
     if (editProfileForm) editProfileForm.style.display = "none";
 }
+
+
+function loadUserAccount() {
+    const apiUrl = '/loadbankaccount';
+
+    const header = {
+        'Content-Type': 'application/json'
+    };
+
+    const requestOption = {
+        method: 'GET',
+        headers: header
+    }
+
+    fetch(apiUrl, requestOption)
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(userAccounts => {
+        const firstAccount = userAccounts[0];
+        console.log("account number: " + firstAccount.acctNo + " Account balance: " + firstAccount.balance);
+
+        // Set account details
+        document.getElementById('accountNumber').innerText = firstAccount.acctNo;
+        document.getElementById('accountBalance').innerText = firstAccount.balance;
+
+        const accountSummaryList = document.getElementById("accountSummaryList");
+        accountSummaryList.innerHTML = '';// Clear any existing elements
+
+        userAccounts.forEach(account => {
+            const listItem = document.createElement('li');
+            listItem.className = 'accountItem';
+
+            const accountNumberElement = document.createElement('p');
+            accountNumberElement.innerText = `Account Number: ${account.acctNo}`;
+
+            const accountBalanceElement = document.createElement('p');
+            const formattedBalance = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(account.balance);
+            accountBalanceElement.innerText = `Balance: ${formattedBalance}`;
+
+            const accountTypeElement = document.createElement('p');
+            accountTypeElement.innerText = `Type: ${account.accountName || "Unknown"}`; // Assuming `accountType` is available
+
+            listItem.appendChild(accountNumberElement);
+            listItem.appendChild(accountBalanceElement);
+            listItem.appendChild(accountTypeElement);
+
+            accountSummaryList.appendChild(listItem);
+        });
+
+        loadAccountHistory(firstAccount.acctNo);
+        
+    })
+    .catch(error => {
+        console.error('Fetch error:', error);
+        alert('Unable to load user profile. Please try again.');
+    });
+
+}
+
+function loadAccountHistory(acctNo){
+    const apiUrl = `/loadhistory/${acctNo}`;
+
+    const header = {
+        'Content-Type': 'application/json'
+    };
+
+    const requestOption = {
+        method: 'GET',
+        headers: header
+    }
+
+    fetch(apiUrl, requestOption)
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+        .then(accountHistory => {
+
+        // Populate transaction history
+        const transactionListElement = document.getElementById('transactionList');
+        transactionListElement.innerHTML = ''; // Clear any existing items
+        
+        accountHistory.forEach(historyEntry => {
+            const listItem = document.createElement('li');
+            listItem.className = 'transactionItem';
+            listItem.innerText = historyEntry; // Set the text to the history string directly
+            transactionListElement.appendChild(listItem);
+        });
+        
+    })
+    .catch(error => {
+        console.error('Fetch error:', error);
+        alert('Unable to load user profile. Please try again.');
+    });
+}
+
+
+
+
 
 if (saveProfileButton) {
     saveProfileButton.onclick = function (event) {
