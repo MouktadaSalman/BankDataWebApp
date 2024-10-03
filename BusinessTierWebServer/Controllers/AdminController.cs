@@ -27,11 +27,11 @@ namespace BusinessTierWebServer.Controllers
             {
                 if (ex != null)
                 {
-                    _logger.Log(logLevel, ex, $"\n{DateTime.Now}:");
+                    _logger.Log(logLevel, ex, $"{DateTime.Now}:");
                 }
                 else
                 {
-                    string logEntry = $"\n{DateTime.Now}: {message}";
+                    string logEntry = $"{DateTime.Now}: {message}";
                     _logger.Log(logLevel, logEntry);
                 }
             }
@@ -55,6 +55,7 @@ namespace BusinessTierWebServer.Controllers
                     {
                         Admin? value = JsonConvert.DeserializeObject<Admin>(response.Content);
 
+                        Log($"Successful retrieval of admin details: '{name}'", LogLevel.Information, null);
                         return Ok(value);
                     }
 
@@ -62,18 +63,18 @@ namespace BusinessTierWebServer.Controllers
                     {
                         Exception? ex = JsonConvert.DeserializeObject<DataGenerationFailException>(response.Content);
 
-                        throw new DataRetrievalFailException($"'{name}'", ex);
+                        throw new DataRetrievalFailException(ex);
                     }
 
                     if(response.StatusCode == System.Net.HttpStatusCode.NoContent)
                     {
                         Exception? ex = JsonConvert.DeserializeObject<MissingProfileException>(response.Content);
 
-                        throw new DataRetrievalFailException($"'{name}'", ex);
+                        throw new DataRetrievalFailException(ex);
                     }
                 }
 
-                throw new DataRetrievalFailException("'GetAdminByName' [Bad Request] ");
+                throw new DataRetrievalFailException();
 
             }
             catch (DataRetrievalFailException ex)
@@ -101,6 +102,7 @@ namespace BusinessTierWebServer.Controllers
                     {
                         Admin? value = JsonConvert.DeserializeObject<Admin>(response.Content);
 
+                        Log($"Successful retrieval of admin details: '{email}'", LogLevel.Information, null);
                         return Ok(value);
                     }
 
@@ -108,18 +110,18 @@ namespace BusinessTierWebServer.Controllers
                     {
                         Exception? ex = JsonConvert.DeserializeObject<DataGenerationFailException>(response.Content);
 
-                        throw new DataRetrievalFailException($"'{email}'", ex);
+                        throw new DataRetrievalFailException(ex);
                     }
 
                     if (response.StatusCode == System.Net.HttpStatusCode.NoContent)
                     {
                         Exception? ex = JsonConvert.DeserializeObject<MissingProfileException>(response.Content);
 
-                        throw new DataRetrievalFailException($"'{email}'", ex);
+                        throw new DataRetrievalFailException(ex);
                     }
                 }
                 
-                throw new DataRetrievalFailException("[Bad Request]");
+                throw new DataRetrievalFailException();
             }
             catch (DataRetrievalFailException ex)
             {

@@ -26,7 +26,7 @@ namespace DataTierWebServer.Controllers
         {
             lock (_logLock)
             {
-                string logEntry = $"\n{DateTime.Now}: {message}";
+                string logEntry = $"{DateTime.Now}: {message}";
 
                 _logger.Log(logLevel, logEntry);
             }
@@ -51,17 +51,18 @@ namespace DataTierWebServer.Controllers
                     throw new MissingProfileException($"'{name}'");
                 }
 
+                Log($"Successful retrieval of admin details: '{name}'", LogLevel.Information);
                 return Ok(admin);
             }
             catch (DataGenerationFailException ex)
             {
                 Log(ex.Message, LogLevel.Critical);
-                return NotFound(ex);
+                return NotFound(ex.Message);
             }
             catch (MissingProfileException ex)
             {
                 Log(ex.Message, LogLevel.Warning);
-                return new ObjectResult(ex) { StatusCode = 204 };
+                return NoContent();
             }
             catch (Exception ex)
             {
@@ -88,17 +89,18 @@ namespace DataTierWebServer.Controllers
                     throw new MissingProfileException($"'{email}'");
                 }
 
+                Log($"Successful retrieval of admin details: '{email}'", LogLevel.Information);
                 return Ok(admin);
             }
             catch (DataGenerationFailException ex)
             {
                 Log(ex.Message, LogLevel.Critical);
-                return NotFound(ex);
+                return NotFound(ex.Message);
             }
             catch (MissingProfileException ex)
             {
                 Log(ex.Message, LogLevel.Warning);
-                return new ObjectResult(ex) { StatusCode = 204 };
+                return NoContent();
             }
             catch (Exception ex)
             {
