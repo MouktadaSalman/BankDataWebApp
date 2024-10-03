@@ -1,18 +1,16 @@
-﻿using BankDataLB;
-using BusinessTierWebServer.Models.Exceptions;
+﻿using BankPresentationLayer.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RestSharp;
-using System.Xml.Linq;
 
-namespace BusinessTierWebServer.Controllers
+namespace BankPresentationLayer.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class AdminController : ControllerBase
     {
-        private readonly string _dataServerApiUrl = "http://localhost:5181";
+        private readonly string _dataServerApiUrl = "http://localhost:5265";
         private readonly ILogger<AdminController> _logger;
         private static readonly object _logLock = new object();
 
@@ -49,9 +47,9 @@ namespace BusinessTierWebServer.Controllers
                 RestResponse response = client.Execute(request);
 
                 Log($"Attempt to retrieve admin details: '{name}'", LogLevel.Information, null);
-                if(response.Content != null)
+                if (response.Content != null)
                 {
-                    if(response.StatusCode == System.Net.HttpStatusCode.OK)
+                    if (response.StatusCode == System.Net.HttpStatusCode.OK)
                     {
                         Admin? value = JsonConvert.DeserializeObject<Admin>(response.Content);
 
@@ -59,12 +57,12 @@ namespace BusinessTierWebServer.Controllers
                         return Ok(value);
                     }
 
-                    if(response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                    if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
                     {
                         throw new DataRetrievalFailException("Internal DatabaseGenerationFailException occurred");
                     }
 
-                    if(response.StatusCode == System.Net.HttpStatusCode.NoContent)
+                    if (response.StatusCode == System.Net.HttpStatusCode.NoContent)
                     {
                         throw new DataRetrievalFailException("Internal MissingProfileException occurred");
                     }
