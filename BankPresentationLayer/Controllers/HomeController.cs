@@ -24,7 +24,12 @@ namespace BankPresentationLayer.Controllers
             return RedirectToAction("Login");
         }
 
-		public IActionResult Login()
+        public IActionResult GoToAdminDashboard()
+        {
+            return RedirectToAction("AdminDashboard", "Admin"); // Redirect to AdminController's AdminDashboard action
+        }
+
+        public IActionResult Login()
 		{
 			return View("~/Views/Home/LoginView.cshtml"); // Ensure a view named "Login.cshtml" is present under Views/Home
 		}
