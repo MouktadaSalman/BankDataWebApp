@@ -152,6 +152,72 @@ if (logoutButton) {
     });
 
 
+} 
+
+
+function createProfile() {
+    var UfName = document.getElementById('FName').value;
+    var UlName = document.getElementById('LName').value;
+    var UEmail = document.getElementById('Email').value;
+    var UAge = document.getElementById('Age').value;
+    var UAddress = document.getElementById('Address').value;
+    var UPhoneNo = document.getElementById('PhoneNo').value;
+    var Upassword = document.getElementById('SPass').value;
+
+    
+    var profile = {
+        FName: UfName,
+        LName: UlName,
+        Email: UEmail,
+        Age: UAge,
+        Address: UAddress,
+        PhoneNumber: UPhoneNo,
+        Password: Upassword
+    };
+
+    console.log("Profile to be created: ", profile);
+
+    const apiUrl = '/createProfile';  
+
+    fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(profile)
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json(); 
+        })
+        .then(data => {
+            console.log('Profile created successfully:', data);
+
+            // Redirect or provide success message
+            if (data.success) {
+                alert('Profile created successfully!');
+
+
+                return RedirectToAction("Login");
+
+            } else {
+                alert('Error creating profile: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error creating profile:', error);
+            alert('Unable to create profile. Please try again.');
+        });
+}
+
+// Event listener to trigger profile creation when the sign-up button is clicked
+if (document.getElementById('signUpButton')) {
+    document.getElementById('signUpButton').onclick = function (event) {
+        event.preventDefault(); 
+        createProfile(); 
+    };
 }
 
 
@@ -291,7 +357,7 @@ function loadUserAccount() {
     })
     .catch(error => {
         console.error('Fetch error:', error);
-        alert('Unable to load user profile. Please try again.');
+        alert('User has no Accounts.');
     });
 
 }

@@ -11,6 +11,37 @@ namespace BusinessTierWebServer.Controllers
     {
         private readonly string _dataServerApiUrl = "http://localhost:5181";
 
+
+
+
+
+        // GET: api/userprofile
+        // I will use this for retriving the number of users that exists so that I could assign
+        // an increasing id number to whoever creats a new user profile
+        [HttpGet]
+        public IActionResult GetAllUserProfiles()
+        {
+            try
+            {
+                RestClient client = new RestClient(_dataServerApiUrl);
+                RestRequest request = new RestRequest("/api/userprofile", Method.Get);
+                RestResponse response = client.Execute(request);
+
+                if (!response.IsSuccessful)
+                {
+                    return StatusCode(500, "Error retrieving user profiles");
+                }
+
+                List<UserProfile>? userProfiles = JsonConvert.DeserializeObject<List<UserProfile>>(response.Content);
+                return Ok(userProfiles);
+            }
+            catch (Exception ex)
+            {
+               
+                return StatusCode(500, "Internal server error.");
+            }
+        }
+
         // GET: api/userprofile/byname/{name}
         [HttpGet("name/{name}")]
         public IActionResult GetUserProfileByName(string name)

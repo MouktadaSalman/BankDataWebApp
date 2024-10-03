@@ -59,6 +59,64 @@ namespace BankPresentationLayer.Controllers
 
 
 
+        [HttpPost("createProfile")]
+        public async Task<IActionResult> CreateProfile([FromBody] UserProfile userProfile)
+        {
+            if (userProfile == null || string.IsNullOrEmpty(userProfile.Email) || string.IsNullOrEmpty(userProfile.Password))
+            {
+                return BadRequest("Invalid profile data.");
+            }
+
+            try
+            {
+                // Query the database for the maximum existing ID
+                RestClient client = new RestClient(_dataServerApiUrl);
+                RestRequest getMaxIdRequest = new RestRequest("/api/userprofile", Method.Get);
+                RestResponse maxIdResponse = await client.ExecuteAsync(getMaxIdRequest);
+
+                if (maxIdResponse.IsSuccessful)
+                {
+                    // Deserialize the list of existing user profiles to find the max Id
+                    List<UserProfile>? userProfiles = JsonConvert.DeserializeObject<List<UserProfile>>(maxIdResponse.Content);
+                    int maxId = userProfiles?.Max(u => u.Id) ?? 0;
+
+                    // Assign the next available ID
+                    userProfile.Id = maxId + 1;
+                }
+                else
+                {
+                    return StatusCode(500, "Error retrieving maximum ID");
+                }
+
+                // Send the newly created profile with the assigned ID to the Data Tier
+                RestRequest createRequest = new RestRequest("/api/userprofile", Method.Post);
+                createRequest.AddJsonBody(userProfile);
+                RestResponse createResponse = await client.ExecuteAsync(createRequest);
+
+                if (createResponse.IsSuccessful)
+                {
+                    _logger.LogInformation("User profile created successfully for {Email}", userProfile.Email);
+
+                   
+
+
+                    return Ok(new { success = true, message = "Profile created successfully" });
+                }
+                else
+                {
+                    _logger.LogError("Error creating profile. Status: {StatusCode}, Content: {Content}", createResponse.StatusCode, createResponse.Content);
+                    return StatusCode(500, "An error occurred while creating the profile");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An exception occurred while creating profile for {Email}", userProfile.Email);
+                return StatusCode(500, "An error occurred while processing your request");
+            }
+        }
+
+
+
         [HttpGet("defaultview")]
         public IActionResult GetDefaultView()
         {
