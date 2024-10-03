@@ -2,10 +2,10 @@
 {
     public class DataRetrievalFailException : Exception
     {
-        private const string BaseMessage = "Failed to data retrieve from the request";
+        private const string BaseMessage = "Failed to data retrieve from the request: ";
 
-        public DataRetrievalFailException() : base(BaseMessage) { }
+        public DataRetrievalFailException(string extra) : base(BaseMessage + extra) { }
 
-        public DataRetrievalFailException(Exception innerException) : base(BaseMessage, innerException) { }
+        public DataRetrievalFailException(string extra, Exception innerException) : base(BaseMessage + extra, innerException) { }
     }
 }

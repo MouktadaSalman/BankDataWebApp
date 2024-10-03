@@ -61,20 +61,16 @@ namespace BusinessTierWebServer.Controllers
 
                     if(response.StatusCode == System.Net.HttpStatusCode.NotFound)
                     {
-                        Exception? ex = JsonConvert.DeserializeObject<DataGenerationFailException>(response.Content);
-
-                        throw new DataRetrievalFailException(ex);
+                        throw new DataRetrievalFailException("Internal DatabaseGenerationFailException occurred");
                     }
 
                     if(response.StatusCode == System.Net.HttpStatusCode.NoContent)
                     {
-                        Exception? ex = JsonConvert.DeserializeObject<MissingProfileException>(response.Content);
-
-                        throw new DataRetrievalFailException(ex);
+                        throw new DataRetrievalFailException("Internal MissingProfileException occurred");
                     }
                 }
 
-                throw new DataRetrievalFailException();
+                throw new DataRetrievalFailException("Internal unkown exception occurred");
 
             }
             catch (DataRetrievalFailException ex)
@@ -108,20 +104,17 @@ namespace BusinessTierWebServer.Controllers
 
                     if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
                     {
-                        Exception? ex = JsonConvert.DeserializeObject<DataGenerationFailException>(response.Content);
-
-                        throw new DataRetrievalFailException(ex);
+                        throw new DataRetrievalFailException("Internal DatabaseGenerationFailException occurred");
                     }
 
                     if (response.StatusCode == System.Net.HttpStatusCode.NoContent)
                     {
-                        Exception? ex = JsonConvert.DeserializeObject<MissingProfileException>(response.Content);
-
-                        throw new DataRetrievalFailException(ex);
+                        throw new DataRetrievalFailException("Internal MissingProfileException occurred");
                     }
                 }
-                
-                throw new DataRetrievalFailException();
+
+                throw new DataRetrievalFailException("Internal unkown exception occurred");
+
             }
             catch (DataRetrievalFailException ex)
             {

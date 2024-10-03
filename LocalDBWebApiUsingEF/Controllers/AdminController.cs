@@ -57,7 +57,7 @@ namespace DataTierWebServer.Controllers
             catch (DataGenerationFailException ex)
             {
                 Log(ex.Message, LogLevel.Critical);
-                return NotFound(ex.Message);
+                return NotFound();
             }
             catch (MissingProfileException ex)
             {
@@ -67,7 +67,7 @@ namespace DataTierWebServer.Controllers
             catch (Exception ex)
             {
                 Log(ex.Message, LogLevel.Critical);
-                return BadRequest(ex);
+                return BadRequest();
             }
         }
 
@@ -95,7 +95,7 @@ namespace DataTierWebServer.Controllers
             catch (DataGenerationFailException ex)
             {
                 Log(ex.Message, LogLevel.Critical);
-                return NotFound(ex.Message);
+                return NotFound();
             }
             catch (MissingProfileException ex)
             {
@@ -106,7 +106,7 @@ namespace DataTierWebServer.Controllers
             {
                 //Catch other unkown exceptions
                 Log(ex.Message, LogLevel.Critical);
-                return BadRequest(ex);
+                return BadRequest();
             }
         }
     }
