@@ -14,11 +14,22 @@ namespace DataTierWebServer.Controllers
     {
         private readonly DBManager _context;
         private readonly ILogger<AdminController> _logger;
+        private static readonly object _logLock = new object();
 
         public AdminController(DBManager dBManager, ILogger<AdminController> logger)
         {
             _context = dBManager;
             _logger = logger;
+        }
+
+        private void Log(string message, LogLevel logLevel)
+        {
+            lock (_logLock)
+            {
+                string logEntry = $"\n{DateTime.Now}: {message}";
+
+                _logger.Log(logLevel, logEntry);
+            }
         }
 
         // GET: api/admin/byname/Mike
@@ -27,28 +38,35 @@ namespace DataTierWebServer.Controllers
         {
             try
             {
+                Log($"Attempt to get admin details: '{name}'", LogLevel.Information);
+
                 if (_context.Admins == null)
                 {
-                    var ex = new DataGenerationFailException("Admins");
-
-                    _logger.LogCritical(ex, $"{DateTime.Now.ToString()}: {ex.Message}");
-                    return NotFound(ex);
+                    throw new DataGenerationFailException("Admins");
                 }
                 var admin = await _context.Admins.FirstOrDefaultAsync(up => up.FName == name);
 
                 if (admin == null)
                 {
-                    var ex = new MissingProfileException($"'{name}'");
-
-                    _logger.LogWarning(ex, $"{DateTime.Now.ToString()}: {ex.Message}");
-                    return NotFound(ex);
+                    throw new MissingProfileException($"'{name}'");
                 }
 
                 return Ok(admin);
             }
+            catch (DataGenerationFailException ex)
+            {
+                Log(ex.Message, LogLevel.Critical);
+                return NotFound(ex);
+            }
+            catch (MissingProfileException ex)
+            {
+                Log(ex.Message, LogLevel.Warning);
+                return new ObjectResult(ex) { StatusCode = 204 };
+            }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                Log(ex.Message, LogLevel.Critical);
+                return BadRequest(ex);
             }
         }
 
@@ -58,28 +76,35 @@ namespace DataTierWebServer.Controllers
         {
             try
             {
+                Log($"Attempt to get admin details: '{email}'", LogLevel.Information);
                 if (_context.Admins == null)
                 {
-                    var ex = new DataGenerationFailException("Admins");
-
-                    _logger.LogCritical(ex, $"{DateTime.Now.ToString()}: {ex.Message}");
-                    return NotFound(ex);
+                    throw new DataGenerationFailException("Admins");
                 }
                 var admin = await _context.Admins.FirstOrDefaultAsync(up => up.Email == email);
 
                 if (admin == null)
                 {
-                    var ex = new MissingProfileException($"'{email}'");
-
-                    _logger.LogWarning(ex, $"{DateTime.Now.ToString()}: {ex.Message}");
-                    return NotFound(ex);
+                    throw new MissingProfileException($"'{email}'");
                 }
 
                 return Ok(admin);
             }
+            catch (DataGenerationFailException ex)
+            {
+                Log(ex.Message, LogLevel.Critical);
+                return NotFound(ex);
+            }
+            catch (MissingProfileException ex)
+            {
+                Log(ex.Message, LogLevel.Warning);
+                return new ObjectResult(ex) { StatusCode = 204 };
+            }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                //Catch other unkown exceptions
+                Log(ex.Message, LogLevel.Critical);
+                return BadRequest(ex);
             }
         }
     }
