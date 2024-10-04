@@ -33,13 +33,21 @@ namespace BankPresentationLayer.Controllers
             }
         }
 
+        public IActionResult AdminLogin()
+        {
+            Log("Navigate to the admin login page", LogLevel.Information, null);
+            return View("~/Views/Admin/AdminLoginView.cshtml");
+        }
+
         public IActionResult AdminDashboard()
         {
+            Log("Navigate to the admin dashboard page", LogLevel.Information, null);
             return View("~/Views/Admin/AdminDashboard.cshtml");
         }
 
         public IActionResult GoToHome()
         {
+            Log("Navigate to the home login page", LogLevel.Information, null);
             return RedirectToAction("Index", "Home");
         }
     }
