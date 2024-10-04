@@ -1,0 +1,38 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Log in</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="stylesheet" href="~/css/adminlogin.css" />
+</head>
+<body>
+
+    <!-- Log In Form Section -->
+    <section>
+        <div class="container" id="container">
+            <div class="form-container sign-in-container">
+                <form action="#">
+                    <h1>Sign in</h1>
+
+                    <input type="text" id="aName" name="SName" placeholder="Enter Username" required />
+                    <input type="password" id="aPass" name="SPass" placeholder="Enter Password" required />
+
+                    <button type="button" id="aLoginButton" class="btn">Login</button>
+                    
+                    <!-- Back to the home login -->
+                    <nav class="home-nav">
+                        <a href="/home/index" class="home-link">Back</a>
+                    </nav>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <script src="/js/adminsite.js"></script>
+</body>
+</html>
