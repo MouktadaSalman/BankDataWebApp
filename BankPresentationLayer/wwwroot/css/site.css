@@ -91,6 +91,22 @@ header .avatar-container {
         z-index: 2;
     }
 
+
+/* A simple hover effect for account list items */
+.accountItem {
+    padding: 10px;
+    background-color: #f0f0f0;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+    .accountItem:hover {
+        background-color: #d1f4ff;
+        box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.15);
+        cursor: pointer;
+    }
 /* General Button Styles */
 button {
     border-radius: 50px;
@@ -233,3 +249,6 @@ form select {
         grid-template-columns: 1fr;
     }
 }
+
+
+

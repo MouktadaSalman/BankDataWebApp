@@ -5,6 +5,7 @@ using RestSharp;
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Net;
 
 namespace BankPresentationLayer.Controllers
 {
@@ -353,20 +354,25 @@ namespace BankPresentationLayer.Controllers
 
                         if (!restResponse.IsSuccessful)
                         {
-                            _logger.LogWarning("Failed to get user profile. Status: {StatusCode}, Content: {Content}", restResponse.StatusCode, restResponse.Content);
+                            _logger.LogWarning("Failed to get transaction history. Status: {StatusCode}, Content: {Content}", restResponse.StatusCode, restResponse.Content);
 
-                            return NoContent();
+                            if (restResponse.StatusCode == HttpStatusCode.NoContent || restResponse.StatusCode == HttpStatusCode.NotFound)
+                            {
+                                return Json(new List<string>()); // Return empty list for no content or not found, fixed my problem when switching between accounts
+                            }
+
+                            return StatusCode((int)restResponse.StatusCode, "Error loading transaction history");
                         }
 
                         var accountHistory = JsonConvert.DeserializeObject<List<string>>(restResponse.Content);
 
                         if (accountHistory != null && accountHistory.Count > 0)
                         {
-                            _logger.LogInformation("User Bank Acount loaded successfully ");
+                            _logger.LogInformation("User Bank Account loaded successfully ");
                             return Json(accountHistory);
                         }
 
-                        return Unauthorized();
+                        return Json(new List<string>());
                     }
                     else
                     {
@@ -383,6 +389,7 @@ namespace BankPresentationLayer.Controllers
                 return StatusCode(500, "An error occurred while processing the request");
             }
         }
+
 
         [HttpPut("updateprofile")]
         public IActionResult UpdateUserProfile([FromBody] UserProfile updatedProfile)

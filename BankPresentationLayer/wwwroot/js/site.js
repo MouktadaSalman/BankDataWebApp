@@ -314,52 +314,62 @@ function loadUserAccount() {
     }
 
     fetch(apiUrl, requestOption)
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.json();
-    })
-    .then(userAccounts => {
-        const firstAccount = userAccounts[0];
-        console.log("account number: " + firstAccount.acctNo + " Account balance: " + firstAccount.balance);
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(userAccounts => {
+            const accountSummaryList = document.getElementById("accountSummaryList");
+            accountSummaryList.innerHTML = '';
 
-        // Set account details
-        document.getElementById('accountNumber').innerText = firstAccount.acctNo;
-        document.getElementById('accountBalance').innerText = firstAccount.balance;
+            userAccounts.forEach(account => {
+                const listItem = document.createElement('li');
+                listItem.className = 'accountItem';
 
-        const accountSummaryList = document.getElementById("accountSummaryList");
-        accountSummaryList.innerHTML = '';// Clear any existing elements
+                const accountNumberElement = document.createElement('p');
+                accountNumberElement.innerText = `Account Number: ${account.acctNo}`;
 
-        userAccounts.forEach(account => {
-            const listItem = document.createElement('li');
-            listItem.className = 'accountItem';
+                const accountBalanceElement = document.createElement('p');
+                const formattedBalance = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(account.balance);
+                accountBalanceElement.innerText = `Balance: ${formattedBalance}`;
 
-            const accountNumberElement = document.createElement('p');
-            accountNumberElement.innerText = `Account Number: ${account.acctNo}`;
+                const accountTypeElement = document.createElement('p');
+                accountTypeElement.innerText = `Type: ${account.accountName || "Unknown"}`;
 
-            const accountBalanceElement = document.createElement('p');
-            const formattedBalance = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(account.balance);
-            accountBalanceElement.innerText = `Balance: ${formattedBalance}`;
+                listItem.appendChild(accountNumberElement);
+                listItem.appendChild(accountBalanceElement);
+                listItem.appendChild(accountTypeElement);
 
-            const accountTypeElement = document.createElement('p');
-            accountTypeElement.innerText = `Type: ${account.accountName || "Unknown"}`; // Assuming `accountType` is available
+                // Add click event listener to load account details when clicked
+                listItem.addEventListener('click', function () {
+                    loadAccountDetails(account.acctNo, account.balance);
+                    loadAccountHistory(account.acctNo); // Load the selected account's transaction history
+                });
 
-            listItem.appendChild(accountNumberElement);
-            listItem.appendChild(accountBalanceElement);
-            listItem.appendChild(accountTypeElement);
+                accountSummaryList.appendChild(listItem);
+            });
 
-            accountSummaryList.appendChild(listItem);
+            // Automatically load the first account details by default
+            if (userAccounts.length > 0) {
+                loadAccountDetails(userAccounts[0].acctNo, userAccounts[0].balance);
+                loadAccountHistory(userAccounts[0].acctNo);
+            }
+
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+            alert('User has no Accounts.');
         });
-
-        loadAccountHistory(firstAccount.acctNo);
-        
-    })
-    .catch(error => {
-        console.error('Fetch error:', error);
-        alert('User has no Accounts.');
-    });
 }
+
+function loadAccountDetails(accountNumber, accountBalance) {
+    // Update the account number and balance fields
+    document.getElementById('accountNumber').innerText = accountNumber;
+    document.getElementById('accountBalance').innerText = accountBalance;
+}
+
 
 document.addEventListener("DOMContentLoaded", function () {
     const depositButton = document.querySelector(".depositButton");
@@ -446,10 +456,8 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
-
-function loadAccountHistory(acctNo){
+function loadAccountHistory(acctNo) {
     const apiUrl = `/loadhistory/${acctNo}`;
-
     const header = {
         'Content-Type': 'application/json'
     };
@@ -457,34 +465,47 @@ function loadAccountHistory(acctNo){
     const requestOption = {
         method: 'GET',
         headers: header
-    }
+    };
 
     fetch(apiUrl, requestOption)
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.json();
-    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
         .then(accountHistory => {
+            const transactionListElement = document.getElementById('transactionList');
+            transactionListElement.innerHTML = ''; // Always clear the previous transaction history
 
-        // Populate transaction history
-        const transactionListElement = document.getElementById('transactionList');
-        transactionListElement.innerHTML = ''; // Clear any existing items
-        
-        accountHistory.forEach(historyEntry => {
-            const listItem = document.createElement('li');
-            listItem.className = 'transactionItem';
-            listItem.innerText = historyEntry; // Set the text to the history string directly
-            transactionListElement.appendChild(listItem);
+            if (Array.isArray(accountHistory) && accountHistory.length === 0) {
+                // If no transactions found, show a message
+                const listItem = document.createElement('li');
+                listItem.className = 'transactionItem';
+                listItem.innerText = 'No transactions found for this account.';
+                transactionListElement.appendChild(listItem);
+            } else {
+                // Populate transaction history if available
+                accountHistory.forEach(historyEntry => {
+                    const listItem = document.createElement('li');
+                    listItem.className = 'transactionItem';
+                    listItem.innerText = historyEntry;
+                    transactionListElement.appendChild(listItem);
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+            const transactionListElement = document.getElementById('transactionList');
+            transactionListElement.innerHTML = '';
+
+            alert('Unable to load transaction history.');
+
         });
-        
-    })
-    .catch(error => {
-        console.error('Fetch error:', error);
-        alert('Unable to load user profile. Please try again.');
-    });
 }
+
+
+
 
 
 
