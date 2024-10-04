@@ -112,6 +112,50 @@ namespace BankPresentationLayer.Controllers
         }
 
 
+
+
+
+
+
+
+
+
+        [HttpPost("createAccount")]
+        public async Task<IActionResult> CreateAccount([FromBody] BankAccount account)
+        {
+            if (account == null)
+            {
+                return BadRequest("Invalid account data.");
+            }
+
+            try
+            {
+                RestClient client = new RestClient(_dataServerApiUrl);
+                RestRequest request = new RestRequest("/api/bankaccount", Method.Post);
+
+                request.AddJsonBody(account);
+                RestResponse response = await client.ExecuteAsync(request);
+
+                if (response.IsSuccessful)
+                {
+                    _logger.LogInformation("Account created successfully.");
+                    return Ok(new { success = true, message = "Account created successfully" });
+                }
+                else
+                {
+                    _logger.LogError("Error creating account: {Content}", response.Content);
+                    return StatusCode((int)response.StatusCode, response.Content);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while creating the account.");
+                return StatusCode(500, "An error occurred while processing your request");
+            }
+        }
+
+
+
         [HttpPost("transaction")]
         public async Task<IActionResult> MakeTransaction([FromBody] TransactionInfo request)
         {
