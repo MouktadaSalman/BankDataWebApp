@@ -411,14 +411,14 @@ document.addEventListener("DOMContentLoaded", function () {
         transferButton.addEventListener("click", function (event) {
             const amount = document.getElementById("transferAmount").value;
             const fromAccountNumber = document.getElementById("accountNumber").innerText;
-            const toAccountNumber = document.getElementById("transferTo").innerText;
+            const toAccountNumber = document.getElementById("transferTo").value;
 
             if (amount && accountNumber) {
 
-                makeTransaction(toAccountNumber, amount, "send");
+                makeTransaction(toAccountNumber, amount, "receive");
 
                 const negativeAmount = -Math.abs(amount);
-                makeTransaction(fromAccountNumber, negativeAmount, "receive");
+                makeTransaction(fromAccountNumber, negativeAmount, "send");
             }
         });
     }
