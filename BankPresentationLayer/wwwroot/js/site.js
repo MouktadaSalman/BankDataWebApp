@@ -301,6 +301,70 @@ function saveProfile() {
         });
 }
 
+function createAccount() {
+    var UAccountNo = document.getElementById('AccountNumber').value;
+    var UBalance = document.getElementById('Balance').value;
+    var UAccountType = document.getElementById("AccountType").value; // Account type
+    var UserID = document.getElementById("Id").value;
+
+    if (!UAccountNo || !UBalance || !UserID || !UAccountType) {
+        alert("All fields must be filled.");
+        return;
+    }
+
+    var Account = {
+        AcctNo: UAccountNo,
+        Balance: parseInt(UBalance),
+        AccountName: UAccountType,
+        UserId: parseInt(UserID),
+        History: []
+    };
+
+    console.log("Account to be created: ", Account);
+
+    const apiUrl = '/createAccount';
+
+    fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(Account)
+    })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => { throw new Error(err.message); });
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Account created successfully:', data);
+
+            if (data.success) {
+                alert('Account created successfully!');
+
+                loadUserAccount();
+            } else {
+                alert('Error creating Account: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error creating Account:', error.message);
+            alert('Unable to create Account. Error: ' + error.message);
+        });
+}
+
+
+// Event listener to trigger profile creation when the sign-up button is clicked
+if (document.getElementById('addAccountButton')) {
+    document.getElementById('addAccountButton').onclick = function (event) {
+        event.preventDefault();
+        createAccount();
+        
+    };
+}
+
+
 function loadUserAccount() {
     const apiUrl = '/loadbankaccount';
 
