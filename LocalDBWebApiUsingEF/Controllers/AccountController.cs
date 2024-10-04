@@ -47,6 +47,8 @@ namespace DataTierWebServer.Controllers
                 .Where(a => a.UserId == Id)
                 .ToListAsync();
 
+            accounts.ForEach(account => Console.WriteLine(account));
+
             if (accounts == null)
             {
                 return NotFound();
@@ -92,31 +94,26 @@ namespace DataTierWebServer.Controllers
             {
                 AccountId = account.AcctNo,
                 Amount = amount,
-                Type = (type.ToLower()) switch
-                {
-                    "receive" => "Receive",
-                    "send" => "Send",
-                    _ => (amount >= 0) ? "Deposit" : "Withdraw"
-                },
+                Type = type.ToLower() == "receive" ? "Receive" :
+                       type.ToLower() == "send" ? "Send" :
+                       (amount >= 0) ? "Deposit" : "Withdraw",
                 DateTime = DateTime.Now,
                 Sender = acctNo,
-                HistoryString = (type.ToLower()) switch
-                {
-                    "receive" => $"Account ID: {account.AcctNo} --- " +
-                                 $"Received: ${amount:F2} --- " +
-                                 $"Date and Time: {DateTime.Now:MMMM dd, yyyy HH:mm tt}",
-                    "send" => $"Account ID: {account.AcctNo} --- " +
-                              $"Sent: ${Math.Abs(amount):F2} --- " +
-                              $"Date and Time: {DateTime.Now:MMMM dd, yyyy HH:mm tt}",
-                    _ => (amount >= 0) ?
-                         $"Account ID: {account.AcctNo} --- " +
-                         $"Deposited: ${amount:F2} --- " +
-                         $"Date and Time: {DateTime.Now:MMMM dd, yyyy HH:mm tt}"
-                         :
-                         $"Account ID: {account.AcctNo} --- " +
-                         $"Withdrawn: ${Math.Abs(amount):F2} --- " +
-                         $"Date and Time: {DateTime.Now:MMMM dd, yyyy HH:mm tt}"
-                }
+                HistoryString = type.ToLower() == "receive" ?
+                    $"Account ID: {account.AcctNo} --- " +
+                    $"Received: ${amount:F2} --- " +
+                    $"Date and Time: {DateTime.Now:MMMM dd, yyyy HH:mm tt}" :
+                    type.ToLower() == "send" ?
+                    $"Account ID: {account.AcctNo} --- " +
+                    $"Sent: ${Math.Abs(amount):F2} --- " +
+                    $"Date and Time: {DateTime.Now:MMMM dd, yyyy HH:mm tt}" :
+                    (amount >= 0) ?
+                    $"Account ID: {account.AcctNo} --- " +
+                    $"Deposited: ${amount:F2} --- " +
+                    $"Date and Time: {DateTime.Now:MMMM dd, yyyy HH:mm tt}" :
+                    $"Account ID: {account.AcctNo} --- " +
+                    $"Withdrawn: ${Math.Abs(amount):F2} --- " +
+                    $"Date and Time: {DateTime.Now:MMMM dd, yyyy HH:mm tt}"
             };
             account.History.Add(historyEntry);
 

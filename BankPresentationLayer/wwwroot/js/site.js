@@ -359,12 +359,12 @@ function loadUserAccount() {
         console.error('Fetch error:', error);
         alert('User has no Accounts.');
     });
-
 }
 
 document.addEventListener("DOMContentLoaded", function () {
     const depositButton = document.querySelector(".depositButton");
     const withdrawButton = document.querySelector(".withdrawButton");
+    const transferButton = document.querySelector(".transferButton");
 
     if (depositButton) {
         depositButton.addEventListener("click", function (event) {
@@ -394,11 +394,26 @@ document.addEventListener("DOMContentLoaded", function () {
                 alert("Please enter a valid withdraw amount.");
             }
         });
+
     }
 
-    function makeTransaction(accountNumber, amount, type) {
+    if (transferButton) {
+        transferButton.addEventListener("click", function (event) {
+            const amount = document.getElementById("transferAmount").value;
+            const fromAccountNumber = document.getElementById("accountNumber").innerText;
+            const toAccountNumber = document.getElementById("transferTo").innerText;
 
-       
+            if (amount && accountNumber) {
+
+                makeTransaction(toAccountNumber, amount, "send");
+
+                const negativeAmount = -Math.abs(amount);
+                makeTransaction(fromAccountNumber, negativeAmount, "receive");
+            }
+        });
+    }
+
+    function makeTransaction(accountNumber, amount, type) {       
         const apiUrl = `/transaction`;
 
         const data = {
@@ -414,20 +429,20 @@ document.addEventListener("DOMContentLoaded", function () {
             },
             body: JSON.stringify(data)
         })
-            .then(response => response.json())
-            .then(result => {
-                if (result.success) {
-                    alert(`${type.charAt(0).toUpperCase() + type.slice(1)} successful!`);
-                    // Optionally, reload the user account to reflect updated balance
-                    loadUserAccount();
-                } else {
-                    alert(`Error during ${type}: ${result.message}`);
-                }
-            })
-            .catch(error => {
-                console.error(`${type} failed`, error);
-                alert(`Error during ${type}. Please try again.`);
-            });
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                alert(`${type.charAt(0).toUpperCase() + type.slice(1)} successful!`);
+                // Optionally, reload the user account to reflect updated balance
+                loadUserAccount();
+            } else {
+                alert(`Error during ${type}: ${result.message}`);
+            }
+        })
+        .catch(error => {
+            console.error(`${type} failed`, error);
+            alert(`Error during ${type}. Please try again.`);
+        });
     }
 });
 

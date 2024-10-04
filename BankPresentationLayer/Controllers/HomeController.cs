@@ -384,23 +384,16 @@ namespace BankPresentationLayer.Controllers
             }
         }
 
-
         [HttpPut("updateprofile")]
         public IActionResult UpdateUserProfile([FromBody] UserProfile updatedProfile)
         {
-
             string updatedProfileJson = JsonConvert.SerializeObject(updatedProfile);
             _logger.LogInformation($"Update profile called with : {updatedProfileJson}");
             if (updatedProfile == null || updatedProfile.Id == 0)
             {
-
                 _logger.LogInformation("ID does not exist");
                 return BadRequest("Invalid profile data.");
-
             }
-
-
-
 
             try
             {
@@ -431,9 +424,5 @@ namespace BankPresentationLayer.Controllers
                 return StatusCode(500, "Internal server error.");
             }
         }
-
-
-
-
     }
 }

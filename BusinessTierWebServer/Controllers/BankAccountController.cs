@@ -30,7 +30,8 @@ namespace BusinessTierWebServer.Controllers
 
             try
             {
-                var value = JsonConvert.DeserializeObject<List<BankAccount>>(response.Content);
+                List<BankAccount>? value = JsonConvert.DeserializeObject<List<BankAccount>>(response.Content);
+                value?.ForEach(bankAccount => Console.WriteLine(bankAccount));
                 return Ok(value);
             }
             catch (JsonException ex)
