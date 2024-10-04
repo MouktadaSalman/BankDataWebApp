@@ -52,7 +52,7 @@ input {
     background: #eee; /* Light background for input fields */
 }
 
-button {
+.btn {
     width: 100%;
     padding: 12px;
     border: none;
@@ -67,7 +67,30 @@ button {
     transition: transform 80ms ease-in;
 }
 
-    button:hover {
+    .btn:hover {
         background-color: #45a049;
+        transform: scale(.95); /* Slight scale on hover */
+    }
+
+.home-link {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 50px; /* Rounded button */
+    background-color: #008ecf; /* Matching blue color scheme */
+    color: white;
+    font-weight: bold;
+    font-size: 12px;
+    text-transform: uppercase; /* Uppercase text */
+    cursor: pointer;
+    margin-top: 10px;
+    text-align: center; /* Center text for link */
+    display: inline-block; /* Makes anchor behave like a block-level element */
+    transition: transform 80ms ease-in;
+    text-decoration: none; /* Remove underline */
+}
+
+    .home-link:hover {
+        background-color: #004f8f; /* Change this if needed */
         transform: scale(.95); /* Slight scale on hover */
     }
