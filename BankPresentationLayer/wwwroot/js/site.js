@@ -507,7 +507,7 @@ document.addEventListener("DOMContentLoaded", function () {
         .then(result => {
             if (result.success) {
                 alert(`${type.charAt(0).toUpperCase() + type.slice(1)} successful!`);
-                // Optionally, reload the user account to reflect updated balance
+               
                 loadUserAccount();
             } else {
                 alert(`Error during ${type}: ${result.message}`);
@@ -519,9 +519,9 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 });
+function loadAccountHistory(acctNo, startDate, endDate) {
+    const apiUrl = `/loadhistory/${acctNo}?startDate=${startDate}&endDate=${endDate}`;
 
-function loadAccountHistory(acctNo) {
-    const apiUrl = `/loadhistory/${acctNo}`;
     const header = {
         'Content-Type': 'application/json'
     };
@@ -529,7 +529,7 @@ function loadAccountHistory(acctNo) {
     const requestOption = {
         method: 'GET',
         headers: header
-    };
+    }
 
     fetch(apiUrl, requestOption)
         .then(response => {
@@ -540,33 +540,103 @@ function loadAccountHistory(acctNo) {
         })
         .then(accountHistory => {
             const transactionListElement = document.getElementById('transactionList');
-            transactionListElement.innerHTML = ''; // Always clear the previous transaction history
+            transactionListElement.innerHTML = ''; // Clear old transactions
 
-            if (Array.isArray(accountHistory) && accountHistory.length === 0) {
-                // If no transactions found, show a message
-                const listItem = document.createElement('li');
-                listItem.className = 'transactionItem';
-                listItem.innerText = 'No transactions found for this account.';
-                transactionListElement.appendChild(listItem);
-            } else {
-                // Populate transaction history if available
+            if (accountHistory.length > 0) {
                 accountHistory.forEach(historyEntry => {
                     const listItem = document.createElement('li');
                     listItem.className = 'transactionItem';
                     listItem.innerText = historyEntry;
                     transactionListElement.appendChild(listItem);
                 });
+            } else {
+                const listItem = document.createElement('li');
+                listItem.className = 'transactionItem';
+                listItem.innerText = 'No transactions found for this date range.';
+                transactionListElement.appendChild(listItem);
             }
         })
         .catch(error => {
             console.error('Fetch error:', error);
-            const transactionListElement = document.getElementById('transactionList');
-            transactionListElement.innerHTML = '';
-
-            alert('Unable to load transaction history.');
-
+            alert('Unable to load transaction history. Please try again.');
         });
 }
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    const showAll = document.getElementById("showAll");
+
+    if (showAll) {
+        showAll.addEventListener("click", function (event) {
+            event.preventDefault();
+
+            const accountNumber = document.getElementById('accountNumber').innerText;
+            loadAccountHistory(accountNumber);
+        });
+    }
+});
+
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    const filterButton = document.getElementById("filterTransactions");
+
+    if (filterButton) {
+        filterButton.addEventListener("click", function (event) {
+            event.preventDefault();
+
+            const accountNumber = document.getElementById('accountNumber').innerText;
+            filterTransactionsByDateRange(accountNumber);
+        });
+    }
+});
+function filterTransactionsByDateRange(accountNumber) {
+    console.log("Filter button clicked for Account:", accountNumber);
+
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+
+    if (!startDate || !endDate) {
+        alert("Please select both a start and end date.");
+        return;
+    }
+
+    // Construct the API URL with query parameters
+    const apiUrl = `/loadhistory/${accountNumber}?startDate=${startDate}&endDate=${endDate}`;
+    console.log("API URL:", apiUrl);
+
+    fetch(apiUrl, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+    })
+        .then(response => {
+            if (!response.ok) throw new Error("Failed to fetch filtered transactions.");
+            return response.json();
+        })
+        .then(filteredHistory => {
+            const transactionListElement = document.getElementById('transactionList');
+            transactionListElement.innerHTML = ''; // Clear existing items
+
+            if (filteredHistory && filteredHistory.length > 0) {
+                filteredHistory.forEach(entry => {
+                    const listItem = document.createElement('li');
+                    listItem.className = 'transactionItem';
+                    listItem.innerText = entry;
+                    transactionListElement.appendChild(listItem);
+                });
+            } else {
+                transactionListElement.innerHTML = '<li>No transactions found for this date range.</li>';
+            }
+        })
+        .catch(error => {
+            console.error('Error filtering transactions:', error);
+            alert('Unable to filter transactions. Please try again.');
+        });
+}
+
+
+
+
 
 
 

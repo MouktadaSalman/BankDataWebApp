@@ -69,12 +69,29 @@ namespace BusinessTierWebServer.Controllers
         //    return Ok(value);
         //}
 
-        // GET: api/bankaccount/history/{acctno}
-        [HttpGet("history/{acctno}")]
-        public IActionResult GetHistory(uint acctNo)
+        // GET: api/bankaccount/history/{acctNo}
+        [HttpGet("history/{acctNo}")]
+        public IActionResult GetHistory(uint acctNo, [FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate)
         {
+            // Build the query for the Data Tier API
+            string apiUrl = $"/api/account/history/{acctNo}";
+
+            // Append startDate and endDate as query parameters if they are provided
+            if (startDate.HasValue || endDate.HasValue)
+            {
+                apiUrl += "?";
+                if (startDate.HasValue)
+                {
+                    apiUrl += $"startDate={startDate.Value:yyyy-MM-dd}&";
+                }
+                if (endDate.HasValue)
+                {
+                    apiUrl += $"endDate={endDate.Value:yyyy-MM-dd}";
+                }
+            }
+
             RestClient client = new RestClient(_dataServerApiUrl);
-            RestRequest request = new RestRequest($"/api/account/history/{acctNo}", Method.Get);
+            RestRequest request = new RestRequest(apiUrl, Method.Get);
             RestResponse response = client.Execute(request);
 
             if (!response.IsSuccessful || response.Content == null)
@@ -90,6 +107,7 @@ namespace BusinessTierWebServer.Controllers
 
             return Ok(value);
         }
+
 
         // Put: api/bankaccount/{acctNo}/{amount}
         [HttpPut("{type}/{acctNo}/{amount}")]

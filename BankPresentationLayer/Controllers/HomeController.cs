@@ -376,7 +376,7 @@ namespace BankPresentationLayer.Controllers
         }
 
         [HttpGet("loadhistory/{acctNo}")]
-        public IActionResult LoadHistory(uint acctNo)
+        public IActionResult LoadHistory(uint acctNo, [FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate)
         {
             try
             {
@@ -389,50 +389,44 @@ namespace BankPresentationLayer.Controllers
                         UserProfile? currentUser = usersInSession[sessionId];
 
                         RestClient client = new RestClient(_dataServerApiUrl);
-                        _logger.LogInformation("history for account number : {acctNo}", acctNo);
                         RestRequest request = new RestRequest($"/api/bankaccount/history/{acctNo}", Method.Get);
 
-                        _logger.LogInformation("Sending request to: {RequestUrl}", request.Resource);
+                        // Add date range as query parameters
+                        if (startDate.HasValue) request.AddQueryParameter("startDate", startDate.Value.ToString("yyyy-MM-dd"));
+                        if (endDate.HasValue) request.AddQueryParameter("endDate", endDate.Value.ToString("yyyy-MM-dd"));
 
                         RestResponse restResponse = client.Execute(request);
 
                         if (!restResponse.IsSuccessful)
                         {
                             _logger.LogWarning("Failed to get transaction history. Status: {StatusCode}, Content: {Content}", restResponse.StatusCode, restResponse.Content);
-
-                            if (restResponse.StatusCode == HttpStatusCode.NoContent || restResponse.StatusCode == HttpStatusCode.NotFound)
-                            {
-                                return Json(new List<string>()); // Return empty list for no content or not found, fixed my problem when switching between accounts
-                            }
-
-                            return StatusCode((int)restResponse.StatusCode, "Error loading transaction history");
+                            return NoContent();
                         }
 
                         var accountHistory = JsonConvert.DeserializeObject<List<string>>(restResponse.Content);
 
                         if (accountHistory != null && accountHistory.Count > 0)
                         {
-                            _logger.LogInformation("User Bank Account loaded successfully ");
+                            _logger.LogInformation("Filtered transactions loaded successfully");
                             return Json(accountHistory);
                         }
 
-                        return Json(new List<string>());
+                        return Json(new List<string>()); 
                     }
-                    else
-                    {
-                        _logger.LogWarning("Session ID not found in list of current sessions.");
-                        return Unauthorized();
-                    }
+
+                    _logger.LogWarning("Session ID not found in list of current sessions.");
+                    return Unauthorized();
                 }
 
                 return Unauthorized();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while loading bank account");
+                _logger.LogError(ex, "An error occurred while filtering transactions.");
                 return StatusCode(500, "An error occurred while processing the request");
             }
         }
+
 
 
         [HttpPut("updateprofile")]
