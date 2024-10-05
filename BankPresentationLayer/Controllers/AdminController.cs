@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using RestSharp;
 using System.Collections.Concurrent;
 using System.Net.Mail;
+using System.Numerics;
 using System.Xml.Linq;
 
 namespace BankPresentationLayer.Controllers
@@ -65,6 +66,21 @@ namespace BankPresentationLayer.Controllers
             return client.Execute(request);
         }
 
+        private bool IsUserAuthorized(string identifier)
+        {
+            if (Request.Cookies.ContainsKey("SessionID"))
+            {
+                var sessionId = Request.Cookies["SessionID"];
+
+                // Check if the session ID corresponds to an authenticated admin
+                if (adminsInSession.TryGetValue(sessionId, out Admin? currentAdmin))
+                {
+                    // Ensure the identifier matches the current admin's name or email
+                    return (currentAdmin.FName.Equals(identifier));
+                }
+            }
+            return false;
+        }
 
         public IActionResult AdminLogin()
         {
@@ -72,8 +88,14 @@ namespace BankPresentationLayer.Controllers
             return View("~/Views/Admin/AdminLoginView.cshtml");
         }
 
-        public IActionResult AdminDashboard()
+        [HttpGet("admindashboard/{id}/authorized/admin={identifier}-{lName}")]
+        public IActionResult AdminDashboard(string identifier)
         {
+            if (!IsUserAuthorized(identifier)) // Your authorization logic here
+            {
+                return RedirectToAction("LoginError"); // Redirect if not authorized
+            }
+
             Log("Navigate to the admin dashboard page", LogLevel.Information, null);
             return View("~/Views/Admin/AdminDashboard.cshtml");
         }
@@ -81,6 +103,69 @@ namespace BankPresentationLayer.Controllers
         public IActionResult LoginError()
         {
             return RedirectToAction("LoginError", "Home");
+        }
+
+        [HttpGet("getadmin/{identifier}")]
+        public IActionResult GetAdmin(string identifier)
+        {
+            Log($"Attempt retrieval of admin details to update profile dashboard: '{identifier}'", LogLevel.Information, null);
+            try
+            {
+                RestResponse response = GetAdminDetails(identifier);
+                Admin? value = null;
+
+                if (response.Content != null)
+                {
+                    if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                    {
+                        value = JsonConvert.DeserializeObject<Admin>(response.Content);
+
+                        Log($"Successful retrieval of admin details: '{identifier}'", LogLevel.Information, null);
+                    }
+                }
+
+                if (value != null)
+                {
+                    Log($"Successful deserialization of details", LogLevel.Information, null);
+                    string name = $"{value.FName} { value.LName}";
+                    var email = value.Email != null ? value.Email : "";
+                    var phone = value.PhoneNumber != null ? value.PhoneNumber : "";
+
+                    return Json(new
+                    {
+                        auth = true,
+                        name,
+                        email,
+                        phone
+                    });
+                }
+
+                throw new DataRetrievalFailException("Failure to retrieve data occurred");
+            }
+            catch (DataRetrievalFailException e)
+            {
+                Log(null, LogLevel.Warning, e);
+                return Json(new
+                {
+                    Check = false
+                });
+            }
+            catch (ArgumentNullException e)
+            {
+                Log(null, LogLevel.Warning, e);
+                return Json(new
+                {
+                    Check = false
+                });
+            }
+            catch (Exception e)
+            {
+                Log(null, LogLevel.Critical, e);
+                return Json(new
+                {
+                    Check = false
+                });
+            }
         }
 
         [HttpPost("authenticate")]
@@ -158,7 +243,7 @@ namespace BankPresentationLayer.Controllers
         }
 
         [HttpGet("authenticated/{identifier}")]
-        public IActionResult GetAuthenticatedView(string identifier)
+        public IActionResult GetAuthorizedView(string identifier)
         {
             Log($"Total active sessions: {adminsInSession.Count}", LogLevel.Information, null);
             Log($"Attempted to check identifier: {identifier}", LogLevel.Information, null);
@@ -166,7 +251,7 @@ namespace BankPresentationLayer.Controllers
             if (Request.Cookies.ContainsKey("SessionID"))
             {
                 var sessionId = Request.Cookies["SessionID"];
-                Log($"User is authenticated with SessionID: {sessionId}", LogLevel.Information, null);
+                Log($"User is authenticated with SessionID", LogLevel.Information, null);
 
                 if (adminsInSession.TryGetValue(sessionId, out Admin? currentAdmin))
                 {
@@ -174,7 +259,7 @@ namespace BankPresentationLayer.Controllers
                         (currentAdmin.Email != null && currentAdmin.Email.Equals(identifier)))
                     {
                         Log("Admin found and authenticated", LogLevel.Information, null);
-                        return RedirectToAction("AdminDashboard");
+                        return RedirectToAction("AdminDashboard", new { id = currentAdmin.Id, identifier = currentAdmin.FName, lName = currentAdmin.LName});
                     }
                     else
                     {

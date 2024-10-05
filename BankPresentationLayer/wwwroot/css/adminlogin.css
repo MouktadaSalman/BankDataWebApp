@@ -34,34 +34,35 @@ h1 {
 }
 
 .form-container {
-    background: #fff; /* White background */
+    background: #fff;
     padding: 40px;
-    border-radius: 50px; /* Rounded corners to match other login */
-    box-shadow: 30px 14px 28px rgba(0, 0, 5, .2), 0 10px 10px rgba(0, 0, 0, .2); /* Box shadow like the other login */
+    border-radius: 50px;
+    box-shadow: 30px 14px 28px rgba(0, 0, 5, .2), 0 10px 10px rgba(0, 0, 0, .2);
     max-width: 400px;
     width: 100%;
-    opacity: 85%; /* Slight opacity */
+    opacity: 85%;
 }
 
 input {
     width: 100%;
     margin: 8px 0;
-    padding: 12px 15px; /* Padding adjusted for consistency */
-    border-radius: 50px; /* Rounded input fields */
-    border: none; /* No border, matching other login */
-    background: #eee; /* Light background for input fields */
+    padding: 12px 15px;
+    border-radius: 50px;
+    border: none;
+    background: #eee;
 }
 
+/* Buttons styling */
 .btn {
     width: 100%;
     padding: 12px;
     border: none;
-    border-radius: 50px; /* Rounded button */
-    background-color: #008ecf; /* Matching blue color scheme */
+    border-radius: 50px;
+    background-color: #008ecf;
     color: white;
     font-weight: bold;
     font-size: 12px;
-    text-transform: uppercase; /* Uppercase like other login */
+    text-transform: uppercase;
     cursor: pointer;
     margin-top: 10px;
     transition: transform 80ms ease-in;
@@ -69,35 +70,36 @@ input {
 
     .btn:hover {
         background-color: #45a049;
-        transform: scale(.95); /* Slight scale on hover */
+        transform: scale(.95);
     }
 
+/* Return 'button' styling (more like a return link) */
 .home-link {
     width: 100%;
     padding: 12px;
     border: none;
-    border-radius: 50px; /* Rounded button */
-    background-color: #008ecf; /* Matching blue color scheme */
+    border-radius: 50px;
+    background-color: #008ecf;
     color: white;
     font-weight: bold;
     font-size: 12px;
-    text-transform: uppercase; /* Uppercase text */
+    text-transform: uppercase;
     cursor: pointer;
     margin-top: 10px;
-    text-align: center; /* Center text for link */
-    display: inline-block; /* Makes anchor behave like a block-level element */
+    text-align: center;
+    display: inline-block;
     transition: transform 80ms ease-in;
-    text-decoration: none; /* Remove underline */
+    text-decoration: none;
 }
 
     .home-link:hover {
-        background-color: #004f8f; /* Change this if needed */
-        transform: scale(.95); /* Slight scale on hover */
+        background-color: #004f8f;
+        transform: scale(.95);
     }
 
-/* Modal styles */
+/* Error modal styles */
 .modal {
-    display: none; /* Hidden by default */
+    display: none;
     position: fixed;
     z-index: 1;
     left: 0;
@@ -150,12 +152,11 @@ input {
         font-size: 16px;
     }
 
-/* Change the placeholder text color when there's an error */
+/* Style change when input fields empty */
 .input-error::placeholder {
     color: red;
 }
 
-/* Optional: You can also style the input text itself in case of an error */
 .input-error {
     border: 1px solid red;
 }

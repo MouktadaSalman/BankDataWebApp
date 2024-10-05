@@ -32,20 +32,23 @@ header .logo {
 header .profileInfo {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: space-between; /* Adjust to space items evenly */
     gap: 20px; /* Increase space between profile items */
     flex: 1;
+    min-width: 200px; /* Ensure the profile area has a minimum width */
 }
 
 header .avatar-container {
     position: relative;
     width: 100px;
     height: 100px;
+    overflow: hidden; /* Prevents overflow if image is larger */
 }
 
     header .avatar-container .avatar {
         width: 100%;
         height: 100%;
+        object-fit: cover; /* Ensures the image covers the container */
         transition: opacity 0.5s ease;
         border-radius: 50%;
     }
