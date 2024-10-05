@@ -54,15 +54,17 @@ namespace DataTierWebServer.Controllers
                 return NotFound();
             }
             return Ok(accounts);
-        }        
+        }
 
+        // GET: api/account/history/{acctNo}
         [HttpGet("history/{acctNo}")]
-        public async Task<ActionResult<List<string>>> GetAccountHistory(uint acctNo)
+        public async Task<ActionResult<List<string>>> GetAccountHistory(uint acctNo, [FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate)
         {
             if (_context.Accounts == null)
             {
                 return NotFound();
             }
+
             var account = await _context.Accounts
                 .Include(u => u.History)
                 .FirstOrDefaultAsync(u => u.AcctNo == acctNo);
@@ -71,8 +73,30 @@ namespace DataTierWebServer.Controllers
             {
                 return NotFound();
             }
-            return Ok(account.History.Select(h => h.HistoryString).ToList());
+
+            // Filter the history by date range, if provided
+            var historyQuery = account.History.AsQueryable();
+
+            if (startDate.HasValue)
+            {
+                historyQuery = historyQuery.Where(h => h.DateTime >= startDate.Value);
+            }
+
+            if (endDate.HasValue)
+            {
+                historyQuery = historyQuery.Where(h => h.DateTime <= endDate.Value);
+            }
+
+            var filteredHistory = historyQuery.Select(h => h.HistoryString).ToList();
+
+            if (filteredHistory.Count == 0)
+            {
+                return Ok(new List<string> { "No transactions found for this date range." });
+            }
+
+            return Ok(filteredHistory);
         }
+
 
         // GET: api/account/1/1000
         [HttpPut("{type}/{acctNo}/{amount}")]
