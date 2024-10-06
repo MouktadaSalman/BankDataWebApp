@@ -108,10 +108,10 @@ function loadProfileDetails(user) {
                 document.getElementById('viewAdminPassword').innerText = data.password;
 
                 //Update Modal Edit Fields
-                document.getElementById('editAdminName').innerText = data.name;
-                document.getElementById('editAdminEmail').innerText = data.email;
-                document.getElementById('editAdminPhone').innerText = data.phone;
-                document.getElementById('editAdminPassword').innerText = data.password;
+                document.getElementById('editAdminName').value = data.name;
+                document.getElementById('editAdminEmail').value = data.email;
+                document.getElementById('editAdminPhone').value = data.phone;
+                document.getElementById('editAdminPassword').value = data.password;
             }
             else {
                 console.log("Data retrieval was unsuccessful...");
@@ -121,4 +121,8 @@ function loadProfileDetails(user) {
         .catch(error => {
             console.error('Fetch error:', error);
         });
+}
+
+function saveChanges(aIdentifier, aName, aEmail, aPhone, aPassword) {
+
 }
