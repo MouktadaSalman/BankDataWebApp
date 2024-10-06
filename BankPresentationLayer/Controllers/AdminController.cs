@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RestSharp;
 using System.Collections.Concurrent;
+using System.ComponentModel.DataAnnotations;
 using System.Net.Mail;
 using System.Numerics;
 using System.Xml.Linq;
@@ -105,6 +106,15 @@ namespace BankPresentationLayer.Controllers
             return RedirectToAction("LoginError", "Home");
         }
 
+        public IActionResult Logout()
+        {
+            // Clear the user's session (for example, clear authentication session or token)
+            HttpContext.Response.Cookies.Delete("SessionID");
+
+            // Redirect to the login page
+            return RedirectToAction("Login", "Home");
+        }
+
         [HttpGet("getadmin/{identifier}")]
         public IActionResult GetAdmin(string identifier)
         {
@@ -130,13 +140,15 @@ namespace BankPresentationLayer.Controllers
                     string name = $"{value.FName} { value.LName}";
                     var email = value.Email != null ? value.Email : "";
                     var phone = value.PhoneNumber != null ? value.PhoneNumber : "";
+                    var password = value.Password != null ? value.Password : "";
 
                     return Json(new
                     {
                         auth = true,
                         name,
                         email,
-                        phone
+                        phone,
+                        password
                     });
                 }
 
