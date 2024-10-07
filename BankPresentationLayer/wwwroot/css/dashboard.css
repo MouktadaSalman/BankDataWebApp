@@ -110,7 +110,7 @@ header .avatar-container {
             z-index: 2;
         }
             header .avatar-container .text:hover {
-                background-color: #0e263d; /* Darker color on hover */
+                background-color: #0e263d;
             }
 
 header .admin-details {
@@ -125,27 +125,27 @@ header .admin-details {
 
     header .admin-details h3,
     header .admin-details p {
-        margin: 0; /* Remove default margins to control height */
-        flex: 1; /* Allow children to take equal height */
+        margin: 0;
+        flex: 1;
     }
 
 /* General Button Styles */
 button {
-    border-radius: 5px; /* Standard border radius */
-    padding: 8px 15px; /* Consistent button padding */
+    border-radius: 5px;
+    padding: 8px 15px;
     background-color: #008ecf;
     color: #fff;
-    border: none; /* Removed border for a cleaner look */
+    border: none;
     font-size: 14px;
     font-weight: bold;
     cursor: pointer;
     text-transform: uppercase;
     letter-spacing: 1px;
-    transition: background-color 0.3s; /* Transition for hover effect */
+    transition: background-color 0.3s;
 }
 
     button:hover {
-        background-color: #0e263d; /* Darker color on hover */
+        background-color: #0e263d;
     }
 
 /* Main Content */
@@ -171,14 +171,14 @@ button {
 
     .card h2 {
         color: #1a5f7a;
-        margin-bottom: 20px; /* Maintain space below the heading */
+        margin-bottom: 20px;
     }
 
 form input,
 form select {
     width: 100%;
     padding: 10px;
-    border-radius: 5px; /* Adjust border radius for input */
+    border-radius: 5px;
     border: 1px solid #ccc;
 }
 
@@ -239,14 +239,14 @@ form select {
 
 /* User Management Form */
 .userAccountsForm-container {
-    width: 100%; /* Ensures the container spans the full width of its parent */
-    margin: 0 auto; /* Centers the form horizontally */
+    width: 100%;
+    margin: 0 auto;
 }
 
 #searchUserForm {
     display: flex;
     flex-direction: row;
-    gap: 10px; /* Adds some space between the input and button */
+    gap: 10px;
     justify-content: space-between;
     align-items: center;
 }
@@ -263,36 +263,36 @@ form select {
 
 /* User accounts list */
 #userAccountList {
-    list-style-type: none; /* Removes the bullet points */
-    padding: 0; /* Removes any default padding */
-    margin-top: 20px; /* Removes any default margin */
-    max-height: 200px; /* Set the maximum height you want */
+    list-style-type: none;
+    padding: 0;
+    margin-top: 20px;
+    max-height: 200px;
     overflow-y: auto;
 }
 
     #userAccountList li {
-        cursor: pointer; /* Shows pointer cursor on hover */
+        cursor: pointer;
         display: flex;
         flex-direction: row;
         justify-content: space-between;
         padding: 10px;
-        background-color: #f0f0f0; /* Light background color */
-        margin-bottom: 5px; /* Adds some space between list items */
-        border-radius: 4px; /* Slight rounding for a modern look */
-        transition: background-color 0.3s ease; /* Smooth transition on hover */
+        background-color: #f0f0f0; 
+        margin-bottom: 5px;
+        border-radius: 4px;
+        transition: background-color 0.3s ease;
     }
 
         #userAccountList li:hover {
-            background-color: #008ecf; /* Change background on hover */
+            background-color: #008ecf;
             transform: scale(.95);
-            color: white; /* Change text color on hover */
+            color: white;
         }
         #userAccountList li div {
-            width: 100%; /* Ensure div takes full width */
+            width: 100%;
         }
         #userAccountList li.active {
-            background-color: lightgrey; /* Change background on when clicked */
-            color: black; /* Change text color on clicked */
+            background-color: lightgrey;
+            color: black;
         }
 
 /* Account Management Buttons */
@@ -324,6 +324,6 @@ form select {
 /* Responsive */
 @media (max-width: 768px) {
     .dashboardGrid {
-        grid-template-columns: 1fr; /* Stack cards on small screens */
+        grid-template-columns: 1fr;
     }
 }
