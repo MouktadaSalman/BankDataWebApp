@@ -285,5 +285,80 @@ namespace BankPresentationLayer.Controllers
             }
             return RedirectToAction("LoginError");
         }
+
+        [HttpGet("getaccounts")]
+        public IActionResult GetAccounts()
+        {
+            Log("Generate list of accounts", LogLevel.Information, null);
+
+            try
+            {
+                List<BankAccount>? accounts = null;
+                List<UserProfile>? users = null;
+                List<object> finalAccounts = new List<object>();
+
+                RestClient client = new RestClient(_dataServerApiUrl);
+
+                Log("Attempt to retrieve all accounts and users", LogLevel.Information, null);
+                RestRequest requestA = new RestRequest("/api/admin/getaccounts", Method.Get);
+                RestRequest requestU = new RestRequest("/api/admin/getusers", Method.Get);
+
+                RestResponse responseA = client.Execute(requestA);
+                RestResponse responseU = client.Execute(requestU);
+
+                if (responseA.Content != null && responseU.Content != null)
+                {
+                    if (responseA.StatusCode == System.Net.HttpStatusCode.OK &&
+                        responseU.StatusCode == System.Net.HttpStatusCode.OK)
+                    {
+                        // Log response content for debugging
+                        Log($"Response Content A: {responseA.Content}", LogLevel.Information, null);
+                        Log($"Response Content U: {responseU.Content}", LogLevel.Information, null);
+
+                        accounts = JsonConvert.DeserializeObject<List<BankAccount>>(responseA.Content);
+                        users = JsonConvert.DeserializeObject<List<UserProfile>>(responseU.Content);
+                    }
+                }
+
+                if (accounts != null && users != null)
+                {
+                    foreach (BankAccount a in accounts)
+                    {
+                        var user = users.FirstOrDefault(u => u.Id == a.UserId); // Safely get user by UserId
+                        if (user != null)
+                        {
+                            string acctNo = a.AcctNo.ToString();
+                            string acctType = a.AccountName ?? "";
+                            int acctBal = a.Balance;
+                            string acctOwner = $"{user.FName} {user.LName}";
+
+                            finalAccounts.Add(new
+                            {
+                                acctNo,
+                                acctType,
+                                acctBal,
+                                acctOwner
+                            });
+                        }
+                    }
+
+                    // Send the list of accounts
+                    return Ok(finalAccounts);
+                }
+
+                throw new DataRetrievalFailException("Failure to retrieve data occurred");
+            }
+            catch (DataRetrievalFailException e)
+            {
+                Log(null, LogLevel.Warning, e);
+                return BadRequest();
+            }
+            catch (Exception e)
+            {
+                Log(null, LogLevel.Critical, e);
+                return StatusCode(500);
+            }
+        }
+
     }
 }

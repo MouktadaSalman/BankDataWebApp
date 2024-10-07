@@ -3,6 +3,7 @@ using BusinessTierWebServer.Models.Exceptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using RestSharp;
 using System.Xml.Linq;
 
@@ -135,13 +136,16 @@ namespace BusinessTierWebServer.Controllers
                 RestRequest request = new RestRequest($"/api/account", Method.Get);
                 RestResponse response = client.Execute(request);
 
+                List<BankAccount>? value = null;
+
                 Log("Attempt to retrieve all accounts", LogLevel.Information, null);
                 if (response.Content != null)
                 {
                     if (response.StatusCode == System.Net.HttpStatusCode.OK)
                     { 
                         Log($"Successful retrieval of accounts", LogLevel.Information, null);
-                        return Ok(response.Content);
+                        value = JsonConvert.DeserializeObject<List<BankAccount>>(response.Content);
+                        value?.ForEach(bankAccount => Console.WriteLine(bankAccount.AcctNo));
                     }
 
                     if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
@@ -149,6 +153,55 @@ namespace BusinessTierWebServer.Controllers
                         Log("Encountered internal missing data generation", LogLevel.Critical, null);
                         throw new DataRetrievalFailException("Internal DatabaseGenerationFailException occurred");
                     }
+                }
+
+                if (value != null)
+                {
+                    Log($"Successful deserialization of accounts", LogLevel.Information, null);
+                    return Ok(value);
+                }
+
+                throw new DataRetrievalFailException("Internal unkown exception occurred/Failed to get a response from Data tier");
+            }
+            catch (DataRetrievalFailException ex)
+            {
+                Log(null, LogLevel.Warning, ex);
+                return NotFound(ex.Message);
+            }
+        }
+
+        [HttpGet("getusers")]
+        public IActionResult GetAllUsers()
+        {
+            try
+            {
+                Log("Connect to the Data tier web server", LogLevel.Information, null);
+                RestClient client = new RestClient(_dataServerApiUrl);
+                RestRequest request = new RestRequest($"/api/userprofile", Method.Get);
+                RestResponse response = client.Execute(request);
+
+                List<UserProfile>? value = null;
+
+                Log("Attempt to retrieve all users", LogLevel.Information, null);
+                if (response.Content != null)
+                {
+                    if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                    {
+                        Log($"Successful retrieval of userprofiles", LogLevel.Information, null);
+                        value = JsonConvert.DeserializeObject<List<UserProfile>>(response.Content);
+                    }
+
+                    if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                    {
+                        Log("Encountered internal missing data generation", LogLevel.Critical, null);
+                        throw new DataRetrievalFailException("Internal DatabaseGenerationFailException occurred");
+                    }
+                }
+
+                if (value != null)
+                {
+                    Log($"Successful deserialization of userprofiles", LogLevel.Information, null);
+                    return Ok(value);
                 }
 
                 throw new DataRetrievalFailException("Internal unkown exception occurred/Failed to get a response from Data tier");

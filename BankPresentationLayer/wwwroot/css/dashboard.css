@@ -178,22 +178,9 @@ form input,
 form select {
     width: 100%;
     padding: 10px;
-    margin-bottom: 15px;
     border-radius: 5px; /* Adjust border radius for input */
     border: 1px solid #ccc;
 }
-
-/* User Accounts List */
-.userAccounts ul {
-    list-style-type: none;
-    padding: 0;
-    font-size: 14px;
-    margin-top: 20px;
-}
-
-    .userAccounts ul li {
-        padding-bottom: 10px;
-    }
 
 /* Dynamically Added Account Items */
 .accountItem {
@@ -249,6 +236,90 @@ form select {
     .close:hover {
         color: black;
     }
+
+/* User Management Form */
+.userAccountsForm-container {
+    width: 100%; /* Ensures the container spans the full width of its parent */
+    margin: 0 auto; /* Centers the form horizontally */
+}
+
+#searchUserForm {
+    display: flex;
+    flex-direction: row;
+    gap: 10px; /* Adds some space between the input and button */
+    justify-content: space-between;
+    align-items: center;
+}
+
+#searchUser {
+    flex: 4;
+}
+
+.searchBtn {
+    height: auto;
+    box-sizing: border-box;
+    flex: 1
+}
+
+/* User accounts list */
+#userAccountList {
+    list-style-type: none; /* Removes the bullet points */
+    padding: 0; /* Removes any default padding */
+    margin-top: 20px; /* Removes any default margin */
+    max-height: 200px; /* Set the maximum height you want */
+    overflow-y: auto;
+}
+
+    #userAccountList li {
+        cursor: pointer; /* Shows pointer cursor on hover */
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        padding: 10px;
+        background-color: #f0f0f0; /* Light background color */
+        margin-bottom: 5px; /* Adds some space between list items */
+        border-radius: 4px; /* Slight rounding for a modern look */
+        transition: background-color 0.3s ease; /* Smooth transition on hover */
+    }
+
+        #userAccountList li:hover {
+            background-color: #008ecf; /* Change background on hover */
+            transform: scale(.95);
+            color: white; /* Change text color on hover */
+        }
+        #userAccountList li div {
+            width: 100%; /* Ensure div takes full width */
+        }
+        #userAccountList li.active {
+            background-color: lightgrey; /* Change background on when clicked */
+            color: black; /* Change text color on clicked */
+        }
+
+/* Account Management Buttons */
+.userAccountsButtons-conatiner {
+    display: flex;
+    justify-content: space-between;
+    gap: 10%;
+}
+
+    .userAccountsButtons-conatiner .eAcctBtn {
+        flex: 1;
+    }
+
+    .userAccountsButtons-conatiner .cAcctBtn {
+        flex: 1;
+        background-color: #45a049;
+    }
+
+    .userAccountsButtons-conatiner .dAcctBtn {
+        flex: 1;
+        background-color: #DC4E4D;
+    }
+
+        .userAccountsButtons-conatiner .cAcctBtn:hover,
+        .userAccountsButtons-conatiner .dAcctBtn:hover {
+            background-color: #0e263d;
+        }
 
 /* Responsive */
 @media (max-width: 768px) {

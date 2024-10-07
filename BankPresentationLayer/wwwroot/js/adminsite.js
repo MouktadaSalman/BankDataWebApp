@@ -3,6 +3,9 @@
 const logoutButt = document.getElementById('logoutBtn');
 const editButt = document.getElementById('openAdminProfile');
 const aProfMod = document.getElementById('adminProfileModal');
+const uAccountList = document.getElementById('userAccountList');
+const listItems = document.querySelectorAll('#userAccountList li');
+
 
 var editProfileButt = document.getElementById('editAdminProfileButton');
 var saveProfileButt = document.getElementById('saveAdminProfileButton');
@@ -52,6 +55,23 @@ window.onclick = function (event) {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
+    /* Clickable list items when clicked */
+    uAccountList.addEventListener('click', function (event) {
+        const item = event.target.closest('li'); // Get the clicked li element
+
+        if (uAccountList.children.length > 1) {
+            if (item) {
+                // Remove 'active' class from all other list items
+                const allItems = uAccountList.querySelectorAll('li');
+                allItems.forEach(function (li) {
+                    li.classList.remove('active'); // Remove 'active' class
+                });
+
+                item.classList.toggle('active');
+            }
+        }
+    });
+
     // Get the full path
     var path = decodeURIComponent(window.location.pathname);
 
@@ -60,7 +80,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const regex = /admin=([^-\s]+)-([^-\s]+)/; // Matches 'admin={identifier}-{lName}'
     const match = regex.exec(path);
 
-    if (match && match.length > 1) {
+    if (match && match.length === 3) {
         const identifier = match[1]; // This will get 'John'
         const lName = match[2]; // This will get 'Sanders'
 
@@ -69,6 +89,8 @@ document.addEventListener('DOMContentLoaded', function () {
     } else {
         console.error('Failed to extract identifier from URL');
     }
+
+    fetchAllAccounts();
 });
 
 function loadProfileDetails(user) {
@@ -125,4 +147,54 @@ function loadProfileDetails(user) {
 
 function saveChanges(aIdentifier, aName, aEmail, aPhone, aPassword) {
 
+}
+
+function fetchAllAccounts() {
+    const apiUrl = `/getaccounts`;
+
+    const requestOption = {
+        method: 'GET'
+    };
+
+    fetch(apiUrl, requestOption)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            loadAccounts(data);
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+        });
+}
+
+function loadAccounts(accounts) {
+    // Clear the current list
+    uAccountList.innerHTML = '';
+
+    // Check if there is data (accounts) returned
+    if (accounts.length > 0) {
+        // Iterate through the account list and populate the user list UI
+        accounts.forEach(account => {
+            const listItem = document.createElement('li');
+            listItem.innerHTML = `
+                <div style="flex: 1; display: flex;  flex-direction: column; justify-content: space-between;">
+                    <span style="flex: 1;">Account No: ${account.acctNo}</span>
+                    <span style="flex: 0.5;">Type: ${account.acctType}</span>
+                    <span style="flex: 2;">Owner: ${account.acctOwner}</span>
+                </div>
+                <div style="flex: 1; text-align: left;">
+                    <span>Balance: $${account.acctBal}</span>
+                </div>
+            `;
+            uAccountList.appendChild(listItem);
+        });
+    } else {
+        const listItem = document.createElement('li');
+        listItem.textContent = "No accounts found";
+        uAccountList.appendChild(listItem);
+    }
 }

@@ -72,20 +72,26 @@
                 </div>
             </div>
 
-            <!-- User Management Section -->
+            <!-- User Account Management Section -->
             <section id="userManagement" class="user-management card">
                 <h2>User Management</h2>
-                <form id="searchUserForm">
-                    <input type="text" id="searchUser" placeholder="Search user by name or account number">
-                    <button type="submit" class="btn">Search</button>
-                </form>
+                <div class="userAccountsForm-container">
+                    <form id="searchUserForm">
+                        <input type="text" id="searchUser" placeholder="Search account by owner or account number">
+                        <button type="submit" class="searchBtn">Search</button>
+                    </form>
+                </div>
                 <ul id="userAccountList">
                     <!-- JavaScript will populate user details -->
                 </ul>
-                <button class="btn" id="createUserButton">Create New User</button>
+                <div class="userAccountsButtons-conatiner">
+                    <button class="eAcctBtn" id="editAccountButton">Edit</button>
+                    <button class="cAcctBtn" id="createAccountButton">Create</button>
+                    <button class="dAcctBtn" id="deleteAccountButton">Delete</button>
+                </div>
             </section>
 
-            <!-- Transaction Management Section -->
+            <!-- Account Transaction Management Section -->
             <section id="transactionManagement" class="transaction-management card">
                 <h2>Transaction Management</h2>
                 <div class="filterOptions">
