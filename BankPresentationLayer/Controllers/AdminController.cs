@@ -83,6 +83,66 @@ namespace BankPresentationLayer.Controllers
             return false;
         }
 
+        private List<BankAccount> GetAllAccounts()
+        {
+            List<BankAccount>? accounts = null;
+
+            RestClient client = new RestClient(_dataServerApiUrl);
+
+            Log("Attempt to retrieve all accounts", LogLevel.Information, null);
+            RestRequest request = new RestRequest("/api/admin/getaccounts", Method.Get);
+
+            RestResponse response = client.Execute(request);
+
+            if (response.Content != null)
+            {
+                if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                {
+                    // Log response content for debugging
+                    Log($"Successful retrieval of accounts", LogLevel.Information, null);
+
+                    accounts = JsonConvert.DeserializeObject<List<BankAccount>>(response.Content);
+                }
+            }
+
+            if (accounts != null)
+            {
+                return accounts;
+            }
+
+            throw new DataRetrievalFailException("Failure to retrieve data occurred");
+        }
+
+        private List<UserProfile> GetAllUsers()
+        {
+            List<UserProfile>? users = null;
+
+            RestClient client = new RestClient(_dataServerApiUrl);
+
+            Log("Attempt to retrieve all users", LogLevel.Information, null);
+            RestRequest request = new RestRequest("/api/admin/getusers", Method.Get);
+
+            RestResponse response = client.Execute(request);
+
+            if (response.Content != null)
+            {
+                if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                {
+                    // Log response content for debugging
+                    Log($"Successful retrieval of users", LogLevel.Information, null);
+
+                    users = JsonConvert.DeserializeObject<List<UserProfile>>(response.Content);
+                }
+            }
+
+            if (users!= null)
+            {
+                return users;
+            }
+
+            throw new DataRetrievalFailException("Failure to retrieve data occurred");
+        }
+
         public IActionResult AdminLogin()
         {
             Log("Navigate to the admin login page", LogLevel.Information, null);
@@ -293,32 +353,9 @@ namespace BankPresentationLayer.Controllers
 
             try
             {
-                List<BankAccount>? accounts = null;
-                List<UserProfile>? users = null;
+                List<BankAccount>? accounts = GetAllAccounts();
+                List<UserProfile>? users = GetAllUsers();
                 List<object> finalAccounts = new List<object>();
-
-                RestClient client = new RestClient(_dataServerApiUrl);
-
-                Log("Attempt to retrieve all accounts and users", LogLevel.Information, null);
-                RestRequest requestA = new RestRequest("/api/admin/getaccounts", Method.Get);
-                RestRequest requestU = new RestRequest("/api/admin/getusers", Method.Get);
-
-                RestResponse responseA = client.Execute(requestA);
-                RestResponse responseU = client.Execute(requestU);
-
-                if (responseA.Content != null && responseU.Content != null)
-                {
-                    if (responseA.StatusCode == System.Net.HttpStatusCode.OK &&
-                        responseU.StatusCode == System.Net.HttpStatusCode.OK)
-                    {
-                        // Log response content for debugging
-                        Log($"Response Content A: {responseA.Content}", LogLevel.Information, null);
-                        Log($"Response Content U: {responseU.Content}", LogLevel.Information, null);
-
-                        accounts = JsonConvert.DeserializeObject<List<BankAccount>>(responseA.Content);
-                        users = JsonConvert.DeserializeObject<List<UserProfile>>(responseU.Content);
-                    }
-                }
 
                 if (accounts != null && users != null)
                 {
@@ -359,6 +396,5 @@ namespace BankPresentationLayer.Controllers
                 return StatusCode(500);
             }
         }
-
     }
 }

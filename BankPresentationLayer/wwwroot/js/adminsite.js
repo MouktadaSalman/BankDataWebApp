@@ -6,10 +6,13 @@ const aProfMod = document.getElementById('adminProfileModal');
 const uAccountList = document.getElementById('userAccountList');
 const listItems = document.querySelectorAll('#userAccountList li');
 
-
+/* Button declarations */
 var editProfileButt = document.getElementById('editAdminProfileButton');
 var saveProfileButt = document.getElementById('saveAdminProfileButton');
 var modalClose = document.getElementById('aClose');
+var uManageEditButt = document.getElementById('editAccountButton');
+var uManageCreateButt = document.getElementById('createAccountButton');
+var uManageDeleteButt = document.getElementById('deleteAccountButton');
 
 /* Button onclick behaviours */
 // Logout button
@@ -53,6 +56,8 @@ window.onclick = function (event) {
         aProfMod.style.display = "none";
     }
 }
+
+/* User Account Management Button Click Handlers */
 
 document.addEventListener('DOMContentLoaded', function () {
     /* Clickable list items when clicked */
