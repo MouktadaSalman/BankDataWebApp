@@ -12,40 +12,40 @@
 </head>
 <body>
     <header>
-        <div class="container">
+        <div class="headContainer">
             <div class="header-content">
                 <div class="logo">Admin Dashboard</div>
 
                 <!-- Admin Profile Information -->
                 <div class="profileInfo">
                     <div class="avatar-container">
-                        <img src="~/images/admin-avatar.png" alt="Admin Avatar" class="avatar">
+                        <img src="~/images/avatar.png" alt="Admin Avatar" class="avatar">
                         <div class="middle">
-                            <button class="text" id="openProfileModal">Update Profile</button>
+                            <button class="text" id="openAdminProfile">Edit</button>
                         </div>
                     </div>
 
-                    <div>
+                    <div class="admin-details">
                         <h3 id="adminName"></h3>
                         <p id="adminEmail"></p>
                         <p id="adminPhone"></p>
                     </div>
                 </div>
 
-                <nav>
-                    <button id="logoutBtn" class="btn">Log Out</button>
+                <nav class="logout">
+                    <button id="logoutBtn" class="btn">Logout</button>
                 </nav>
             </div>
         </div>
     </header>
 
-    <main class="container">
+    <main class="mainContainer">
         <div class="dashboardGrid">
 
             <!-- Admin Profile Modal -->
-            <div id="profileModal" class="modal" style="display:none;">
+            <div id="adminProfileModal" class="modal" style="display:none;">
                 <div class="modal-content">
-                    <button class="close">&times;</button>
+                    <span id="aClose" class="close">&times;</span>
                     <h3>Admin Profile Information</h3>
 
                     <!-- View Profile -->
@@ -53,36 +53,76 @@
                         <p>Name: <span id="viewAdminName"></span></p>
                         <p>Email: <span id="viewAdminEmail"></span></p>
                         <p>Phone: <span id="viewAdminPhone"></span></p>
+                        <p>Address: <span id="viewAdminAddress"></span></p>
+                        <p>Password: <span id="viewAdminPassword"></span></p>
                         <button id="editAdminProfileButton" class="btn">Edit</button>
                     </div>
 
                     <!-- Edit Profile -->
                     <form id="editAdminProfileForm" style="display:none;">
-                        <label for="editAdminName">Name:</label><br>
-                        <input type="text" id="editAdminName" name="name"><br><br>
+                        <label for="editAdminFName">First Name:</label><br>
+                        <input type="text" id="editAdminFName" name="name"><br><br>
+                        <label for="editAdminLName">Last Name:</label><br>
+                        <input type="text" id="editAdminLName" name="name"><br><br>
                         <label for="editAdminEmail">Email:</label><br>
                         <input type="email" id="editAdminEmail" name="email"><br><br>
+                        <label for="editAdminPhone">Password:</label><br>
+                        <input type="text" id="editAdminPassword" name="phone"><br><br>
                         <label for="editAdminPhone">Phone:</label><br>
-                        <input type="text" id="editAdminPhone" name="phone"><br><br>
+                        <input type="tel" id="editAdminPhone" name="phone"><br><br>
+                        <label for="editAdminAddress">Address:</label><br>
+                        <input type="text" id="editAdminAddress" name="address"><br><br>
                         <button type="button" id="saveAdminProfileButton" class="btn">Save Changes</button>
                     </form>
                 </div>
             </div>
 
-            <!-- User Management Section -->
+            <!-- Account Profile Modal -->
+            <div id="accountProfileModal" class="modal" style="display:none;">
+                <div class="modal-content">
+                    <span id="accClose" class="close">&times;</span>
+                    <h3>Account Information</h3>
+
+                    <!-- View User Bank Account -->
+                    <div id="viewAccountProfile" style="display:block">
+                        <p>Acct No: <span id="viewAdccountNo"></span></p>
+                        <p>Type: <span id="viewAccountType"></span></p>
+                        <p>Owner: <span id="viewAccountOwner"></span></p>
+                        <p>Balance: <span id="viewAccountBalance"></span></p>
+                        <button id="editAccountButtonM" class="btn">Edit</button>
+                    </div>
+
+                    <!-- Edit User Account Profile -->
+                    <form id="editAccountForm" style="display:none;">
+                        <label for="editAccountType">Type:</label><br>
+                        <input type="text" id="editAccountType" name="type"><br><br>
+                        <label for="editAccountBalance">Balance:</label><br>
+                        <input type="number" id="editAccountBalance" name="balance"><br><br>
+                        <button type="button" id="saveAccountButton" class="btn">Save</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- User Account Management Section -->
             <section id="userManagement" class="user-management card">
                 <h2>User Management</h2>
-                <form id="searchUserForm">
-                    <input type="text" id="searchUser" placeholder="Search user by name or account number">
-                    <button type="submit" class="btn">Search</button>
-                </form>
-                <ul id="userList">
+                <div class="userAccountsForm-container">
+                    <form id="searchUserForm">
+                        <input type="text" id="searchUser" placeholder="Search account by owner or account number">
+                        <button type="submit" id="searchUserButton" class="searchBtn">Search</button>
+                    </form>
+                </div>
+                <ul id="userAccountList" class="listContainer">
                     <!-- JavaScript will populate user details -->
                 </ul>
-                <button class="btn" id="createUserButton">Create New User</button>
+                <div id="userAccountsButtonsContainer" class="userAccountsButtons-container">
+                    <button class="eAcctBtn" id="editAccountButton">Edit</button>
+                    <button class="cAcctBtn" id="createAccountButton">Create</button>
+                    <button class="dAcctBtn" id="deleteAccountButton">Deactivate</button>
+                </div>
             </section>
 
-            <!-- Transaction Management Section -->
+            <!-- Account Transaction Management Section -->
             <section id="transactionManagement" class="transaction-management card">
                 <h2>Transaction Management</h2>
                 <div class="filterOptions">
@@ -90,7 +130,7 @@
                     <input type="date" id="transactionEndDate">
                     <button id="filterTransactions" class="btn">Filter</button>
                 </div>
-                <ul id="transactionList">
+                <ul id="transactionList" class="listContainer">
                     <!-- JavaScript will populate transaction details -->
                 </ul>
             </section>
@@ -99,14 +139,14 @@
             <section id="securityAccessControl" class="security-access-control card">
                 <h2>Security and Access Control</h2>
                 <p>Admin Actions Audit Trail</p>
-                <ul id="adminActivityLogs">
+                <ul id="adminActivityLogs" class="listContainer">
                     <!-- JavaScript will populate admin logs -->
                 </ul>
             </section>
         </div>
     </main>
 
-    <script src="~/js/site.js"></script>
+    <script src="~/js/adminsite.js"></script>
 </body>
 </html>
 

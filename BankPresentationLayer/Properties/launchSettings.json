@@ -7,7 +7,7 @@
       "sslPort": 0
     }
   },
-  "profiles": {
+  "profiles": { 
     "BankPresentationLayer": {
       "commandName": "Project",
       "dotnetRunMessages": true,

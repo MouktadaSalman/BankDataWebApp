@@ -9,8 +9,19 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <link rel="stylesheet" href="~/css/adminlogin.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
+    <!-- Pop-up to indicate login failed -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span id="lClose" class="close">&times;</span>
+            <div class="icon-text-container">
+                <i class="fas fa-ban"></i>
+                <p>Login failed. Please check your username and password.</p>
+            </div>
+        </div>
+    </div>
 
     <!-- Log In Form Section -->
     <section>
@@ -33,6 +44,6 @@
         </div>
     </section>
 
-    <script src="/js/adminsite.js"></script>
+    <script src="/js/adminlogin.js"></script>
 </body>
 </html>

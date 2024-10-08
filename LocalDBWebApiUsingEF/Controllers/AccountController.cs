@@ -141,6 +141,7 @@ namespace DataTierWebServer.Controllers
             };
             account.History.Add(historyEntry);
 
+            _context.UserHistories.Add(historyEntry);
             _context.Entry(account).State = EntityState.Modified;
 
             await _context.SaveChangesAsync();

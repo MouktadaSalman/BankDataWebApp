@@ -4,7 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RestSharp;
 using System.Collections.Concurrent;
+using System.ComponentModel.DataAnnotations;
 using System.Net.Mail;
+using System.Numerics;
 using System.Xml.Linq;
 
 namespace BankPresentationLayer.Controllers
@@ -58,13 +60,128 @@ namespace BankPresentationLayer.Controllers
             }
 
             RestClient client = new RestClient(_dataServerApiUrl);
-            var endpoint = IsValidEmail(identifier) ? $"/api/admin/email/{identifier}" : $"/api/admin/name/{identifier}";
+            string endpoint = "";
+
+            if (int.TryParse(identifier, out var adminId))
+            {
+                endpoint = $"/api/admin/id/{adminId}";
+            }
+            else
+            {
+                endpoint = IsValidEmail(identifier) ? $"/api/admin/email/{identifier}" : $"/api/admin/name/{identifier}";
+            }
+            
             RestRequest request = new RestRequest(endpoint, Method.Get);
 
             Log($"Attempt to retrieve admin details: '{identifier}'", LogLevel.Information, null);
             return client.Execute(request);
         }
 
+        private bool IsUserAuthorized(string identifier)
+        {
+            if (Request.Cookies.ContainsKey("SessionID"))
+            {
+                var sessionId = Request.Cookies["SessionID"];
+
+                // Check if the session ID corresponds to an authenticated admin
+                if (adminsInSession.TryGetValue(sessionId, out Admin? currentAdmin))
+                {
+                    // Ensure the identifier matches the current admin's name or email
+                    return (currentAdmin.FName.Equals(identifier));
+                }
+            }
+            return false;
+        }
+
+        private List<BankAccount> GetAllAccounts()
+        {
+            List<BankAccount>? accounts = null;
+
+            RestClient client = new RestClient(_dataServerApiUrl);
+
+            Log("Attempt to retrieve all accounts", LogLevel.Information, null);
+            RestRequest request = new RestRequest("/api/admin/getaccounts", Method.Get);
+
+            RestResponse response = client.Execute(request);
+
+            if (response.Content != null)
+            {
+                if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                {
+                    // Log response content for debugging
+                    Log($"Successful retrieval of accounts", LogLevel.Information, null);
+
+                    accounts = JsonConvert.DeserializeObject<List<BankAccount>>(response.Content);
+                }
+            }
+
+            if (accounts != null)
+            {
+                return accounts;
+            }
+
+            throw new DataRetrievalFailException("Failure to retrieve data occurred");
+        }
+
+        private List<UserProfile> GetAllUsers()
+        {
+            List<UserProfile>? users = null;
+
+            RestClient client = new RestClient(_dataServerApiUrl);
+
+            Log("Attempt to retrieve all users", LogLevel.Information, null);
+            RestRequest request = new RestRequest("/api/admin/getusers", Method.Get);
+
+            RestResponse response = client.Execute(request);
+
+            if (response.Content != null)
+            {
+                if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                {
+                    // Log response content for debugging
+                    Log($"Successful retrieval of users", LogLevel.Information, null);
+
+                    users = JsonConvert.DeserializeObject<List<UserProfile>>(response.Content);
+                }
+            }
+
+            if (users!= null)
+            {
+                return users;
+            }
+
+            throw new DataRetrievalFailException("Failure to retrieve data occurred");
+        }
+
+        private List<UserHistory> GetAllTransactions()
+        {
+            List<UserHistory>? transactions = null;
+
+            RestClient client = new RestClient(_dataServerApiUrl);
+
+            Log("Attempt to retrieve all transactions", LogLevel.Information, null);
+            RestRequest request = new RestRequest("/api/admin/getuserhistories", Method.Get);
+
+            RestResponse response = client.Execute(request);
+
+            if (response.Content != null)
+            {
+                if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                {
+                    // Log response content for debugging
+                    Log($"Successful retrieval of transactions", LogLevel.Information, null);
+
+                    transactions = JsonConvert.DeserializeObject<List<UserHistory>>(response.Content);
+                }
+            }
+
+            if (transactions != null)
+            {
+                return transactions;
+            }
+
+            throw new DataRetrievalFailException("Failure to retrieve data occurred");
+        }
 
         public IActionResult AdminLogin()
         {
@@ -72,8 +189,14 @@ namespace BankPresentationLayer.Controllers
             return View("~/Views/Admin/AdminLoginView.cshtml");
         }
 
-        public IActionResult AdminDashboard()
+        [HttpGet("admindashboard/{id}/authorized/admin={identifier}-{lName}")]
+        public IActionResult AdminDashboard(string identifier)
         {
+            if (!IsUserAuthorized(identifier)) // Your authorization logic here
+            {
+                return RedirectToAction("LoginError"); // Redirect if not authorized
+            }
+
             Log("Navigate to the admin dashboard page", LogLevel.Information, null);
             return View("~/Views/Admin/AdminDashboard.cshtml");
         }
@@ -81,6 +204,174 @@ namespace BankPresentationLayer.Controllers
         public IActionResult LoginError()
         {
             return RedirectToAction("LoginError", "Home");
+        }
+
+        public IActionResult Logout()
+        {
+            // Clear the user's session (for example, clear authentication session or token)
+            HttpContext.Response.Cookies.Delete("SessionID");
+
+            // Redirect to the login page
+            return RedirectToAction("Login", "Home");
+        }
+
+        [HttpGet("getadmin/{identifier}")]
+        public IActionResult GetAdmin(string identifier)
+        {
+            Log($"Attempt retrieval of admin details to update profile dashboard: '{identifier}'", LogLevel.Information, null);
+            try
+            {
+                RestResponse response = GetAdminDetails(identifier);
+                Admin? value = null;
+
+                if (response.Content != null)
+                {
+                    if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                    {
+                        value = JsonConvert.DeserializeObject<Admin>(response.Content);
+
+                        Log($"Successful retrieval of admin details: '{identifier}'", LogLevel.Information, null);
+                    }
+                }
+
+                if (value != null)
+                {
+                    Log($"Successful deserialization of details", LogLevel.Information, null);
+                    string fName = $"{value.FName}";
+                    string lName = $"{value.LName}";
+                    var email = value.Email != null ? value.Email : "";
+                    var phone = value.PhoneNumber != null ? value.PhoneNumber : "";
+                    var address = value.Address != null ? value.Address : "";
+                    var password = value.Password != null ? value.Password : "";
+
+                    return Json(new
+                    {
+                        auth = true,
+                        fName,
+                        lName,
+                        email,
+                        phone,
+                        address,
+                        password
+                    });
+                }
+
+                throw new DataRetrievalFailException("Failure to retrieve data occurred");
+            }
+            catch (DataRetrievalFailException e)
+            {
+                Log(null, LogLevel.Warning, e);
+                return Json(new
+                {
+                    Check = false
+                });
+            }
+            catch (ArgumentNullException e)
+            {
+                Log(null, LogLevel.Warning, e);
+                return Json(new
+                {
+                    Check = false
+                });
+            }
+            catch (Exception e)
+            {
+                Log(null, LogLevel.Critical, e);
+                return Json(new
+                {
+                    Check = false
+                });
+            }
+        }
+
+        [HttpPut("update/{identifier}")]
+        public IActionResult UpdateAdminProfile(string identifier, [FromBody] Admin updatedAdmin)
+        {
+            try
+            {
+                Log($"Attempt to get the admin details via id: {identifier}", LogLevel.Information, null);
+                RestResponse response = GetAdminDetails(identifier);
+                Admin? value = null;
+
+                if (response.Content != null)
+                {
+                    if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                    {
+                        value = JsonConvert.DeserializeObject<Admin>(response.Content);
+
+                        Log($"Successful retrieval of admin details: '{identifier}'", LogLevel.Information, null);
+                    }
+                }
+
+                if (value != null)
+                {
+                    Log($"Successful deserialization of initial details", LogLevel.Information, null);
+                    value.FName = updatedAdmin.FName;
+                    value.LName = updatedAdmin.LName;
+                    value.Email = updatedAdmin.Email;
+                    value.Password = updatedAdmin.Password;
+                    value.PhoneNumber = updatedAdmin.PhoneNumber;
+                    value.Address = updatedAdmin.Address;
+
+                    Log("Connect to the Data tier web server", LogLevel.Information, null);
+                    RestClient client = new RestClient(_dataServerApiUrl);
+                    RestRequest request = new RestRequest($"/api/admin/update/{identifier}", Method.Put);
+                    request.AddJsonBody(value);
+                    RestResponse responseU = client.Execute(request);
+
+                    if (responseU.Content != null)
+                    {
+                        if (responseU.StatusCode == System.Net.HttpStatusCode.OK)
+                        {
+                            value = JsonConvert.DeserializeObject<Admin>(responseU.Content);
+
+                            Log($"Successful retrieval of updated admin details: '{identifier}'", LogLevel.Information, null);
+                        }
+                    }
+
+                    if (value != null)
+                    {
+                        Log($"Successful deserialization of updated details", LogLevel.Information, null);
+                        string name = $"{value.FName}";
+                        var email = value.Email != null ? value.Email : "";
+                        var password = value.Password != null ? value.Password : "";
+
+                        return Json(new
+                        {
+                            auth = true,
+                            name,
+                            email,
+                            password
+                        });
+                    }
+                }
+
+                throw new DataRetrievalFailException("Failure to retrieve data occurred");
+            }
+            catch (DataRetrievalFailException e)
+            {
+                Log(null, LogLevel.Warning, e);
+                return Json(new
+                {
+                    Check = false
+                });
+            }
+            catch (ArgumentNullException e)
+            {
+                Log(null, LogLevel.Warning, e);
+                return Json(new
+                {
+                    Check = false
+                });
+            }
+            catch (Exception e)
+            {
+                Log(null, LogLevel.Critical, e);
+                return Json(new
+                {
+                    Check = false
+                });
+            }
         }
 
         [HttpPost("authenticate")]
@@ -158,7 +449,7 @@ namespace BankPresentationLayer.Controllers
         }
 
         [HttpGet("authenticated/{identifier}")]
-        public IActionResult GetAuthenticatedView(string identifier)
+        public IActionResult GetAuthorizedView(string identifier)
         {
             Log($"Total active sessions: {adminsInSession.Count}", LogLevel.Information, null);
             Log($"Attempted to check identifier: {identifier}", LogLevel.Information, null);
@@ -166,7 +457,7 @@ namespace BankPresentationLayer.Controllers
             if (Request.Cookies.ContainsKey("SessionID"))
             {
                 var sessionId = Request.Cookies["SessionID"];
-                Log($"User is authenticated with SessionID: {sessionId}", LogLevel.Information, null);
+                Log($"User is authenticated with SessionID", LogLevel.Information, null);
 
                 if (adminsInSession.TryGetValue(sessionId, out Admin? currentAdmin))
                 {
@@ -174,7 +465,7 @@ namespace BankPresentationLayer.Controllers
                         (currentAdmin.Email != null && currentAdmin.Email.Equals(identifier)))
                     {
                         Log("Admin found and authenticated", LogLevel.Information, null);
-                        return RedirectToAction("AdminDashboard");
+                        return RedirectToAction("AdminDashboard", new { id = currentAdmin.Id, identifier = currentAdmin.FName, lName = currentAdmin.LName});
                     }
                     else
                     {
@@ -187,6 +478,258 @@ namespace BankPresentationLayer.Controllers
                 }
             }
             return RedirectToAction("LoginError");
+        }
+
+        [HttpGet("getaccounts")]
+        public IActionResult GetAccounts()
+        {
+            Log("Generate list of accounts", LogLevel.Information, null);
+
+            try
+            {
+                List<BankAccount>? accounts = GetAllAccounts();
+                List<UserProfile>? users = GetAllUsers();
+                List<object> finalAccounts = new List<object>();
+
+                if (accounts != null && users != null)
+                {
+                    foreach (BankAccount a in accounts)
+                    {
+                        var user = users.FirstOrDefault(u => u.Id == a.UserId); // Safely get user by UserId
+                        if (user != null)
+                        {
+                            string acctNo = a.AcctNo.ToString();
+                            string acctType = a.AccountName ?? "";
+                            int acctBal = a.Balance;
+                            int acctOwnerId = user.Id;
+                            string acctOwner = $"{user.FName} {user.LName}";
+
+                            finalAccounts.Add(new
+                            {
+                                acctNo,
+                                acctType,
+                                acctBal,
+                                acctOwnerId,
+                                acctOwner
+                            });
+                        }
+                    }
+
+                    // Send the list of accounts
+                    return Ok(finalAccounts);
+                }
+
+                throw new DataRetrievalFailException("Failure to retrieve data occurred");
+            }
+            catch (DataRetrievalFailException e)
+            {
+                Log(null, LogLevel.Warning, e);
+                return BadRequest();
+            }
+            catch (Exception e)
+            {
+                Log(null, LogLevel.Critical, e);
+                return StatusCode(500);
+            }
+        }
+
+        [HttpGet("getaccounts/{identifier}")]
+        public IActionResult GetAccountsByIdentifier(string identifier)
+        {
+            Log($"Generate list of accounts via identifier: {identifier}", LogLevel.Information, null);
+
+            try
+            {
+                List<BankAccount>? accounts = GetAllAccounts();
+                List<UserProfile>? users = GetAllUsers();
+                List<object> finalAccounts = new List<object>();
+
+                if (accounts != null && users != null)
+                {
+                    Log($"Determine if it is account number/name", LogLevel.Information, null);
+                    // Check if identifier is a 4-digit number (account number)
+                    if (int.TryParse(identifier, out int accountNumber) && identifier.Length == 4)
+                    {
+                        Log($"Determined as account number", LogLevel.Information, null);
+                        // Identifier is an account number
+                        foreach (BankAccount a in accounts)
+                        {
+                            if (a.AcctNo == accountNumber)
+                            {
+                                var user = users.FirstOrDefault(u => u.Id == a.UserId);
+                                if (user != null)
+                                {
+                                    finalAccounts.Add(new
+                                    {
+                                        acctNo = a.AcctNo.ToString(),
+                                        acctType = a.AccountName ?? "",
+                                        acctBal = a.Balance,
+                                        acctOwnerId = user.Id,
+                                        acctOwner = $"{user.FName} {user.LName}"
+                                    });
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        Log($"Determined as name", LogLevel.Information, null);
+                        // Identifier is a name (search by first name, last name, or both)
+                        foreach (BankAccount a in accounts)
+                        {
+                            var user = users.FirstOrDefault(u =>
+                                $"{u.FName} {u.LName}".Contains(identifier, StringComparison.OrdinalIgnoreCase));
+
+                            if (user != null && user.Id == a.UserId)
+                            {
+                                finalAccounts.Add(new
+                                {
+                                    acctNo = a.AcctNo.ToString(),
+                                    acctType = a.AccountName ?? "",
+                                    acctBal = a.Balance,
+                                    acctOwnerId = user.Id,
+                                    acctOwner = $"{user.FName} {user.LName}"
+                                });
+                            }
+                        }
+                    }
+
+                    // Return the filtered accounts
+                    return Ok(finalAccounts);
+                }
+
+                throw new DataRetrievalFailException("Failure to retrieve data occurred");
+            }
+            catch (DataRetrievalFailException e)
+            {
+                Log(null, LogLevel.Warning, e);
+                return BadRequest();
+            }
+            catch (Exception e)
+            {
+                Log(null, LogLevel.Critical, e);
+                return StatusCode(500);
+            }
+        }
+
+        [HttpGet("gettransactions")]
+        public IActionResult GetTransactionList()
+        {
+            Log("Generate list of transactions", LogLevel.Information, null);
+
+            try
+            {
+                List<UserHistory>? transactions = GetAllTransactions();
+                List<object> finalTransactions = new List<object>();
+
+                if (transactions != null)
+                {
+                    foreach (var t in transactions)
+                    {
+                        string acctNo = t.AccountId.ToString();
+                        double amt = t.Amount;
+                        string? type = t.Type;
+                        string date = t.DateTime.ToString("dd/MM/yyyy hh:mm tt");
+                        string? hString = t.HistoryString;
+
+                        finalTransactions.Add(new
+                        {
+                            acctNo,
+                            amt,
+                            type,
+                            date,
+                            hString
+                        });
+                    }
+
+                    // Send the list of transactions
+                    return Ok(finalTransactions);
+                }
+
+                throw new DataRetrievalFailException("Failure to retrieve data occurred");
+            }
+            catch (DataRetrievalFailException e)
+            {
+                Log(null, LogLevel.Warning, e);
+                return BadRequest();
+            }
+            catch (Exception e)
+            {
+                Log(null, LogLevel.Critical, e);
+                return StatusCode(500);
+            }
+        }
+
+        [HttpGet("gettransactions/{start}/{end}")]
+        public IActionResult GetTransactionByFilter(string start, string end)
+        {
+            Log("Generate list of transactions", LogLevel.Information, null);
+
+            try
+            {
+                List<UserHistory>? transactions = GetAllTransactions();
+                List<object> finalTransactions = new List<object>();
+                DateTime? sFilter = (!string.IsNullOrEmpty(start) && start != "null") ? DateTime.Parse(start) : null;
+                DateTime? eFilter = (!string.IsNullOrEmpty(end) && end != "null") ? DateTime.Parse(end) : null;
+
+                if (transactions != null)
+                {
+                    foreach (var t in transactions)
+                    {
+                        string acctNo = t.AccountId.ToString();
+                        double amt = t.Amount;
+                        string? type = t.Type;
+                        string date = t.DateTime.ToString("dd/MM/yyyy hh:mm tt");
+                        string? hString = t.HistoryString;
+
+                        object temp = new
+                        {
+                            acctNo,
+                            amt,
+                            type,
+                            date,
+                            hString
+                        };
+
+                        Log("Add transaction: >= start && <= end", LogLevel.Information, null);
+                        //Check if both filter options selected
+                        if ((sFilter != null && t.DateTime >= sFilter) && 
+                            (eFilter != null && t.DateTime <= eFilter))
+                        {
+                            finalTransactions.Add(temp);
+                        }
+                        Log("Add transaction: >= start && end = null", LogLevel.Information, null);
+                        //Add if start date selected and end date not selected
+                        if ((sFilter != null && t.DateTime >= sFilter) &&
+                                eFilter == null)
+                        {
+                            finalTransactions.Add(temp);
+                        }
+                        Log("Add transaction: start = null && <= end", LogLevel.Information, null);
+                        //Add if start filter options not selected but end is
+                        if (sFilter == null &&
+                            (eFilter != null && t.DateTime <= eFilter))
+                        {
+                            finalTransactions.Add(temp);
+                        }
+                    }
+
+                    // Send the list of transactions
+                    return Ok(finalTransactions);
+                }
+
+                throw new DataRetrievalFailException("Failure to retrieve data occurred");
+            }
+            catch (DataRetrievalFailException e)
+            {
+                Log(null, LogLevel.Warning, e);
+                return BadRequest();
+            }
+            catch (Exception e)
+            {
+                Log(null, LogLevel.Critical, e);
+                return StatusCode(500);
+            }
         }
     }
 }
