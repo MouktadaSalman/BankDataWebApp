@@ -220,6 +220,50 @@ namespace BusinessTierWebServer.Controllers
             }
         }
 
+        // GET: api/admin/no/{acctNo}
+        [HttpGet("no/{acctNo}")]
+        public IActionResult GetAccountByNo(uint acctNo)
+        {
+            try
+            {
+                Log("Connect to the Data tier web server", LogLevel.Information, null);
+                RestClient client = new RestClient(_dataServerApiUrl);
+                RestRequest request = new RestRequest($"/api/admin/byno/{acctNo}", Method.Get);
+                RestResponse response = client.Execute(request);
+
+                Log($"Attempt to retrieve account details: '{acctNo}'", LogLevel.Information, null);
+                if (response.Content != null)
+                {
+                    if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                    {
+                        BankAccount? value = JsonConvert.DeserializeObject<BankAccount>(response.Content);
+
+                        Log($"Successful retrieval of account details: '{acctNo}'", LogLevel.Information, null);
+                        return Ok(value);
+                    }
+
+                    if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                    {
+                        Log("Encountered internal missing data generation", LogLevel.Critical, null);
+                        throw new DataRetrievalFailException("Internal DatabaseGenerationFailException occurred");
+                    }
+
+                    if (response.StatusCode == System.Net.HttpStatusCode.NoContent)
+                    {
+                        throw new DataRetrievalFailException("Internal MissingAccountException occurred");
+                    }
+                }
+
+                throw new DataRetrievalFailException("Internal unkown exception occurred/Failed to get a response from Data tier");
+
+            }
+            catch (DataRetrievalFailException ex)
+            {
+                Log(null, LogLevel.Warning, ex);
+                return NotFound(ex.Message);
+            }
+        }
+
         [HttpGet("getaccounts")]
         public IActionResult GetAllAccounts()
         {
