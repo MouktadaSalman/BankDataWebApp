@@ -200,6 +200,7 @@ form select {
     margin: 10% auto;
     padding: 20px;
     border: 1px solid #888;
+    height: 75%;
     width: 50%;
     border-radius: 10px;
     position: relative;
@@ -296,7 +297,7 @@ form select {
 
     #transactionList li {
         display: flex;
-        flex-direction: row;
+        flex-direction: column;
         justify-content: space-between;
         padding: 10px;
         background-color: #f0f0f0;

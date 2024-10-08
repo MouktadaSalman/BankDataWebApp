@@ -60,7 +60,17 @@ namespace BankPresentationLayer.Controllers
             }
 
             RestClient client = new RestClient(_dataServerApiUrl);
-            var endpoint = IsValidEmail(identifier) ? $"/api/admin/email/{identifier}" : $"/api/admin/name/{identifier}";
+            string endpoint = "";
+
+            if (int.TryParse(identifier, out var adminId))
+            {
+                endpoint = $"/api/admin/id/{adminId}";
+            }
+            else
+            {
+                endpoint = IsValidEmail(identifier) ? $"/api/admin/email/{identifier}" : $"/api/admin/name/{identifier}";
+            }
+            
             RestRequest request = new RestRequest(endpoint, Method.Get);
 
             Log($"Attempt to retrieve admin details: '{identifier}'", LogLevel.Information, null);
@@ -227,19 +237,113 @@ namespace BankPresentationLayer.Controllers
                 if (value != null)
                 {
                     Log($"Successful deserialization of details", LogLevel.Information, null);
-                    string name = $"{value.FName} { value.LName}";
+                    string fName = $"{value.FName}";
+                    string lName = $"{value.LName}";
                     var email = value.Email != null ? value.Email : "";
                     var phone = value.PhoneNumber != null ? value.PhoneNumber : "";
+                    var address = value.Address != null ? value.Address : "";
                     var password = value.Password != null ? value.Password : "";
 
                     return Json(new
                     {
                         auth = true,
-                        name,
+                        fName,
+                        lName,
                         email,
                         phone,
+                        address,
                         password
                     });
+                }
+
+                throw new DataRetrievalFailException("Failure to retrieve data occurred");
+            }
+            catch (DataRetrievalFailException e)
+            {
+                Log(null, LogLevel.Warning, e);
+                return Json(new
+                {
+                    Check = false
+                });
+            }
+            catch (ArgumentNullException e)
+            {
+                Log(null, LogLevel.Warning, e);
+                return Json(new
+                {
+                    Check = false
+                });
+            }
+            catch (Exception e)
+            {
+                Log(null, LogLevel.Critical, e);
+                return Json(new
+                {
+                    Check = false
+                });
+            }
+        }
+
+        [HttpPut("update/{identifier}")]
+        public IActionResult UpdateAdminProfile(string identifier, [FromBody] Admin updatedAdmin)
+        {
+            try
+            {
+                Log($"Attempt to get the admin details via id: {identifier}", LogLevel.Information, null);
+                RestResponse response = GetAdminDetails(identifier);
+                Admin? value = null;
+
+                if (response.Content != null)
+                {
+                    if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                    {
+                        value = JsonConvert.DeserializeObject<Admin>(response.Content);
+
+                        Log($"Successful retrieval of admin details: '{identifier}'", LogLevel.Information, null);
+                    }
+                }
+
+                if (value != null)
+                {
+                    Log($"Successful deserialization of initial details", LogLevel.Information, null);
+                    value.FName = updatedAdmin.FName;
+                    value.LName = updatedAdmin.LName;
+                    value.Email = updatedAdmin.Email;
+                    value.Password = updatedAdmin.Password;
+                    value.PhoneNumber = updatedAdmin.PhoneNumber;
+                    value.Address = updatedAdmin.Address;
+
+                    Log("Connect to the Data tier web server", LogLevel.Information, null);
+                    RestClient client = new RestClient(_dataServerApiUrl);
+                    RestRequest request = new RestRequest($"/api/admin/update/{identifier}", Method.Put);
+                    request.AddJsonBody(value);
+                    RestResponse responseU = client.Execute(request);
+
+                    if (responseU.Content != null)
+                    {
+                        if (responseU.StatusCode == System.Net.HttpStatusCode.OK)
+                        {
+                            value = JsonConvert.DeserializeObject<Admin>(responseU.Content);
+
+                            Log($"Successful retrieval of updated admin details: '{identifier}'", LogLevel.Information, null);
+                        }
+                    }
+
+                    if (value != null)
+                    {
+                        Log($"Successful deserialization of updated details", LogLevel.Information, null);
+                        string name = $"{value.FName}";
+                        var email = value.Email != null ? value.Email : "";
+                        var password = value.Password != null ? value.Password : "";
+
+                        return Json(new
+                        {
+                            auth = true,
+                            name,
+                            email,
+                            password
+                        });
+                    }
                 }
 
                 throw new DataRetrievalFailException("Failure to retrieve data occurred");
@@ -397,6 +501,7 @@ namespace BankPresentationLayer.Controllers
                             string acctNo = a.AcctNo.ToString();
                             string acctType = a.AccountName ?? "";
                             int acctBal = a.Balance;
+                            int acctOwnerId = user.Id;
                             string acctOwner = $"{user.FName} {user.LName}";
 
                             finalAccounts.Add(new
@@ -404,6 +509,7 @@ namespace BankPresentationLayer.Controllers
                                 acctNo,
                                 acctType,
                                 acctBal,
+                                acctOwnerId,
                                 acctOwner
                             });
                         }
@@ -458,6 +564,7 @@ namespace BankPresentationLayer.Controllers
                                         acctNo = a.AcctNo.ToString(),
                                         acctType = a.AccountName ?? "",
                                         acctBal = a.Balance,
+                                        acctOwnerId = user.Id,
                                         acctOwner = $"{user.FName} {user.LName}"
                                     });
                                 }
@@ -480,6 +587,7 @@ namespace BankPresentationLayer.Controllers
                                     acctNo = a.AcctNo.ToString(),
                                     acctType = a.AccountName ?? "",
                                     acctBal = a.Balance,
+                                    acctOwnerId = user.Id,
                                     acctOwner = $"{user.FName} {user.LName}"
                                 });
                             }
