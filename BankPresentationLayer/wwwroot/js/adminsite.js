@@ -4,6 +4,7 @@ const logoutButt = document.getElementById('logoutBtn');
 const editButt = document.getElementById('openAdminProfile');
 const aProfMod = document.getElementById('adminProfileModal');
 const uAccountList = document.getElementById('userAccountList');
+const uAccountButtons = document.getElementById('userAccountsButtonsContainer');
 const transactionList = document.getElementById('transactionList');
 const adminActivityList = document.getElementById('adminActivityLogs');
 const startDateInput = document.getElementById('transactionStartDate');
@@ -105,19 +106,24 @@ document.addEventListener('DOMContentLoaded', function () {
 
     fetchAllAccounts();
     fetchAllTransactions();
-
-    //Adjust Initial List Interactions
-    adjustAccountListInteractions();
 });
 
 /* Function to adjust list behavior after DOM or data changes */
 function adjustAccountListInteractions() {
     // Disable hover effect if there's <= 1 item
     if (uAccountList.children.length <= 1) {
-        uAccountList.classList.add('disable-hover');
 
+        if (uAccountList.children[0].textContent === "No accounts found") {
+            uAccountList.classList.add('disable-hover');
+            uAccountButtons.style.display = "none";
+        }
+        else {
+            uAccountList.classList.remove('disable-hover');
+            uAccountButtons.style.display = "flex";
+        }
     } else {
         uAccountList.classList.remove('disable-hover');
+        uAccountButtons.style.display = "flex";
     }
 
     // Clickable list items when clicked
@@ -210,6 +216,7 @@ function fetchAllAccounts() {
         })
         .then(data => {
             loadAccounts(data);
+            adjustAccountListInteractions();
         })
         .catch(error => {
             console.error('Fetch error:', error);
@@ -345,7 +352,7 @@ function loadTransactions(transactions) {
     } else {
         console.log(`Transactions has no entires`);
         const listItem = document.createElement('li');
-        listItem.textContent = "No accounts found";
+        listItem.textContent = "No transactions found";
         transactionList.appendChild(listItem);
     }
 }

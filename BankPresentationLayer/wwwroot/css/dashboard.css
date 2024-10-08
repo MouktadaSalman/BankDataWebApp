@@ -166,6 +166,7 @@ button {
     background-color: #a0dfff;
     padding: 30px;
     border-radius: 10px;
+    height: 500px;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
 }
 
@@ -180,24 +181,6 @@ form select {
     padding: 10px;
     border-radius: 5px;
     border: 1px solid #ccc;
-}
-
-/* Dynamically Added Account Items */
-.accountItem {
-    padding: 10px;
-    background-color: #f0f0f0;
-    border-radius: 8px;
-    margin-bottom: 15px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-    .accountItem p {
-        margin: 0 0 5px 0;
-    }
-
-/* Money Transfer Section */
-.moneyTransfer form {
-    margin-bottom: 30px;
 }
 
 /* Modal Styles */
@@ -266,7 +249,7 @@ form select {
     list-style-type: none;
     padding: 0;
     margin-top: 20px;
-    max-height: 200px;
+    max-height: 325px;
     overflow-y: auto;
 }
 
@@ -297,7 +280,7 @@ form select {
 
     /* Disable hover effect */
     #userAccountList.disable-hover li:hover {
-        background-color: inherit !important;
+        background-color: #f0f0f0 !important;
         color: inherit !important;
         cursor: default !important;
         transform: none !important;
@@ -307,7 +290,7 @@ form select {
     list-style-type: none;
     padding: 0;
     margin-top: 20px;
-    max-height: 250px;
+    max-height: 375px;
     overflow-y: auto;
 }
 
@@ -322,28 +305,28 @@ form select {
         transition: background-color 0.3s ease;
     }
 /* Account Management Buttons */
-.userAccountsButtons-conatiner {
+.userAccountsButtons-container {
     display: flex;
     justify-content: space-between;
     gap: 10%;
 }
 
-    .userAccountsButtons-conatiner .eAcctBtn {
+    .userAccountsButtons-container .eAcctBtn {
         flex: 1;
     }
 
-    .userAccountsButtons-conatiner .cAcctBtn {
+    .userAccountsButtons-container .cAcctBtn {
         flex: 1;
         background-color: #45a049;
     }
 
-    .userAccountsButtons-conatiner .dAcctBtn {
+    .userAccountsButtons-container .dAcctBtn {
         flex: 1;
         background-color: #DC4E4D;
     }
 
-        .userAccountsButtons-conatiner .cAcctBtn:hover,
-        .userAccountsButtons-conatiner .dAcctBtn:hover {
+        .userAccountsButtons-container .cAcctBtn:hover,
+        .userAccountsButtons-container .dAcctBtn:hover {
             background-color: #0e263d;
         }
 
