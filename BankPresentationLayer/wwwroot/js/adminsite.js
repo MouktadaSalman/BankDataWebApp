@@ -34,7 +34,7 @@ logoutButt.onclick = function () {
 }
 // Edit button (outside of modal)
 editButt.onclick = function () {
-    aProfMod.style.display = "block";
+    aProfMod.style.display = "flex";
 
     // Ensure viewProfile is displayed and editProfileForm is hidden (Added)
     var viewProfileDiv = document.getElementById('viewAdminProfile');
@@ -70,6 +70,9 @@ window.onclick = function (event) {
     if (event.target == aProfMod) {
         aProfMod.style.display = "none";
     }
+    if (event.target == accProfMod) {
+        accProfMod.style.display = "none";
+    }
 }
 
 /* User Account Management Button Click Handlers */
@@ -79,7 +82,7 @@ searchUserForm.onsubmit = function (event) {
 }
 
 uManageEditButt.onclick = function () {
-    accProfMod.style.display = "block";
+    accProfMod.style.display = "flex";
     var viewAccountProfile = document.getElementById('viewAccountProfile');
     var editAccountForm = document.getElementById('editAccountForm');
 
@@ -104,12 +107,6 @@ saveAccountButton.onclick = function () {;
 /* Close modal when either 'x' pressed or outside of modal */
 modalClose2.onclick = function () {
     accProfMod.style.display = "none";
-}
-
-window.onclick = function (event) {
-    if (event.target == accProfMod) {
-        accProfMod.style.display = "none";
-    }
 }
 
 /* Transaction Button Clicks */
