@@ -32,6 +32,18 @@ namespace DataTierWebServer.Controllers
             }
         }
 
+        // GET: api/admin/userhistory
+        [HttpGet("userhistory")]
+        public async Task<ActionResult<IEnumerable<UserHistory>>> GetAccounts()
+        {
+            if (_context.Accounts == null)
+            {
+                return NotFound();
+            }
+            List<UserHistory> histories = await _context.UserHistories.ToListAsync();
+            return Ok(histories);
+        }
+
         // GET: api/admin/byname/Mike
         [HttpGet("byname/{name}")]
         public async Task<ActionResult<Admin>> GetadminByName(string name)

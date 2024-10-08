@@ -143,6 +143,36 @@ namespace BankPresentationLayer.Controllers
             throw new DataRetrievalFailException("Failure to retrieve data occurred");
         }
 
+        private List<UserHistory> GetAllTransactions()
+        {
+            List<UserHistory>? transactions = null;
+
+            RestClient client = new RestClient(_dataServerApiUrl);
+
+            Log("Attempt to retrieve all transactions", LogLevel.Information, null);
+            RestRequest request = new RestRequest("/api/admin/getuserhistories", Method.Get);
+
+            RestResponse response = client.Execute(request);
+
+            if (response.Content != null)
+            {
+                if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                {
+                    // Log response content for debugging
+                    Log($"Successful retrieval of transactions", LogLevel.Information, null);
+
+                    transactions = JsonConvert.DeserializeObject<List<UserHistory>>(response.Content);
+                }
+            }
+
+            if (transactions != null)
+            {
+                return transactions;
+            }
+
+            throw new DataRetrievalFailException("Failure to retrieve data occurred");
+        }
+
         public IActionResult AdminLogin()
         {
             Log("Navigate to the admin login page", LogLevel.Information, null);
@@ -381,6 +411,203 @@ namespace BankPresentationLayer.Controllers
 
                     // Send the list of accounts
                     return Ok(finalAccounts);
+                }
+
+                throw new DataRetrievalFailException("Failure to retrieve data occurred");
+            }
+            catch (DataRetrievalFailException e)
+            {
+                Log(null, LogLevel.Warning, e);
+                return BadRequest();
+            }
+            catch (Exception e)
+            {
+                Log(null, LogLevel.Critical, e);
+                return StatusCode(500);
+            }
+        }
+
+        [HttpGet("getaccounts/{identifier}")]
+        public IActionResult GetAccountsByIdentifier(string identifier)
+        {
+            Log($"Generate list of accounts via identifier: {identifier}", LogLevel.Information, null);
+
+            try
+            {
+                List<BankAccount>? accounts = GetAllAccounts();
+                List<UserProfile>? users = GetAllUsers();
+                List<object> finalAccounts = new List<object>();
+
+                if (accounts != null && users != null)
+                {
+                    Log($"Determine if it is account number/name", LogLevel.Information, null);
+                    // Check if identifier is a 4-digit number (account number)
+                    if (int.TryParse(identifier, out int accountNumber) && identifier.Length == 4)
+                    {
+                        Log($"Determined as account number", LogLevel.Information, null);
+                        // Identifier is an account number
+                        foreach (BankAccount a in accounts)
+                        {
+                            if (a.AcctNo == accountNumber)
+                            {
+                                var user = users.FirstOrDefault(u => u.Id == a.UserId);
+                                if (user != null)
+                                {
+                                    finalAccounts.Add(new
+                                    {
+                                        acctNo = a.AcctNo.ToString(),
+                                        acctType = a.AccountName ?? "",
+                                        acctBal = a.Balance,
+                                        acctOwner = $"{user.FName} {user.LName}"
+                                    });
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        Log($"Determined as name", LogLevel.Information, null);
+                        // Identifier is a name (search by first name, last name, or both)
+                        foreach (BankAccount a in accounts)
+                        {
+                            var user = users.FirstOrDefault(u =>
+                                $"{u.FName} {u.LName}".Contains(identifier, StringComparison.OrdinalIgnoreCase));
+
+                            if (user != null && user.Id == a.UserId)
+                            {
+                                finalAccounts.Add(new
+                                {
+                                    acctNo = a.AcctNo.ToString(),
+                                    acctType = a.AccountName ?? "",
+                                    acctBal = a.Balance,
+                                    acctOwner = $"{user.FName} {user.LName}"
+                                });
+                            }
+                        }
+                    }
+
+                    // Return the filtered accounts
+                    return Ok(finalAccounts);
+                }
+
+                throw new DataRetrievalFailException("Failure to retrieve data occurred");
+            }
+            catch (DataRetrievalFailException e)
+            {
+                Log(null, LogLevel.Warning, e);
+                return BadRequest();
+            }
+            catch (Exception e)
+            {
+                Log(null, LogLevel.Critical, e);
+                return StatusCode(500);
+            }
+        }
+
+        [HttpGet("gettransactions")]
+        public IActionResult GetTransactionList()
+        {
+            Log("Generate list of transactions", LogLevel.Information, null);
+
+            try
+            {
+                List<UserHistory>? transactions = GetAllTransactions();
+                List<object> finalTransactions = new List<object>();
+
+                if (transactions != null)
+                {
+                    foreach (var t in transactions)
+                    {
+                        string acctNo = t.AccountId.ToString();
+                        double amt = t.Amount;
+                        string? type = t.Type;
+                        string date = t.DateTime.ToString("dd/MM/yyyy hh:mm tt");
+                        string? hString = t.HistoryString;
+
+                        finalTransactions.Add(new
+                        {
+                            acctNo,
+                            amt,
+                            type,
+                            date,
+                            hString
+                        });
+                    }
+
+                    // Send the list of transactions
+                    return Ok(finalTransactions);
+                }
+
+                throw new DataRetrievalFailException("Failure to retrieve data occurred");
+            }
+            catch (DataRetrievalFailException e)
+            {
+                Log(null, LogLevel.Warning, e);
+                return BadRequest();
+            }
+            catch (Exception e)
+            {
+                Log(null, LogLevel.Critical, e);
+                return StatusCode(500);
+            }
+        }
+
+        [HttpGet("gettransactions/{start}/{end}")]
+        public IActionResult GetTransactionByFilter(string start, string end)
+        {
+            Log("Generate list of transactions", LogLevel.Information, null);
+
+            try
+            {
+                List<UserHistory>? transactions = GetAllTransactions();
+                List<object> finalTransactions = new List<object>();
+                DateTime? sFilter = (!string.IsNullOrEmpty(start) && start != "null") ? DateTime.Parse(start) : null;
+                DateTime? eFilter = (!string.IsNullOrEmpty(end) && end != "null") ? DateTime.Parse(end) : null;
+
+                if (transactions != null)
+                {
+                    foreach (var t in transactions)
+                    {
+                        string acctNo = t.AccountId.ToString();
+                        double amt = t.Amount;
+                        string? type = t.Type;
+                        string date = t.DateTime.ToString("dd/MM/yyyy hh:mm tt");
+                        string? hString = t.HistoryString;
+
+                        object temp = new
+                        {
+                            acctNo,
+                            amt,
+                            type,
+                            date,
+                            hString
+                        };
+
+                        Log("Add transaction: >= start && <= end", LogLevel.Information, null);
+                        //Check if both filter options selected
+                        if ((sFilter != null && t.DateTime >= sFilter) && 
+                            (eFilter != null && t.DateTime <= eFilter))
+                        {
+                            finalTransactions.Add(temp);
+                        }
+                        Log("Add transaction: >= start && end = null", LogLevel.Information, null);
+                        //Add if start date selected and end date not selected
+                        if ((sFilter != null && t.DateTime >= sFilter) &&
+                                eFilter == null)
+                        {
+                            finalTransactions.Add(temp);
+                        }
+                        Log("Add transaction: start = null && <= end", LogLevel.Information, null);
+                        //Add if start filter options not selected but end is
+                        if (sFilter == null &&
+                            (eFilter != null && t.DateTime <= eFilter))
+                        {
+                            finalTransactions.Add(temp);
+                        }
+                    }
+
+                    // Send the list of transactions
+                    return Ok(finalTransactions);
                 }
 
                 throw new DataRetrievalFailException("Failure to retrieve data occurred");

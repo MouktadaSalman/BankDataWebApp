@@ -78,10 +78,10 @@
                 <div class="userAccountsForm-container">
                     <form id="searchUserForm">
                         <input type="text" id="searchUser" placeholder="Search account by owner or account number">
-                        <button type="submit" class="searchBtn">Search</button>
+                        <button type="submit" id="searchUserButton" class="searchBtn">Search</button>
                     </form>
                 </div>
-                <ul id="userAccountList">
+                <ul id="userAccountList" class="listContainer">
                     <!-- JavaScript will populate user details -->
                 </ul>
                 <div class="userAccountsButtons-conatiner">
@@ -99,7 +99,7 @@
                     <input type="date" id="transactionEndDate">
                     <button id="filterTransactions" class="btn">Filter</button>
                 </div>
-                <ul id="transactionList">
+                <ul id="transactionList" class="listContainer">
                     <!-- JavaScript will populate transaction details -->
                 </ul>
             </section>
@@ -108,7 +108,7 @@
             <section id="securityAccessControl" class="security-access-control card">
                 <h2>Security and Access Control</h2>
                 <p>Admin Actions Audit Trail</p>
-                <ul id="adminActivityLogs">
+                <ul id="adminActivityLogs" class="listContainer">
                     <!-- JavaScript will populate admin logs -->
                 </ul>
             </section>

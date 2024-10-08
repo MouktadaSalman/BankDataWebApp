@@ -4,15 +4,23 @@ const logoutButt = document.getElementById('logoutBtn');
 const editButt = document.getElementById('openAdminProfile');
 const aProfMod = document.getElementById('adminProfileModal');
 const uAccountList = document.getElementById('userAccountList');
-const listItems = document.querySelectorAll('#userAccountList li');
+const transactionList = document.getElementById('transactionList');
+const adminActivityList = document.getElementById('adminActivityLogs');
+const startDateInput = document.getElementById('transactionStartDate');
+const endDateInput = document.getElementById('transactionEndDate');
 
 /* Button declarations */
 var editProfileButt = document.getElementById('editAdminProfileButton');
 var saveProfileButt = document.getElementById('saveAdminProfileButton');
 var modalClose = document.getElementById('aClose');
+var searchUserForm = document.getElementById('searchUserForm');
 var uManageEditButt = document.getElementById('editAccountButton');
 var uManageCreateButt = document.getElementById('createAccountButton');
 var uManageDeleteButt = document.getElementById('deleteAccountButton');
+var filterButton = document.getElementById('filterTransactions');
+
+/* Search Results */
+var accounts;
 
 /* Button onclick behaviours */
 // Logout button
@@ -58,25 +66,25 @@ window.onclick = function (event) {
 }
 
 /* User Account Management Button Click Handlers */
+searchUserForm.onsubmit = function (event) {
+    event.preventDefault();
+    fetchAccountsByIdentifier();
+}
+
+/* Transaction Button Clicks */
+filterButton.onclick = function () {
+    var startDate = startDateInput.value ? new Date(startDateInput.value).toISOString() : null;
+    var endDate = endDateInput.value ? new Date(endDateInput.value).toISOString() : null;
+
+    if (startDate == null && endDate == null) {
+        fetchAllTransactions();
+    }
+    else {
+        fetchTransactionsByFilter(startDate, endDate);
+    }
+}
 
 document.addEventListener('DOMContentLoaded', function () {
-    /* Clickable list items when clicked */
-    uAccountList.addEventListener('click', function (event) {
-        const item = event.target.closest('li'); // Get the clicked li element
-
-        if (uAccountList.children.length > 1) {
-            if (item) {
-                // Remove 'active' class from all other list items
-                const allItems = uAccountList.querySelectorAll('li');
-                allItems.forEach(function (li) {
-                    li.classList.remove('active'); // Remove 'active' class
-                });
-
-                item.classList.toggle('active');
-            }
-        }
-    });
-
     // Get the full path
     var path = decodeURIComponent(window.location.pathname);
 
@@ -96,7 +104,39 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     fetchAllAccounts();
+    fetchAllTransactions();
+
+    //Adjust Initial List Interactions
+    adjustAccountListInteractions();
 });
+
+/* Function to adjust list behavior after DOM or data changes */
+function adjustAccountListInteractions() {
+    // Disable hover effect if there's <= 1 item
+    if (uAccountList.children.length <= 1) {
+        uAccountList.classList.add('disable-hover');
+
+    } else {
+        uAccountList.classList.remove('disable-hover');
+    }
+
+    // Clickable list items when clicked
+    uAccountList.addEventListener('click', function (event) {
+        const item = event.target.closest('li'); // Get the clicked li element
+
+        if (uAccountList.children.length > 1) {
+            if (item) {
+                // Remove 'active' class from all other list items
+                const allItems = uAccountList.querySelectorAll('li');
+                allItems.forEach(function (li) {
+                    li.classList.remove('active'); // Remove 'active' class
+                });
+
+                item.classList.toggle('active');
+            }
+        }
+    });
+}
 
 function loadProfileDetails(user) {
     console.log('Attempt to retrieve admin details');
@@ -176,12 +216,41 @@ function fetchAllAccounts() {
         });
 }
 
+function fetchAccountsByIdentifier() {
+    var identifier = document.getElementById('searchUser').value;
+    console.log(`Fetch accounts via: ${identifier}`);
+
+    const apiUrl = `/getaccounts/${identifier}`;
+
+    const requestOption = {
+        method: 'GET'
+    };
+
+    fetch(apiUrl, requestOption)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log(`Send to load`);
+            loadAccounts(data);
+            adjustAccountListInteractions();
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+        });
+}
+
 function loadAccounts(accounts) {
+    console.log(`Reset list`);
     // Clear the current list
     uAccountList.innerHTML = '';
 
     // Check if there is data (accounts) returned
     if (accounts.length > 0) {
+        console.log(`Accounts has entries`);
         // Iterate through the account list and populate the user list UI
         accounts.forEach(account => {
             const listItem = document.createElement('li');
@@ -198,8 +267,85 @@ function loadAccounts(accounts) {
             uAccountList.appendChild(listItem);
         });
     } else {
+        console.log(`Account has no entires`);
         const listItem = document.createElement('li');
         listItem.textContent = "No accounts found";
         uAccountList.appendChild(listItem);
+    }
+}
+
+function fetchAllTransactions() {
+    const apiUrl = `/gettransactions`;
+
+    const requestOption = {
+        method: 'GET'
+    };
+
+    fetch(apiUrl, requestOption)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            loadTransactions(data);
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+        });
+}
+
+function fetchTransactionsByFilter(start, end) {
+    const apiUrl = `/gettransactions/${start}/${end}`;
+    console.log(`Get Transactions with: ${start} - ${end}`);
+
+    const requestOption = {
+        method: 'GET'
+    };
+
+    fetch(apiUrl, requestOption)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            loadTransactions(data);
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+        });
+}
+
+function loadTransactions(transactions) {
+    console.log(`Reset Transactions list`);
+    // Clear the current list
+    transactionList.innerHTML = '';
+
+    // Check if there is data (accounts) returned
+    if (transactions.length > 0) {
+        console.log(`Transactions has entries`);
+        // Iterate through the account list and populate the user list UI
+        transactions.forEach(transaction => {
+            const listItem = document.createElement('li');
+            listItem.innerHTML = `
+                <div style="flex: 1; display: flex;  flex-direction: column; justify-content: space-between;">
+                    <span style="flex: 1;">Date: ${transaction.date}</span>
+                    <span style="flex: 0.5;">Type: ${transaction.type}</span>
+                    <span style="flex: 2;">Owner: ${transaction.acctNo}</span>
+                </div>
+                <div style="flex: 1; text-align: left;">
+                    <span>Balance: $${transaction.amt}</span>
+                </div>
+            `;
+            transactionList.appendChild(listItem);
+        });
+    } else {
+        console.log(`Transactions has no entires`);
+        const listItem = document.createElement('li');
+        listItem.textContent = "No accounts found";
+        transactionList.appendChild(listItem);
     }
 }

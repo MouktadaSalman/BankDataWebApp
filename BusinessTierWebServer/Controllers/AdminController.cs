@@ -212,5 +212,48 @@ namespace BusinessTierWebServer.Controllers
                 return NotFound(ex.Message);
             }
         }
+
+        [HttpGet("getuserhistories")]
+        public IActionResult GetAllHistories()
+        {
+            try
+            {
+                Log("Connect to the Data tier web server", LogLevel.Information, null);
+                RestClient client = new RestClient(_dataServerApiUrl);
+                RestRequest request = new RestRequest($"/api/admin/userhistory", Method.Get);
+                RestResponse response = client.Execute(request);
+
+                List<UserHistory>? value = null;
+
+                Log("Attempt to retrieve all transactions", LogLevel.Information, null);
+                if (response.Content != null)
+                {
+                    if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                    {
+                        Log($"Successful retrieval of histories", LogLevel.Information, null);
+                        value = JsonConvert.DeserializeObject<List<UserHistory>>(response.Content);
+                    }
+
+                    if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                    {
+                        Log("Encountered internal missing data generation", LogLevel.Critical, null);
+                        throw new DataRetrievalFailException("Internal DatabaseGenerationFailException occurred");
+                    }
+                }
+
+                if (value != null)
+                {
+                    Log($"Successful deserialization of transactions", LogLevel.Information, null);
+                    return Ok(value);
+                }
+
+                throw new DataRetrievalFailException("Internal unkown exception occurred/Failed to get a response from Data tier");
+            }
+            catch (DataRetrievalFailException ex)
+            {
+                Log(null, LogLevel.Warning, ex);
+                return NotFound(ex.Message);
+            }
+        }
     }
 }
