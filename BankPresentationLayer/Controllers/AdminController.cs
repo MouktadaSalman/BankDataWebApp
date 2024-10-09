@@ -284,7 +284,7 @@ namespace BankPresentationLayer.Controllers
             }
         }
 
-        [HttpPut("update/{identifier}")]
+        [HttpPut("updateadmin/{identifier}")]
         public IActionResult UpdateAdminProfile(string identifier, [FromBody] Admin updatedAdmin)
         {
             try
@@ -610,6 +610,73 @@ namespace BankPresentationLayer.Controllers
                 Log(null, LogLevel.Critical, e);
                 return StatusCode(500);
             }
+        }
+
+        [HttpPut("updateaccount/{acctNo}")]
+        public IActionResult UpdateAccountDetails(uint acctNo, [FromBody] BankAccount updatedAccount)
+        {
+            Log($"Update account of : '{acctNo}", LogLevel.Information, null);
+            try
+            {
+                Log($"Attempt to get the account details via id: '{acctNo}'", LogLevel.Information, null);
+                RestClient client = new RestClient(_dataServerApiUrl);
+                RestRequest request = new RestRequest($"/api/admin/no/{acctNo}", Method.Get);
+                RestResponse response = client.Execute(request);
+                BankAccount? value = null;
+
+                if (response.Content != null)
+                {
+                    if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                    {
+                        value = JsonConvert.DeserializeObject<BankAccount>(response.Content);
+
+                        Log($"Successful retrieval of account details: '{acctNo}'", LogLevel.Information, null);
+                    }
+                }
+
+                if (value != null)
+                {
+                    Log($"Successful deserialization of initial details", LogLevel.Information, null);
+                    value.AccountName = updatedAccount.AccountName;
+                    value.Balance = updatedAccount.Balance;
+
+                    Log("Connect to the Data tier web server for update", LogLevel.Information, null);
+                    request = new RestRequest($"/api/admin/updateaccount/{acctNo}", Method.Put);
+                    request.AddJsonBody(value);
+                    response = client.Execute(request);
+
+                    if (response.Content != null)
+                    {
+                        if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                        {
+                            Log($"Successful update of admin details: '{acctNo}'", LogLevel.Information, null);
+
+                            return Json(new
+                            {
+                                check = true
+                            });
+                        }
+                    }
+                }
+
+                throw new DataRetrievalFailException("Failure to retrieve data occurred");
+            }
+            catch (DataRetrievalFailException e)
+            {
+                Log(null, LogLevel.Warning, e);
+                return NotFound();
+            }
+            catch (ArgumentNullException e)
+            {
+                Log(null, LogLevel.Warning, e);
+                return BadRequest();
+            }
+            catch (Exception e)
+            {
+                Log(null, LogLevel.Critical, e);
+                return BadRequest();
+            }
+
         }
 
         [HttpGet("gettransactions")]

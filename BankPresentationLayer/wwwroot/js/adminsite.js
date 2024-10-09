@@ -58,6 +58,7 @@ saveProfileButt.onclick = function () {
     if (viewProfileDiv) viewProfileDiv.style.display = "block";
     if (editProfileForm) editProfileForm.style.display = "none";
 
+    aProfMod.style.display = "none";
     saveAdminChanges();
 }
 
@@ -100,8 +101,9 @@ saveAccountButton.onclick = function () {;
     var viewAccountProfile = document.getElementById('viewAccountProfile');
     var editAccountForm = document.getElementById('editAccountForm');
 
-    if (viewAccountProfile) viewAccountProfile.style.display = "block";
-    if (editAccountForm) editAccountForm.style.display = "none";
+    saveAccountChanges();
+
+    accProfMod.style.display = "none";
 }
 
 /* Close modal when either 'x' pressed or outside of modal */
@@ -166,7 +168,7 @@ function extractAccountInfo(item) {
         console.log('Balance:', accountBalance);
 
         //Update Modal View Fields
-        document.getElementById('viewAdccountNo').innerText = accountNo;
+        document.getElementById('viewAccountNo').innerText = accountNo;
         document.getElementById('viewAccountType').innerText = accountType;
         document.getElementById('viewAccountOwner').innerText = accountOwner;
         document.getElementById('viewAccountBalance').innerText = accountBalance;
@@ -308,7 +310,7 @@ function saveAdminChanges() {
         ProfilePictureUrl: "",
         Password: pass
     };
-    const apiUrl = `/update/${identifier}`;
+    const apiUrl = `/updateadmin/${identifier}`;
 
     const headers = {
         'Content-Type': 'application/json'
@@ -332,6 +334,55 @@ function saveAdminChanges() {
                 //Successful updated
                 console.log('Update successful');
                 reloadWithUpdated(data.name, data.password);
+            }
+            else {
+                //Show the error
+                console.log('Update unsuccessful');
+                throw new Error('Update was unsuccessful');
+            }
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+        });
+}
+
+function saveAccountChanges() {
+    var acctNo = document.getElementById('viewAccountNo').innerText;
+    var type = document.getElementById('editAccountType').value;
+    var bal = document.getElementById('editAccountBalance').value;
+
+    var data = {
+         AcctNo: acctNo,
+        AccountName: type,
+        Balance: parseInt(bal),
+        UserId: 0,
+        History: null
+    }
+
+    const apiUrl = `/updateaccount/${acctNo}`;
+
+    const headers = {
+        'Content-Type': 'application/json'
+    };
+
+    const requestOption = {
+        method: 'PUT',
+        headers: headers,
+        body: JSON.stringify(data)
+    }
+
+    fetch(apiUrl, requestOption)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.check) {
+                //Successful updated
+                console.log('Update successful');
+                fetchAccountsByIdentifier();
             }
             else {
                 //Show the error

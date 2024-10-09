@@ -9,6 +9,7 @@ using DataTierWebServer.Models;
 using DataTierWebServer.Data;
 using Microsoft.CodeAnalysis.Scripting;
 using System.Xml.Linq;
+using DataTierWebServer.Models.Exceptions;
 
 namespace DataTierWebServer.Controllers
 {
@@ -165,6 +166,47 @@ namespace DataTierWebServer.Controllers
         [HttpPut("{acctNo}")]
         public async Task<IActionResult> PutAccount(uint acctNo, Account account)
         {
+            try
+            {
+                if (_context.Accounts == null)
+                {
+                    throw new DataGenerationFailException("Accounts");
+                }
+
+                if (acctNo != account.AcctNo)
+                {
+                    throw new MissingAccountException($"'{acctNo}'");
+                }
+
+                _context.Entry(account).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+                return Ok();
+            }
+            catch (DataGenerationFailException ex)
+            {
+                return NotFound();
+            }
+            catch (MissingProfileException ex)
+            {
+                return BadRequest();
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                if (!AccountExists(acctNo))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    return StatusCode(StatusCodes.Status409Conflict, "Concurrency conflict");
+                }
+            }
+            catch (Exception ex)
+            {
+                //Catch other unkown exceptions
+                return BadRequest();
+            }
+
             if (acctNo != account.AcctNo)
             {
                 return BadRequest();
