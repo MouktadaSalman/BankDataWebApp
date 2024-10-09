@@ -83,10 +83,26 @@ searchUserForm.onsubmit = function (event) {
 }
 
 uManageDeleteButt.onclick = function () {
+    // Ensure that the account number exists before attempting to delete
+    var acctNoElement = document.getElementById('viewAccountNo');
+    if (!acctNoElement || !acctNoElement.innerText) {
+        console.error('Account number not found!');
+        alert('Unable to delete: No account selected');
+        return; // Exit the function if the account number is not found
+    }
+
     deleteAccount();
 }
 
 uManageEditButt.onclick = function () {
+    // Ensure that the account number exists before attempting to delete
+    var acctNoElement = document.getElementById('viewAccountNo');
+    if (!acctNoElement || !acctNoElement.innerText) {
+        console.error('Account number not found!');
+        alert('Unable to edit: No account selected');
+        return; // Exit the function if the account number is not found
+    }
+
     accProfMod.style.display = "flex";
     var viewAccountProfile = document.getElementById('viewAccountProfile');
     var editAccountForm = document.getElementById('editAccountForm');
@@ -101,9 +117,20 @@ editAccountButton.onclick = function () {
     if (viewAccountProfile) viewAccountProfile.style.display = "none";
     if (editAccountForm) editAccountForm.style.display = "block";
 }
-saveAccountButton.onclick = function () {;
-    var viewAccountProfile = document.getElementById('viewAccountProfile');
-    var editAccountForm = document.getElementById('editAccountForm');
+saveAccountButton.onclick = function () {
+
+    // Ensure that the account number exists before attempting to delete
+    var acctNoElement = document.getElementById('viewAccountNo');
+    var type = document.getElementById('editAccountType');
+    var bal = document.getElementById('editAccountBalance');
+
+    if ((!acctNoElement || !acctNoElement.innerText) &&
+        (!type || !type.value) &&
+        (!bal || !bal.value)) {
+        console.error('Account number not found!');
+        alert('Unable to update: Check fields are not empty');
+        return; // Exit the function if the account number is not found
+    }
 
     saveAccountChanges();
 
