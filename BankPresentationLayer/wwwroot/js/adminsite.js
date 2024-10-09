@@ -82,6 +82,10 @@ searchUserForm.onsubmit = function (event) {
     fetchAccountsByIdentifier();
 }
 
+uManageDeleteButt.onclick = function () {
+    deleteAccount();
+}
+
 uManageEditButt.onclick = function () {
     accProfMod.style.display = "flex";
     var viewAccountProfile = document.getElementById('viewAccountProfile');
@@ -389,6 +393,30 @@ function saveAccountChanges() {
                 console.log('Update unsuccessful');
                 throw new Error('Update was unsuccessful');
             }
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+        });
+}
+
+function deleteAccount() {
+    var acctNo = document.getElementById('viewAccountNo').innerText;
+
+    const apiUrl = `/deleteaccount/${acctNo}`;
+
+    const requestOption = {
+        method: 'DELETE'
+    }
+
+    fetch(apiUrl, requestOption)
+        .then(response => {
+            if (response.ok) {
+                fetchAccountsByIdentifier();
+            }
+            else {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
         })
         .catch(error => {
             console.error('Fetch error:', error);

@@ -311,6 +311,52 @@ namespace BusinessTierWebServer.Controllers
             }
         }
 
+        [HttpDelete("deleteaccount/{acctNo}")]
+        public IActionResult DeleteAccountByNo(uint acctNo)
+        {
+            try
+            {
+                Log("Connect to the Data tier web server", LogLevel.Information, null);
+                RestClient client = new RestClient(_dataServerApiUrl);
+                RestRequest request = new RestRequest($"/api/account/{acctNo}", Method.Delete);
+                RestResponse response = client.Execute(request);
+                
+                Log($"Attempt to delete account details: '{acctNo}'", LogLevel.Information, null);
+                if (response.Content != null)
+                {
+                    if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                    {
+                        Log($"Successful deletion of account details: '{acctNo}'", LogLevel.Information, null);
+                        return Ok();
+                    }
+
+                    if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                    {
+                        Log("Encountered internal missing data generation", LogLevel.Critical, null);
+                        throw new DataRetrievalFailException("Internal error missing data");
+                    }
+
+                    if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+                    {
+                        Log("Encountered internal missing/mismatch data", LogLevel.Warning, null);
+                        throw new DataRetrievalFailException("Internal poor request occurred");
+                    }
+
+                    if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
+                    {
+                        Log("Encountered internal concurrency conflict", LogLevel.Warning, null);
+                        throw new DataRetrievalFailException("Internal concurrency conflict occurred");
+                    }
+                }
+                throw new DataRetrievalFailException("Internal unkown exception occurred/Failed to get a response from Data tier");
+            }
+            catch (DataRetrievalFailException e)
+            {
+                Log(null, LogLevel.Warning, e);
+                return NotFound(e.Message);
+            }
+        }
+
         [HttpGet("getaccounts")]
         public IActionResult GetAllAccounts()
         {

@@ -206,31 +206,6 @@ namespace DataTierWebServer.Controllers
                 //Catch other unkown exceptions
                 return BadRequest();
             }
-
-            if (acctNo != account.AcctNo)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(account).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!AccountExists(acctNo))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
         }
 
         // POST: api/account
@@ -253,20 +228,47 @@ namespace DataTierWebServer.Controllers
         [HttpDelete("{acctNo}")]
         public async Task<IActionResult> DeleteAccount(uint acctNo)
         {
-            if (_context.Accounts == null)
+            try
+            {
+                if (_context.Accounts == null)
+                {
+                    throw new DataGenerationFailException("Accounts");
+                }
+
+                var account = await _context.Accounts.FindAsync(acctNo);
+                if (account == null)
+                {
+                    throw new MissingAccountException($"'{acctNo}'");
+                }
+
+                _context.Accounts.Remove(account);
+                await _context.SaveChangesAsync();
+                return Ok();
+            }
+            catch (DataGenerationFailException)
             {
                 return NotFound();
             }
-            var account = await _context.Accounts.FindAsync(acctNo);
-            if (account == null)
+            catch (MissingProfileException)
             {
-                return NotFound();
+                return BadRequest();
             }
-
-            _context.Accounts.Remove(account);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            catch (DbUpdateConcurrencyException)
+            {
+                if (AccountExists(acctNo))
+                {
+                    return StatusCode(StatusCodes.Status409Conflict, "Concurrency conflict");
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+            catch (Exception)
+            {
+                //Catch other unkown exceptions
+                return BadRequest();
+            }
         }
 
         private bool AccountExists(uint acctNo)

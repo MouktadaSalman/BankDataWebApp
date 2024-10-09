@@ -16,7 +16,9 @@ namespace BankPresentationLayer.Controllers
         private readonly string _dataServerApiUrl = "http://localhost:5265";
         private readonly ILogger<AdminController> _logger;
         private static readonly object _logLock = new object();
+        private static readonly object _adminLogLock = new object();
         private static readonly ConcurrentDictionary<string, Admin> adminsInSession = new ConcurrentDictionary<string, Admin>();
+        private static readonly List<string> adminLogs = new List<string>();
 
         public AdminController(ILogger<AdminController> logger)
         {
@@ -37,6 +39,23 @@ namespace BankPresentationLayer.Controllers
                     _logger.Log(logLevel, logEntry);
                 }
             }
+        }
+
+        private void AdminLog(string message)
+        {
+            lock (_adminLogLock)
+            {
+                if (message != null)
+                {
+                    string logEntry = $"{DateTime.Now}: {message}";
+                    adminLogs.Add(logEntry);
+                }
+                else
+                {
+                    Log("Attempt to log admin/system action with no message body", LogLevel.Warning, null);
+                }
+            }
+
         }
 
         private bool IsValidEmail(string email)
@@ -676,7 +695,45 @@ namespace BankPresentationLayer.Controllers
                 Log(null, LogLevel.Critical, e);
                 return BadRequest();
             }
+        }
 
+        [HttpDelete("deleteaccount/{acctNo}")]
+        public IActionResult DeleteAccountDetails(uint acctNo)
+        {
+            Log($" Attempt to delete account of: '{acctNo}", LogLevel.Information, null);
+            try
+            {
+                Log("Connect to the Business tier web server", LogLevel.Information, null);
+                RestClient client = new RestClient(_dataServerApiUrl);
+                RestRequest request = new RestRequest($"/api/admin/deleteaccount/{acctNo}", Method.Delete);
+                RestResponse response = client.Execute(request);
+
+                if (response.Content != null)
+                {
+                    if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                    {
+                        Log($"Successful deletion of account details: '{acctNo}'", LogLevel.Information, null);
+                        return Ok();
+                    }
+                }
+
+                throw new DataRetrievalFailException("Failure to retrieve data occurred");
+            }
+            catch (DataRetrievalFailException e)
+            {
+                Log(null, LogLevel.Warning, e);
+                return NotFound();
+            }
+            catch (ArgumentNullException e)
+            {
+                Log(null, LogLevel.Warning, e);
+                return BadRequest();
+            }
+            catch (Exception e)
+            {
+                Log(null, LogLevel.Critical, e);
+                return BadRequest();
+            }
         }
 
         [HttpGet("gettransactions")]
