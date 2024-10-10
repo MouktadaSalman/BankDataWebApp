@@ -185,31 +185,18 @@ namespace DataTierWebServer.Controllers
         [HttpPut("{acctNo}")]
         public async Task<IActionResult> PutAccount(uint acctNo, Account account)
         {
-            try
-            {
-                if (_context.Accounts == null)
-                {
-                    throw new DataGenerationFailException("Accounts");
-                }
-
-                if (acctNo != account.AcctNo)
-                {
-                    throw new MissingAccountException($"'{acctNo}'");
-                }
-
-                _context.Entry(account).State = EntityState.Modified;
-                await _context.SaveChangesAsync();
-                return Ok();
-            }
-            catch (DataGenerationFailException ex)
-            {
-                return NotFound();
-            }
-            catch (MissingProfileException ex)
+            if (acctNo != account.AcctNo)
             {
                 return BadRequest();
             }
-            catch (DbUpdateConcurrencyException ex)
+
+            _context.Entry(account).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
             {
                 if (!AccountExists(acctNo))
                 {
@@ -217,20 +204,17 @@ namespace DataTierWebServer.Controllers
                 }
                 else
                 {
-                    return StatusCode(StatusCodes.Status409Conflict, "Concurrency conflict");
+                    throw;
                 }
             }
-            catch (Exception ex)
-            {
-                //Catch other unkown exceptions
-                return BadRequest();
-            }
+
+            return NoContent();
         }
 
         // POST: api/account
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Account>> PostAccount([FromBody]Account account)
+        public async Task<ActionResult<Account>> PostAccount([FromBody] Account account)
         {
             if (_context.Accounts == null)
             {
@@ -242,6 +226,28 @@ namespace DataTierWebServer.Controllers
 
             return CreatedAtAction("GetAccount", new { acctNo = account.AcctNo }, account);
         }
+
+        // DELETE: api/account/5
+        [HttpDelete("{acctNo}")]
+        public async Task<IActionResult> DeleteAccount(uint acctNo)
+        {
+            if (_context.Accounts == null)
+            {
+                return NotFound();
+            }
+            var account = await _context.Accounts.FindAsync(acctNo);
+            if (account == null)
+            {
+                return NotFound();
+            }
+
+            _context.Accounts.Remove(account);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        /*================================From Business admin controller=================================*/
 
         // POST: api/account/new
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
@@ -335,6 +341,7 @@ namespace DataTierWebServer.Controllers
                 return BadRequest();
             }
         }
+        /*================================From Business admin controller=================================*/
 
         private bool AccountExists(uint acctNo)
         {
