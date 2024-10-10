@@ -18,10 +18,29 @@ namespace DataTierWebServer.Controllers
     public class AccountController : Controller
     {        
         private readonly DBManager _context;
+        private readonly ILogger<AccountController> _logger;
+        private static readonly object _logLock = new object();
 
-        public AccountController(DBManager context)
+        public AccountController(ILogger<AccountController> logger, DBManager context)
         {
+            _logger = logger;
             _context = context;
+        }
+
+        private void Log(string? message, LogLevel logLevel, Exception? ex)
+        {
+            lock (_logLock)
+            {
+                if (ex != null)
+                {
+                    _logger.Log(logLevel, ex, $"{DateTime.Now}:");
+                }
+                else
+                {
+                    string logEntry = $"{DateTime.Now}: {message}";
+                    _logger.Log(logLevel, logEntry);
+                }
+            }
         }
 
         // GET: api/account
@@ -224,9 +243,55 @@ namespace DataTierWebServer.Controllers
             return CreatedAtAction("GetAccount", new { acctNo = account.AcctNo }, account);
         }
 
+        // POST: api/account/new
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPost("addaccount")]
+        public async Task<IActionResult> AddNewAccount([FromBody] Account account)
+        {
+            try
+            {
+                Log($"Attempt to add account to database: {account.AcctNo}", LogLevel.Warning, null);
+                if (_context.Accounts == null)
+                {
+                    throw new DataGenerationFailException("Accounts");
+                }
+
+                if (account == null)
+                {
+                    Log("Account didn't pass through", LogLevel.Warning, null);
+                    throw new MissingAccountException("");
+                }
+
+                _context.Accounts.Add(account);
+                await _context.SaveChangesAsync();
+                return Ok();
+            }
+            catch (DataGenerationFailException ex)
+            {
+                Log(null, LogLevel.Warning, ex);
+                return NotFound();
+            }
+            catch (MissingAccountException ex)
+            {
+                Log(null, LogLevel.Warning, ex);
+                return BadRequest();
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                Log(null, LogLevel.Warning, ex);
+                return StatusCode(StatusCodes.Status409Conflict, "Concurrency conflict");
+            }
+            catch (Exception ex)
+            {
+                Log(null, LogLevel.Critical, ex);
+                //Catch other unkown exceptions
+                return BadRequest();
+            }
+        }
+
         // DELETE: api/account/5
         [HttpDelete("{acctNo}")]
-        public async Task<IActionResult> DeleteAccount(uint acctNo)
+        public async Task<IActionResult> DeleteAccountFromAdmin(uint acctNo)
         {
             try
             {
@@ -249,7 +314,7 @@ namespace DataTierWebServer.Controllers
             {
                 return NotFound();
             }
-            catch (MissingProfileException)
+            catch (MissingAccountException)
             {
                 return BadRequest();
             }
@@ -277,5 +342,3 @@ namespace DataTierWebServer.Controllers
         }
     }
 }
-
-

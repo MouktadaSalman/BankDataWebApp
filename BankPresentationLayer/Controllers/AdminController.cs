@@ -499,6 +499,35 @@ namespace BankPresentationLayer.Controllers
             return RedirectToAction("LoginError");
         }
 
+        [HttpGet("getusers")]
+        public IActionResult GetUsers()
+        {
+            Log("Generate list of users", LogLevel.Information, null);
+
+            try
+            {
+                List<UserProfile>? users = GetAllUsers();
+
+                if (users != null)
+                {
+                    // Send the list of users
+                    return Ok(users);
+                }
+
+                throw new DataRetrievalFailException("Failure to retrieve data occurred");
+            }
+            catch (DataRetrievalFailException e)
+            {
+                Log(null, LogLevel.Warning, e);
+                return BadRequest();
+            }
+            catch (Exception e)
+            {
+                Log(null, LogLevel.Critical, e);
+                return StatusCode(500);
+            }
+        }
+
         [HttpGet("getaccounts")]
         public IActionResult GetAccounts()
         {
@@ -628,6 +657,76 @@ namespace BankPresentationLayer.Controllers
             {
                 Log(null, LogLevel.Critical, e);
                 return StatusCode(500);
+            }
+        }
+
+        [HttpPost("admin/createaccount")]
+        public async Task<IActionResult> CreateAccount([FromBody] BankAccount account)
+        {
+            if (account == null)
+            {
+                return BadRequest("Invalid account data.");
+            }
+
+            try
+            {
+                Log($"Attempt to create an account: {account.ToString()}", LogLevel.Information, null);
+                Random rand = new Random(DateTime.Now.Second);
+                List<BankAccount>? accounts = GetAllAccounts();
+                uint acctNo;
+                bool isValidNo = false;
+
+                if (account != null)
+                {
+                    // Random generate an account no.
+                    do
+                    {
+                        //Random
+                        acctNo = (uint)rand.Next(1, 10000);
+                        //Check if taken
+                        var taken = accounts.FirstOrDefault(a => a.AcctNo == acctNo);
+                        // If `taken` is null, the number is not taken, so it's a valid number
+                        isValidNo = (taken == null);
+                    } while (!isValidNo);
+
+                    BankAccount newAccount = new BankAccount();
+                    newAccount.AcctNo = acctNo;
+                    newAccount.AccountName = account.AccountName;
+                    newAccount.Balance = account.Balance;
+                    newAccount.UserId = account.UserId;
+                    newAccount.History = new List<UserHistory>();
+
+                    RestClient client = new RestClient(_dataServerApiUrl);
+                    RestRequest request = new RestRequest("/api/admin/createaccount", Method.Post);
+
+                    request.AddJsonBody(newAccount);
+                    RestResponse response = await client.ExecuteAsync(request);
+
+                    if (response != null)
+                    {
+                        if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                        {
+                            _logger.LogInformation("Account created successfully.");
+                            return Ok(new { success = true, message = "Account created successfully" });
+                        }
+                        else
+                        {
+                            throw new DataRetrievalFailException("Internal bad request");
+                        }
+                    }
+                }
+
+                throw new DataRetrievalFailException("Failure to retrieve data occurred");
+            }
+            catch (DataRetrievalFailException e)
+            {
+                Log(null, LogLevel.Warning, e);
+                return BadRequest();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while creating the account.");
+                return StatusCode(500, "An error occurred while processing your request");
             }
         }
 

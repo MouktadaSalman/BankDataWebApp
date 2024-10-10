@@ -23,9 +23,36 @@ var uManageDeleteButt = document.getElementById('deleteAccountButton');
 var filterButton = document.getElementById('filterTransactions');
 var editAccountButton = document.getElementById('editAccountButtonM');
 var saveAccountButton = document.getElementById('saveAccountButton');
+var saveCreateButton = document.getElementById('saveCreateButton');
 
-/* Search Results */
-var accounts;
+/* Reset inputs and remove error mask when typing */
+document.getElementById('editAdminFName').addEventListener('input', function () {
+    adminResetInputError(this);
+});
+document.getElementById('editAdminLName').addEventListener('input', function () {
+    adminResetInputError(this);
+});
+document.getElementById('editAdminEmail').addEventListener('input', function () {
+    adminResetInputError(this);
+});
+document.getElementById('editAdminPassword').addEventListener('input', function () {
+    adminResetInputError(this);
+});
+document.getElementById('editAccountType').addEventListener('input', function () {
+    adminResetInputError(this);
+});
+document.getElementById('editAccountBalance').addEventListener('input', function () {
+    adminResetInputError(this);
+});
+document.getElementById('createAccountType').addEventListener('input', function () {
+    adminResetInputError(this);
+});
+document.getElementById('createAccountBalance').addEventListener('input', function () {
+    adminResetInputError(this);
+});
+document.getElementById('createUserId').addEventListener('input', function () {
+    adminResetInputError(this);
+});
 
 /* Button onclick behaviours */
 // Logout button
@@ -52,14 +79,43 @@ editProfileButt.onclick = function () {
 }
 // Save button (inside of modal)
 saveProfileButt.onclick = function () {
-    // Ensure viewProfile is displayed and editProfileForm is hidden (Added)
-    var viewProfileDiv = document.getElementById('viewAdminProfile');
-    var editProfileForm = document.getElementById('editAdminProfileForm');
-    if (viewProfileDiv) viewProfileDiv.style.display = "block";
-    if (editProfileForm) editProfileForm.style.display = "none";
+    var fName = document.getElementById('editAdminFName');
+    var lName = document.getElementById('editAdminLName');
+    var email = document.getElementById('editAdminEmail');
+    var pass = document.getElementById('editAdminPassword');
 
-    aProfMod.style.display = "none";
-    saveAdminChanges();
+    let isValid = true;
+
+    // Reset input error
+    adminResetInputError(fName);
+    adminResetInputError(lName);
+    adminResetInputError(email);
+    adminResetInputError(pass);
+
+    if (!fName || !fName.value) {
+        adminSetInputError(fName, "Required");
+        isValid = false;
+    }
+
+    if (!lName || !lName.value) {
+        adminSetInputError(lName, "Required");
+        isValid = false;
+    }
+
+    if (!pass || !pass.value) {
+        adminSetInputError(pass, "Required");
+        isValid = false;
+    }
+
+    if (!email || !email.value) {
+        adminSetInputError(email, "Required");
+        isValid = false;
+    }
+
+    if (isValid) {
+        aProfMod.style.display = "none";
+        saveAdminChanges();
+    }
 }
 
 /* Close modal when either 'x' pressed or outside of modal */
@@ -94,6 +150,21 @@ uManageDeleteButt.onclick = function () {
     deleteAccount();
 }
 
+uManageCreateButt.onclick = function () {
+    // Load up user options for account owners
+    fetchUsers();
+
+    // Load up modal
+    accProfMod.style.display = "flex";
+    var viewAccountProfile = document.getElementById('viewAccountProfile');
+    var editAccountForm = document.getElementById('editAccountForm');
+    var createAccountForm = document.getElementById('createAccountForm');
+
+    if (viewAccountProfile) viewAccountProfile.style.display = "none";
+    if (editAccountForm) editAccountForm.style.display = "none";
+    if (createAccountForm) createAccountForm.style.display = "block";
+}
+
 uManageEditButt.onclick = function () {
     // Ensure that the account number exists before attempting to delete
     var acctNoElement = document.getElementById('viewAccountNo');
@@ -106,35 +177,83 @@ uManageEditButt.onclick = function () {
     accProfMod.style.display = "flex";
     var viewAccountProfile = document.getElementById('viewAccountProfile');
     var editAccountForm = document.getElementById('editAccountForm');
+    var createAccountForm = document.getElementById('createAccountForm');
 
     if (viewAccountProfile) viewAccountProfile.style.display = "block";
     if (editAccountForm) editAccountForm.style.display = "none";
+    if (createAccountForm) createAccountForm.style.display = "none";
 }
 editAccountButton.onclick = function () {
     var viewAccountProfile = document.getElementById('viewAccountProfile');
     var editAccountForm = document.getElementById('editAccountForm');
+    var createAccountForm = document.getElementById('createAccountForm');
 
     if (viewAccountProfile) viewAccountProfile.style.display = "none";
     if (editAccountForm) editAccountForm.style.display = "block";
+    if (createAccountForm) createAccountForm.style.display = "none";
 }
 saveAccountButton.onclick = function () {
 
     // Ensure that the account number exists before attempting to delete
     var acctNoElement = document.getElementById('viewAccountNo');
     var type = document.getElementById('editAccountType');
-    var bal = document.getElementById('editAccountBalance');
+    var balance = document.getElementById('editAccountBalance');
 
-    if ((!acctNoElement || !acctNoElement.innerText) &&
-        (!type || !type.value) &&
-        (!bal || !bal.value)) {
+    let isValid = true;
+
+    // Reset input error
+    adminResetInputError(type);
+    adminResetInputError(balance);
+
+    if (!acctNoElement || !acctNoElement.innerText) {
         console.error('Account number not found!');
-        alert('Unable to update: Check fields are not empty');
-        return; // Exit the function if the account number is not found
+        alert('Unable to update: Account number not found.');
+        return;
+    }
+    if (!type || !type.value) {
+        adminSetInputError(type, "Account type required");
+        isValid = false;
+    }
+    if (!balance || !balance.value) {
+        adminSetInputError(balance, "Balance required");
+        isValid = false;
     }
 
-    saveAccountChanges();
+    if (isValid) {
+        saveAccountChanges();
+        accProfMod.style.display = "none";
+    }
+}
 
-    accProfMod.style.display = "none";
+saveCreateButton.onclick = function () {
+    var type = document.getElementById('createAccountType');
+    var balance = document.getElementById('createAccountBalance');
+    var userId = document.getElementById('createUserId');
+
+    let isValid = true;
+
+    // Reset input error
+    adminResetInputError(type);
+    adminResetInputError(balance);
+    adminResetInputError(userId);
+
+    if (!type || !type.value) {
+        adminSetInputError(type, "Account type required");
+        isValid = false;
+    }
+    if (!balance || !balance.value) {
+        adminSetInputError(balance, "Balance required");
+        isValid = false;
+    }
+    if (!userId || !userId.value) {
+        adminSetInputError(userId, "Account owner required");
+        isValid = false;
+    }
+
+    if (isValid) {
+        createAccount();
+        accProfMod.style.display = "none";
+    }
 }
 
 /* Close modal when either 'x' pressed or outside of modal */
@@ -153,6 +272,20 @@ filterButton.onclick = function () {
     else {
         fetchTransactionsByFilter(startDate, endDate);
     }
+}
+
+function adminSetInputError(inputElement, errorMessage) {
+    // Set the placeholder to show the error message
+    inputElement.placeholder = errorMessage;
+    // Add error class to highlight input
+    inputElement.classList.add('input-error');
+}
+
+function adminResetInputError(inputElement) {
+    // Reset the placeholder to default
+    inputElement.placeholder = "";
+    // Remove the error styling
+    inputElement.classList.remove('input-error');
 }
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -426,6 +559,55 @@ function saveAccountChanges() {
         });
 }
 
+function createAccount() {
+    const apiUrl = `/admin/createaccount`;
+
+    var type = document.getElementById('createAccountType').value;
+    var balance = document.getElementById('createAccountBalance').value;
+    var userId = document.getElementById('createUserId').value;
+
+    var data = {
+        AcctNo: 0, //For now '0' as temp, will auto-generate in controller
+        AccountName: type,
+        Balance: parseInt(balance),
+        UserId: userId,
+        History: null
+    }
+
+    const headers = {
+        'Content-Type': 'application/json'
+    };
+
+    const requestOption = {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify(data)
+    }
+
+    fetch(apiUrl, requestOption)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                //Successful updated
+                console.log('Creation successful');
+                fetchAccountsByIdentifier();
+            }
+            else {
+                //Show the error
+                console.log('Creation unsuccessful');
+                throw new Error('Creation was unsuccessful');
+            }
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+        });
+}
+
 function deleteAccount() {
     var acctNo = document.getElementById('viewAccountNo').innerText;
 
@@ -443,7 +625,6 @@ function deleteAccount() {
             else {
                 throw new Error('Network response was not ok');
             }
-            return response.json();
         })
         .catch(error => {
             console.error('Fetch error:', error);
@@ -486,6 +667,36 @@ function reloadWithUpdated(identifier, password) {
                 //Show the error
                 throw new Error('Cant reload with updated')
             }
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+        });
+}
+
+function fetchUsers() {
+    const apiUrl = `/getusers`;
+
+    const requestOption = {
+        method: 'GET'
+    };
+
+    fetch(apiUrl, requestOption)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(users => {
+            const userSelect = document.getElementById('createUserId');
+            userSelect.innerHTML = ''; // Clear existing options
+
+            users.forEach(user => {
+                const option = document.createElement('option');
+                option.value = user.id;
+                option.textContent = `${user.id}: ${user.fName} ${user.lName}`;
+                userSelect.appendChild(option);
+            });
         })
         .catch(error => {
             console.error('Fetch error:', error);

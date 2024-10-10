@@ -337,6 +337,15 @@ form select {
             background-color: #0e263d;
         }
 
+/* Style change when input fields empty */
+.input-error::placeholder {
+    color: red;
+}
+
+.input-error {
+    border: 1px solid red;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .dashboardGrid {

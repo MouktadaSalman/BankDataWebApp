@@ -40,14 +40,14 @@ namespace BusinessTierWebServer.Controllers
 
         // GET: api/admin/name/{name}
         [HttpGet("name/{name}")]
-        public IActionResult GetAdminByName(string name)
+        public async Task<IActionResult> GetAdminByName(string name)
         {
             try
             {
                 Log("Connect to the Data tier web server", LogLevel.Information, null);
                 RestClient client = new RestClient(_dataServerApiUrl);
                 RestRequest request = new RestRequest($"/api/admin/byname/{name}", Method.Get);
-                RestResponse response = client.Execute(request);
+                RestResponse response = await client.ExecuteAsync(request);
 
                 Log($"Attempt to retrieve admin details: '{name}'", LogLevel.Information, null);
                 if(response.Content != null)
@@ -84,14 +84,14 @@ namespace BusinessTierWebServer.Controllers
 
         // GET: api/admin/email/{email}
         [HttpGet("email/{email}")]
-        public IActionResult GetAdminByEmail(string email)
+        public async Task<IActionResult> GetAdminByEmail(string email)
         {
             try
             {
                 Log("Connect to the Data tier web server", LogLevel.Information, null);
                 RestClient client = new RestClient(_dataServerApiUrl);
                 RestRequest request = new RestRequest($"/api/admin/byemail/{email}", Method.Get);
-                RestResponse response = client.Execute(request);
+                RestResponse response = await client.ExecuteAsync(request);
 
                 Log($"Attempt to retrieve admin details: '{email}'", LogLevel.Information, null);
                 if (response.Content != null)
@@ -128,14 +128,14 @@ namespace BusinessTierWebServer.Controllers
 
         // GET: api/admin/id/{id}
         [HttpGet("id/{id}")]
-        public IActionResult GetAdminById(int id)
+        public async Task<IActionResult> GetAdminById(int id)
         {
             try
             {
                 Log("Connect to the Data tier web server", LogLevel.Information, null);
                 RestClient client = new RestClient(_dataServerApiUrl);
                 RestRequest request = new RestRequest($"/api/admin/byid/{id}", Method.Get);
-                RestResponse response = client.Execute(request);
+                RestResponse response = await client.ExecuteAsync(request);
 
                 Log($"Attempt to retrieve admin details: '{id}'", LogLevel.Information, null);
                 if (response.Content != null)
@@ -170,9 +170,56 @@ namespace BusinessTierWebServer.Controllers
             }
         }
 
+        [HttpPost("createaccount")]
+        public async Task<IActionResult> AddBankAccount([FromBody] BankAccount bankAccount)
+        {
+            try
+            {
+                Log("Connect to the Data tier web server", LogLevel.Information, null);
+                RestClient client = new RestClient(_dataServerApiUrl);
+                RestRequest request = new RestRequest("/api/account/addaccount", Method.Post);
+                request.AddJsonBody(bankAccount);
+                RestResponse response = await client.ExecuteAsync(request);
+
+                Log($"Attempt to create account: '{bankAccount.AcctNo}'", LogLevel.Information, null);
+                if (response.Content != null)
+                {
+                    if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                    {
+                        Log($"Successful creation account: '{bankAccount.AcctNo}'", LogLevel.Information, null);
+                        return Ok();
+                    }
+
+                    if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                    {
+                        Log("Encountered internal missing data generation", LogLevel.Critical, null);
+                        throw new DataRetrievalFailException("Internal error missing data");
+                    }
+
+                    if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+                    {
+                        Log("Encountered internal missing/mismatch data", LogLevel.Warning, null);
+                        throw new DataRetrievalFailException("Internal poor request occurred");
+                    }
+
+                    if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
+                    {
+                        Log("Encountered internal concurrency conflict", LogLevel.Warning, null);
+                        throw new DataRetrievalFailException("Internal concurrency conflict occurred");
+                    }
+                }
+                throw new DataRetrievalFailException("Internal unkown exception occurred/Failed to get a response from Data tier");
+            }
+            catch (DataRetrievalFailException e)
+            {
+                Log(null, LogLevel.Warning, e);
+                return NotFound(e.Message);
+            }
+        }
+
         // Put: api/admin/update/{id}
         [HttpPut("update/{id}")]
-        public IActionResult UpdateAdminProfile(int id, [FromBody] Admin updatedAdmin)
+        public async Task<IActionResult> UpdateAdminProfile(int id, [FromBody] Admin updatedAdmin)
         {
             try
             {
@@ -180,7 +227,7 @@ namespace BusinessTierWebServer.Controllers
                 RestClient client = new RestClient(_dataServerApiUrl);
                 RestRequest request = new RestRequest($"/api/admin/update/{id}", Method.Put);
                 request.AddJsonBody(updatedAdmin);
-                RestResponse response = client.Execute(request);
+                RestResponse response = await client.ExecuteAsync(request);
 
                 Log($"Attempt to update admin details id: '{id}'", LogLevel.Information, null);
                 if (response.Content != null)
@@ -222,14 +269,14 @@ namespace BusinessTierWebServer.Controllers
 
         // GET: api/admin/no/{acctNo}
         [HttpGet("no/{acctNo}")]
-        public IActionResult GetAccountByNo(uint acctNo)
+        public async Task<IActionResult> GetAccountByNo(uint acctNo)
         {
             try
             {
                 Log("Connect to the Data tier web server", LogLevel.Information, null);
                 RestClient client = new RestClient(_dataServerApiUrl);
                 RestRequest request = new RestRequest($"/api/admin/byno/{acctNo}", Method.Get);
-                RestResponse response = client.Execute(request);
+                RestResponse response = await client.ExecuteAsync(request);
 
                 Log($"Attempt to retrieve account details: '{acctNo}'", LogLevel.Information, null);
                 if (response.Content != null)
@@ -265,7 +312,7 @@ namespace BusinessTierWebServer.Controllers
         }
 
         [HttpPut("updateaccount/{acctNo}")]
-        public IActionResult UpdateAccountByNo(uint acctNo, [FromBody] BankAccount updatedAccount)
+        public async Task<IActionResult> UpdateAccountByNo(uint acctNo, [FromBody] BankAccount updatedAccount)
         {
             try
             {
@@ -273,7 +320,7 @@ namespace BusinessTierWebServer.Controllers
                 RestClient client = new RestClient(_dataServerApiUrl);
                 RestRequest request = new RestRequest($"/api/account/{acctNo}", Method.Put);
                 request.AddJsonBody(updatedAccount);
-                RestResponse response = client.Execute(request);
+                RestResponse response = await client.ExecuteAsync(request);
 
                 Log($"Attempt to update account details: '{acctNo}'", LogLevel.Information, null);
                 if (response.Content != null)
@@ -312,14 +359,14 @@ namespace BusinessTierWebServer.Controllers
         }
 
         [HttpDelete("deleteaccount/{acctNo}")]
-        public IActionResult DeleteAccountByNo(uint acctNo)
+        public async Task<IActionResult> DeleteAccountByNo(uint acctNo)
         {
             try
             {
                 Log("Connect to the Data tier web server", LogLevel.Information, null);
                 RestClient client = new RestClient(_dataServerApiUrl);
                 RestRequest request = new RestRequest($"/api/account/{acctNo}", Method.Delete);
-                RestResponse response = client.Execute(request);
+                RestResponse response = await client.ExecuteAsync(request);
                 
                 Log($"Attempt to delete account details: '{acctNo}'", LogLevel.Information, null);
                 if (response.Content != null)
@@ -358,14 +405,14 @@ namespace BusinessTierWebServer.Controllers
         }
 
         [HttpGet("getaccounts")]
-        public IActionResult GetAllAccounts()
+        public async Task<IActionResult> GetAllAccounts()
         {
             try
             {
                 Log("Connect to the Data tier web server", LogLevel.Information, null);
                 RestClient client = new RestClient(_dataServerApiUrl);
                 RestRequest request = new RestRequest($"/api/account", Method.Get);
-                RestResponse response = client.Execute(request);
+                RestResponse response = await client.ExecuteAsync(request);
 
                 List<BankAccount>? value = null;
 
@@ -402,14 +449,14 @@ namespace BusinessTierWebServer.Controllers
         }
 
         [HttpGet("getusers")]
-        public IActionResult GetAllUsers()
+        public async Task<IActionResult> GetAllUsers()
         {
             try
             {
                 Log("Connect to the Data tier web server", LogLevel.Information, null);
                 RestClient client = new RestClient(_dataServerApiUrl);
                 RestRequest request = new RestRequest($"/api/userprofile", Method.Get);
-                RestResponse response = client.Execute(request);
+                RestResponse response = await client.ExecuteAsync(request);
 
                 List<UserProfile>? value = null;
 
@@ -445,14 +492,14 @@ namespace BusinessTierWebServer.Controllers
         }
 
         [HttpGet("getuserhistories")]
-        public IActionResult GetAllHistories()
+        public async Task<IActionResult> GetAllHistories()
         {
             try
             {
                 Log("Connect to the Data tier web server", LogLevel.Information, null);
                 RestClient client = new RestClient(_dataServerApiUrl);
                 RestRequest request = new RestRequest($"/api/admin/userhistory", Method.Get);
-                RestResponse response = client.Execute(request);
+                RestResponse response = await client.ExecuteAsync(request);
 
                 List<UserHistory>? value = null;
 
