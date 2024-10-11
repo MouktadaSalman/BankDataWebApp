@@ -104,7 +104,10 @@
                     <!-- Create User Account -->
                     <form id="createAccountForm" style="display:none;">
                         <label for="createAccountType">Type:</label><br>
-                        <input type="text" id="createAccountType" name="type"><br><br>
+                        <select id="createAccountType" name="AccountType" required>
+                            <option value="Checking">Checking</option>
+                            <option value="Savings">Savings</option>
+                        </select>
                         <label for="createAccountBalance">Balance:</label><br>
                         <input type="number" id="createAccountBalance" name="balance"><br><br>
                         <label for="createUserId">Balance:</label><br>

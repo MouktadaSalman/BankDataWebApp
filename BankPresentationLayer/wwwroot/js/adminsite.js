@@ -918,4 +918,10 @@ function loadAdminLogs(logs) {
     }
 }
 
-setInterval(checkLogUpdates, 5000); // Poll the server every 5 seconds
+function checkForUpdates() {
+    fetchAccountsByIdentifier();
+    fetchTransactionsByFilter();
+    checkLogUpdates();
+}
+
+setInterval(checkForUpdates, 5000); // Poll the server every 5 seconds
