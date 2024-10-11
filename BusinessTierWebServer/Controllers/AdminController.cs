@@ -318,7 +318,7 @@ namespace BusinessTierWebServer.Controllers
             {
                 Log("Connect to the Data tier web server", LogLevel.Information, null);
                 RestClient client = new RestClient(_dataServerApiUrl);
-                RestRequest request = new RestRequest($"/api/account/{acctNo}", Method.Put);
+                RestRequest request = new RestRequest($"/api/account/fromadmin/{acctNo}", Method.Put);
                 request.AddJsonBody(updatedAccount);
                 RestResponse response = await client.ExecuteAsync(request);
 

@@ -248,7 +248,49 @@ namespace DataTierWebServer.Controllers
         }
 
         /*================================From Business admin controller=================================*/
+        [HttpPut("fromadmin/{acctNo}")]
+        public async Task<IActionResult> AdminPutAccount(uint acctNo, [FromBody] Account account)
+        {
+            try
+            {
+                Log($"Attempt to add account to database: {account.AcctNo}", LogLevel.Warning, null);
+                if (_context.Accounts == null)
+                {
+                    throw new DataGenerationFailException("Accounts");
+                }
 
+                if (acctNo != account.AcctNo)
+                {
+                    Log("Account didn't pass through", LogLevel.Warning, null);
+                    throw new MissingAccountException("");
+                }
+
+                _context.Entry(account).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+                return Ok();
+            }
+            catch (DataGenerationFailException ex)
+            {
+                Log(null, LogLevel.Critical, ex);
+                return NotFound();
+            }
+            catch (MissingAccountException ex)
+            {
+                Log(null, LogLevel.Warning, ex);
+                return BadRequest();
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                Log(null, LogLevel.Warning, ex);
+                return StatusCode(StatusCodes.Status409Conflict, "Concurrency conflict");
+            }
+            catch (Exception ex)
+            {
+                Log(null, LogLevel.Critical, ex);
+                //Catch other unkown exceptions
+                return BadRequest();
+            }
+        }
         // POST: api/account/new
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost("addaccount")]

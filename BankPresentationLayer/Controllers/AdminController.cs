@@ -18,7 +18,7 @@ namespace BankPresentationLayer.Controllers
         private static readonly object _logLock = new object();
         private static readonly object _adminLogLock = new object();
         private static readonly ConcurrentDictionary<string, Admin> adminsInSession = new ConcurrentDictionary<string, Admin>();
-        private static readonly List<string> adminLogs = new List<string>();
+        private static readonly List<string> _adminLogs = new List<string>();
 
         public AdminController(ILogger<AdminController> logger)
         {
@@ -48,14 +48,22 @@ namespace BankPresentationLayer.Controllers
                 if (message != null)
                 {
                     string logEntry = $"{DateTime.Now}: {message}";
-                    adminLogs.Add(logEntry);
+                    _adminLogs.Add(logEntry);
                 }
                 else
                 {
                     Log("Attempt to log admin/system action with no message body", LogLevel.Warning, null);
                 }
             }
+        }
 
+        [HttpGet("adminlogs")]
+        public IActionResult GetAdminLogs()
+        {
+            lock (_adminLogLock)
+            {
+                return Ok(_adminLogs);
+            }
         }
 
         private bool IsValidEmail(string email)
@@ -106,6 +114,7 @@ namespace BankPresentationLayer.Controllers
                 if (adminsInSession.TryGetValue(sessionId, out Admin? currentAdmin))
                 {
                     // Ensure the identifier matches the current admin's name or email
+                    AdminLog($"ADMIN SESSION: Admin {currentAdmin.Id} logged in");
                     return (currentAdmin.FName.Equals(identifier));
                 }
             }
@@ -344,7 +353,7 @@ namespace BankPresentationLayer.Controllers
                         {
                             value = JsonConvert.DeserializeObject<Admin>(responseU.Content);
 
-                            Log($"Successful retrieval of updated admin details: '{identifier}'", LogLevel.Information, null);
+                            Log($"Successful retrieval of updated admin details: '{identifier}'", LogLevel.Information, null);                            
                         }
                     }
 
@@ -354,6 +363,8 @@ namespace BankPresentationLayer.Controllers
                         string name = $"{value.FName}";
                         var email = value.Email != null ? value.Email : "";
                         var password = value.Password != null ? value.Password : "";
+
+                        AdminLog($"ADMIN PROFILE UPDATE: Admin {value.Id} profile updated");
 
                         return Json(new
                         {
@@ -417,6 +428,8 @@ namespace BankPresentationLayer.Controllers
                 {
                     Log($"Entered username: {admin.Username}, password: {admin.Password}", LogLevel.Information, null);
                     Log($"Retrieved username: {value.FName}, password: {value.Password}", LogLevel.Information, null);
+
+                    AdminLog($"ADMIN AUTHENTICATE: Attempt to authenticate Admin {value.Id}");
 
                     //Check if either email/first name matches and see if password matches
                     if((value.FName.Equals(admin.Username) || value.Email.Equals(admin.Username)) 
@@ -707,6 +720,7 @@ namespace BankPresentationLayer.Controllers
                         if (response.StatusCode == System.Net.HttpStatusCode.OK)
                         {
                             _logger.LogInformation("Account created successfully.");
+                            AdminLog($"CREATE: Account {newAccount.AcctNo} successfully created");
                             return Ok(new { success = true, message = "Account created successfully" });
                         }
                         else
@@ -767,6 +781,7 @@ namespace BankPresentationLayer.Controllers
                     {
                         if (response.StatusCode == System.Net.HttpStatusCode.OK)
                         {
+                            AdminLog($"UPDATE: Account {value.AcctNo} successfully updated");
                             Log($"Successful update of admin details: '{acctNo}'", LogLevel.Information, null);
 
                             return Json(new
@@ -812,6 +827,7 @@ namespace BankPresentationLayer.Controllers
                     if (response.StatusCode == System.Net.HttpStatusCode.OK)
                     {
                         Log($"Successful deletion of account details: '{acctNo}'", LogLevel.Information, null);
+                        AdminLog($"DELETE: Account {acctNo} successfully deleted.");
                         return Ok();
                     }
                 }

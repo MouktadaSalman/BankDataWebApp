@@ -309,6 +309,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     fetchAllAccounts();
     fetchAllTransactions();
+    checkLogUpdates();
 });
 
 /* Function In Relation To Lists */
@@ -860,3 +861,61 @@ function loadTransactions(transactions) {
         transactionList.appendChild(listItem);
     }
 }
+
+let previousAdminLogs = [];
+
+function checkLogUpdates() {
+    const apiUrl = `/adminlogs`;
+    console.log(`Get admin logs`);
+
+    const requestOption = {
+        method: 'GET'
+    };
+
+    fetch(apiUrl, requestOption)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            return response.json();
+        })
+        .then(data => {
+            console.log('Fetched logs:', data);
+            // Compare the new list with the previous list
+            if (JSON.stringify(data) !== JSON.stringify(previousAdminLogs)) {
+                console.log('List has been updated!');
+                // Update the previous list
+                previousAdminLogs = [...data];
+                // Handle the updated list (e.g., update UI)
+                loadAdminLogs(data);
+            }
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+        });
+}
+
+function loadAdminLogs(logs) {
+    console.log(`Reset admin logs`);
+    // Clear the current list
+    adminActivityList.innerHTML = '';
+
+    // Check if there is data (accounts) returned
+    if (logs.length > 0) {
+        console.log(`Transactions has entries`);
+        // Iterate through the account list and populate the user list UI
+        logs.forEach(log => {
+            const listItem = document.createElement('li');
+            listItem.textContent = log;
+            adminActivityList.appendChild(listItem);
+        });
+    } else {
+        console.log(`Transactions has no entires`);
+        const listItem = document.createElement('li');
+        listItem.textContent = "No logs found";
+        adminActivityList.appendChild(listItem);
+    }
+}
+
+setInterval(checkLogUpdates, 5000); // Poll the server every 5 seconds
