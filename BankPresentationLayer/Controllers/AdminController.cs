@@ -16,7 +16,9 @@ namespace BankPresentationLayer.Controllers
         private readonly string _dataServerApiUrl = "http://localhost:5265";
         private readonly ILogger<AdminController> _logger;
         private static readonly object _logLock = new object();
+        private static readonly object _adminLogLock = new object();
         private static readonly ConcurrentDictionary<string, Admin> adminsInSession = new ConcurrentDictionary<string, Admin>();
+        private static readonly List<string> _adminLogs = new List<string>();
 
         public AdminController(ILogger<AdminController> logger)
         {
@@ -36,6 +38,31 @@ namespace BankPresentationLayer.Controllers
                     string logEntry = $"{DateTime.Now}: {message}";
                     _logger.Log(logLevel, logEntry);
                 }
+            }
+        }
+
+        private void AdminLog(string message)
+        {
+            lock (_adminLogLock)
+            {
+                if (message != null)
+                {
+                    string logEntry = $"{DateTime.Now}: {message}";
+                    _adminLogs.Add(logEntry);
+                }
+                else
+                {
+                    Log("Attempt to log admin/system action with no message body", LogLevel.Warning, null);
+                }
+            }
+        }
+
+        [HttpGet("adminlogs")]
+        public IActionResult GetAdminLogs()
+        {
+            lock (_adminLogLock)
+            {
+                return Ok(_adminLogs);
             }
         }
 
@@ -87,6 +114,7 @@ namespace BankPresentationLayer.Controllers
                 if (adminsInSession.TryGetValue(sessionId, out Admin? currentAdmin))
                 {
                     // Ensure the identifier matches the current admin's name or email
+                    AdminLog($"ADMIN SESSION: Admin {currentAdmin.Id} logged in");
                     return (currentAdmin.FName.Equals(identifier));
                 }
             }
@@ -284,7 +312,7 @@ namespace BankPresentationLayer.Controllers
             }
         }
 
-        [HttpPut("update/{identifier}")]
+        [HttpPut("updateadmin/{identifier}")]
         public IActionResult UpdateAdminProfile(string identifier, [FromBody] Admin updatedAdmin)
         {
             try
@@ -325,7 +353,7 @@ namespace BankPresentationLayer.Controllers
                         {
                             value = JsonConvert.DeserializeObject<Admin>(responseU.Content);
 
-                            Log($"Successful retrieval of updated admin details: '{identifier}'", LogLevel.Information, null);
+                            Log($"Successful retrieval of updated admin details: '{identifier}'", LogLevel.Information, null);                            
                         }
                     }
 
@@ -335,6 +363,8 @@ namespace BankPresentationLayer.Controllers
                         string name = $"{value.FName}";
                         var email = value.Email != null ? value.Email : "";
                         var password = value.Password != null ? value.Password : "";
+
+                        AdminLog($"ADMIN PROFILE UPDATE: Admin {value.Id} profile updated");
 
                         return Json(new
                         {
@@ -398,6 +428,8 @@ namespace BankPresentationLayer.Controllers
                 {
                     Log($"Entered username: {admin.Username}, password: {admin.Password}", LogLevel.Information, null);
                     Log($"Retrieved username: {value.FName}, password: {value.Password}", LogLevel.Information, null);
+
+                    AdminLog($"ADMIN AUTHENTICATE: Attempt to authenticate Admin {value.Id}");
 
                     //Check if either email/first name matches and see if password matches
                     if((value.FName.Equals(admin.Username) || value.Email.Equals(admin.Username)) 
@@ -478,6 +510,35 @@ namespace BankPresentationLayer.Controllers
                 }
             }
             return RedirectToAction("LoginError");
+        }
+
+        [HttpGet("getusers")]
+        public IActionResult GetUsers()
+        {
+            Log("Generate list of users", LogLevel.Information, null);
+
+            try
+            {
+                List<UserProfile>? users = GetAllUsers();
+
+                if (users != null)
+                {
+                    // Send the list of users
+                    return Ok(users);
+                }
+
+                throw new DataRetrievalFailException("Failure to retrieve data occurred");
+            }
+            catch (DataRetrievalFailException e)
+            {
+                Log(null, LogLevel.Warning, e);
+                return BadRequest();
+            }
+            catch (Exception e)
+            {
+                Log(null, LogLevel.Critical, e);
+                return StatusCode(500);
+            }
         }
 
         [HttpGet("getaccounts")]
@@ -609,6 +670,184 @@ namespace BankPresentationLayer.Controllers
             {
                 Log(null, LogLevel.Critical, e);
                 return StatusCode(500);
+            }
+        }
+
+        [HttpPost("admin/createaccount")]
+        public async Task<IActionResult> CreateAccount([FromBody] BankAccount account)
+        {
+            if (account == null)
+            {
+                return BadRequest("Invalid account data.");
+            }
+
+            try
+            {
+                Log($"Attempt to create an account: {account.ToString()}", LogLevel.Information, null);
+                Random rand = new Random(DateTime.Now.Second);
+                List<BankAccount>? accounts = GetAllAccounts();
+                uint acctNo;
+                bool isValidNo = false;
+
+                if (account != null)
+                {
+                    // Random generate an account no.
+                    do
+                    {
+                        //Random
+                        acctNo = (uint)rand.Next(1, 10000);
+                        //Check if taken
+                        var taken = accounts.FirstOrDefault(a => a.AcctNo == acctNo);
+                        // If `taken` is null, the number is not taken, so it's a valid number
+                        isValidNo = (taken == null);
+                    } while (!isValidNo);
+
+                    BankAccount newAccount = new BankAccount();
+                    newAccount.AcctNo = acctNo;
+                    newAccount.AccountName = account.AccountName;
+                    newAccount.Balance = account.Balance;
+                    newAccount.UserId = account.UserId;
+                    newAccount.History = new List<UserHistory>();
+
+                    RestClient client = new RestClient(_dataServerApiUrl);
+                    RestRequest request = new RestRequest("/api/admin/createaccount", Method.Post);
+
+                    request.AddJsonBody(newAccount);
+                    RestResponse response = await client.ExecuteAsync(request);
+
+                    if (response != null)
+                    {
+                        if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                        {
+                            _logger.LogInformation("Account created successfully.");
+                            AdminLog($"CREATE: Account {newAccount.AcctNo} successfully created");
+                            return Ok(new { success = true, message = "Account created successfully" });
+                        }
+                        else
+                        {
+                            throw new DataRetrievalFailException("Internal bad request");
+                        }
+                    }
+                }
+
+                throw new DataRetrievalFailException("Failure to retrieve data occurred");
+            }
+            catch (DataRetrievalFailException e)
+            {
+                Log(null, LogLevel.Warning, e);
+                return BadRequest();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while creating the account.");
+                return StatusCode(500, "An error occurred while processing your request");
+            }
+        }
+
+        [HttpPut("updateaccount/{acctNo}")]
+        public IActionResult UpdateAccountDetails(uint acctNo, [FromBody] BankAccount updatedAccount)
+        {
+            Log($"Update account of : '{acctNo}", LogLevel.Information, null);
+            try
+            {
+                Log($"Attempt to get the account details via id: '{acctNo}'", LogLevel.Information, null);
+                RestClient client = new RestClient(_dataServerApiUrl);
+                RestRequest request = new RestRequest($"/api/admin/no/{acctNo}", Method.Get);
+                RestResponse response = client.Execute(request);
+                BankAccount? value = null;
+
+                if (response.Content != null)
+                {
+                    if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                    {
+                        value = JsonConvert.DeserializeObject<BankAccount>(response.Content);
+
+                        Log($"Successful retrieval of account details: '{acctNo}'", LogLevel.Information, null);
+                    }
+                }
+
+                if (value != null)
+                {
+                    Log($"Successful deserialization of initial details", LogLevel.Information, null);
+                    value.AccountName = updatedAccount.AccountName;
+                    value.Balance = updatedAccount.Balance;
+
+                    Log("Connect to the Data tier web server for update", LogLevel.Information, null);
+                    request = new RestRequest($"/api/admin/updateaccount/{acctNo}", Method.Put);
+                    request.AddJsonBody(value);
+                    response = client.Execute(request);
+
+                    if (response.Content != null)
+                    {
+                        if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                        {
+                            AdminLog($"UPDATE: Account {value.AcctNo} successfully updated");
+                            Log($"Successful update of admin details: '{acctNo}'", LogLevel.Information, null);
+
+                            return Json(new
+                            {
+                                check = true
+                            });
+                        }
+                    }
+                }
+
+                throw new DataRetrievalFailException("Failure to retrieve data occurred");
+            }
+            catch (DataRetrievalFailException e)
+            {
+                Log(null, LogLevel.Warning, e);
+                return NotFound();
+            }
+            catch (ArgumentNullException e)
+            {
+                Log(null, LogLevel.Warning, e);
+                return BadRequest();
+            }
+            catch (Exception e)
+            {
+                Log(null, LogLevel.Critical, e);
+                return BadRequest();
+            }
+        }
+
+        [HttpDelete("deleteaccount/{acctNo}")]
+        public IActionResult DeleteAccountDetails(uint acctNo)
+        {
+            Log($" Attempt to delete account of: '{acctNo}", LogLevel.Information, null);
+            try
+            {
+                Log("Connect to the Business tier web server", LogLevel.Information, null);
+                RestClient client = new RestClient(_dataServerApiUrl);
+                RestRequest request = new RestRequest($"/api/admin/deleteaccount/{acctNo}", Method.Delete);
+                RestResponse response = client.Execute(request);
+
+                if (response.Content != null)
+                {
+                    if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                    {
+                        Log($"Successful deletion of account details: '{acctNo}'", LogLevel.Information, null);
+                        AdminLog($"DELETE: Account {acctNo} successfully deleted.");
+                        return Ok();
+                    }
+                }
+
+                throw new DataRetrievalFailException("Failure to retrieve data occurred");
+            }
+            catch (DataRetrievalFailException e)
+            {
+                Log(null, LogLevel.Warning, e);
+                return NotFound();
+            }
+            catch (ArgumentNullException e)
+            {
+                Log(null, LogLevel.Warning, e);
+                return BadRequest();
+            }
+            catch (Exception e)
+            {
+                Log(null, LogLevel.Critical, e);
+                return BadRequest();
             }
         }
 
