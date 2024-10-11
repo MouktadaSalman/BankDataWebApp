@@ -365,7 +365,7 @@ namespace BusinessTierWebServer.Controllers
             {
                 Log("Connect to the Data tier web server", LogLevel.Information, null);
                 RestClient client = new RestClient(_dataServerApiUrl);
-                RestRequest request = new RestRequest($"/api/account/{acctNo}", Method.Delete);
+                RestRequest request = new RestRequest($"/api/account/fromadmin/{acctNo}", Method.Delete);
                 RestResponse response = await client.ExecuteAsync(request);
                 
                 Log($"Attempt to delete account details: '{acctNo}'", LogLevel.Information, null);

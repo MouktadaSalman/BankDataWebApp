@@ -296,7 +296,7 @@ namespace DataTierWebServer.Controllers
         }
 
         // DELETE: api/account/5
-        [HttpDelete("{acctNo}")]
+        [HttpDelete("fromadmin/{acctNo}")]
         public async Task<IActionResult> DeleteAccountFromAdmin(uint acctNo)
         {
             try
