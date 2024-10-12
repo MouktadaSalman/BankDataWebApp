@@ -22,7 +22,7 @@ namespace BankPresentationLayer.Controllers
         // Render the Login page
         public IActionResult Index()
         {
-            return RedirectToAction("Login");
+            return PartialView();
         }
 
         public IActionResult Login()
@@ -30,14 +30,11 @@ namespace BankPresentationLayer.Controllers
 			return View("~/Views/Home/LoginView.cshtml"); // Ensure a view named "Login.cshtml" is present under Views/Home
 		}
 
-
 		// Render the Dashboard page after successful login
 		public IActionResult Dashboard()
         {
             return View("~/Views/Home/DashboardView.cshtml");
         }
-
-       
 
         public IActionResult LoginError()
         {
@@ -50,10 +47,8 @@ namespace BankPresentationLayer.Controllers
             HttpContext.Response.Cookies.Delete("SessionID");
 
             // Redirect to the login page
-            return RedirectToAction("Login");
+            return PartialView("LoginView");
         }
-
-
 
         [HttpPost("createProfile")]
         public async Task<IActionResult> CreateProfile([FromBody] UserProfile userProfile)
@@ -111,15 +106,6 @@ namespace BankPresentationLayer.Controllers
             }
         }
 
-
-
-
-
-
-
-
-
-
         [HttpPost("createAccount")]
         public async Task<IActionResult> CreateAccount([FromBody] BankAccount account)
         {
@@ -154,8 +140,6 @@ namespace BankPresentationLayer.Controllers
             }
         }
 
-
-
         [HttpPost("transaction")]
         public async Task<IActionResult> MakeTransaction([FromBody] TransactionInfo request)
         {
@@ -186,7 +170,6 @@ namespace BankPresentationLayer.Controllers
             }
         }
 
-
         [HttpGet("defaultview")]
         public IActionResult GetDefaultView()
         {
@@ -195,11 +178,11 @@ namespace BankPresentationLayer.Controllers
                 var cookieValue = Request.Cookies["SessionID"];
                 if (cookieValue == "1234567")
                 {
-                    return RedirectToAction("Dashboard");
+                    return PartialView("DashboardView");
                 }
 
             }
-            return RedirectToAction("Login");
+            return PartialView("LoginView");
         }
 
         [HttpGet("authenticate/{name}")]
@@ -219,12 +202,12 @@ namespace BankPresentationLayer.Controllers
                 {
                     _logger.LogInformation("User is authenticated with SessionID: {SessionID}", sessionId);
 
-                    return RedirectToAction("Dashboard");
+                    return PartialView("DashboardView");
                 }
 
                 _logger.LogWarning("Session ID not found in list of current sessions.");
             }
-            return RedirectToAction("LoginError");
+            return PartialView("LoginErrorView");
         }
 
         [HttpPost("auth")]

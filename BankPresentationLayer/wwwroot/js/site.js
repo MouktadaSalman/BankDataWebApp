@@ -3,61 +3,51 @@
 
 // Write your JavaScript code.
 
-const signUpButton = document.getElementById('signUp');
-const signInButton = document.getElementById('signIn');
-const container = document.getElementById('container');
 
-if (signUpButton) {
-    signUpButton.addEventListener('click', () =>
-        container.classList.add('right-panel-active'));
-}
+function loadView(status, cssName, name) {
 
-if (signInButton) {
-    signInButton.addEventListener('click', () =>
-        container.classList.remove('right-panel-active'));
-}
+    const cssLink = document.getElementById('dynamic-css');
+    cssLink.href = `/css/${cssName}.css`;
 
-document.addEventListener("DOMContentLoaded", function () {
-    const loginButton = document.getElementById('loginButton');
-    if (loginButton) {
-        loginButton.addEventListener('click', performAuth);
-    }
-});
-
-// Get the modal
-var modal = document.getElementById("myModal");
-
-// Get the button that opens the modal
-var openModalButton = document.getElementById("openModal");
-
-// Get the <span> element that closes the modal
-var closeModalButton = document.getElementsByClassName("close")[0];
-
-var saveProfileButton = document.getElementById("saveButton");
-
-
-var editProfileButton = document.getElementById("editProfileButton");
-
-
-
-function loadView(status) {
     var apiUrl = '/defaultview';
 
-    if (status === "authenticated")
-        apiUrl = '/authenticate';
-    if (status === "error")
+    if (status === 'authenticated')
+        apiUrl = `/authenticate/${name}`;
+    if (status === 'error')
         apiUrl = '/loginerror';
 
     console.log("Navigate to:  " + apiUrl);
 
-    window.location.href = apiUrl;
-}
+    fetch(apiUrl)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.text();
+        })
+        .then(data => {
+            document.getElementById('main').innerHTML = data;
 
+            attachLoginEventListeners(); // attach the event listeners
+
+            if (status === 'authenticated') {
+                loadUserProfile(); // load the user profile here
+                loadUserAccount(); // Load accounts if needed
+            }
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+        });
+
+    //window.location.href = apiUrl;
+}
 function performAuth() {
     console.log('performAuth function called'); // Debug log
 
     var name = document.getElementById('Name').value;
     var password = document.getElementById('Pass').value;
+
+    console.log(`Name: ${name} And password:${password}`);
     var data = {
         Username: name,
         Password: password
@@ -85,10 +75,11 @@ function performAuth() {
             if (data.login) {
                 console.log('Login successful');
                 // loadView('authenticated');
-                window.location.href = `/authenticate/${name}`;
+                loadView('authenticated','site' , name);
+                //window.location.href = `/authenticate/${name}`;
             }
             else {
-                loadView('error');
+                loadView('error', '');
             }
         })
         .catch(error => {
@@ -120,7 +111,6 @@ function loadUserProfile() {
             document.getElementById('viewEmail').innerText = userProfile.email;
             document.getElementById('viewPhone').innerText = userProfile.phoneNumber;
             document.getElementById('viewAddress').innerText = userProfile.address;
-
             
             document.getElementById('editName').value = userProfile.fName + " " + userProfile.lName;
             document.getElementById('editEmail').value = userProfile.email;
@@ -138,22 +128,6 @@ function loadUserProfile() {
             alert('Unable to load user profile. Please try again.');
         });
 }
-
-
-const logoutButton = document.getElementById("logoutBtn");
-
-if (logoutButton) { 
-
-    document.getElementById("logoutBtn").addEventListener("click", function () {
-        document.cookie = "SessionID=; expires=Wed, 02 Oct 2024 00:00:00 UTC; path=/;";
-
-        window.location.href = "/Home/Login";
-
-    });
-
-
-} 
-
 
 function createProfile() {
     var UfName = document.getElementById('FName').value;
@@ -211,15 +185,6 @@ function createProfile() {
             alert('Unable to create profile. Please try again.');
         });
 }
-
-// Event listener to trigger profile creation when the sign-up button is clicked
-if (document.getElementById('signUpButton')) {
-    document.getElementById('signUpButton').onclick = function (event) {
-        event.preventDefault(); 
-        createProfile(); 
-    };
-}
-
 
 function saveProfile() {
     var name = document.getElementById("editName").value;
@@ -354,17 +319,6 @@ function createAccount() {
         });
 }
 
-
-// Event listener to trigger profile creation when the sign-up button is clicked
-if (document.getElementById('addAccountButton')) {
-    document.getElementById('addAccountButton').onclick = function (event) {
-        event.preventDefault();
-        createAccount();
-        
-    };
-}
-
-
 function loadUserAccount() {
     const apiUrl = '/loadbankaccount';
 
@@ -434,91 +388,38 @@ function loadAccountDetails(accountNumber, accountBalance) {
     document.getElementById('accountBalance').innerText = accountBalance;
 }
 
+function makeTransaction(accountNumber, amount, type) {       
+    const apiUrl = `/transaction`;
 
-document.addEventListener("DOMContentLoaded", function () {
-    const depositButton = document.querySelector(".depositButton");
-    const withdrawButton = document.querySelector(".withdrawButton");
-    const transferButton = document.querySelector(".transferButton");
+    const data = {
+        accountNumber: accountNumber,
+        amount: parseFloat(amount),
+        type: type
+    };
 
-    if (depositButton) {
-        depositButton.addEventListener("click", function (event) {
-            event.preventDefault();
-            const amount = document.getElementById("depositAmount").value;
-            const accountNumber = document.getElementById("accountNumber").innerText;
-
-            if (amount && accountNumber) {
-                makeTransaction(accountNumber, amount, "deposit");
-            } else {
-                alert("Please enter a valid deposit amount.");
-            }
-        });
-    }
-
-    if (withdrawButton) {
-        withdrawButton.addEventListener("click", function (event) {
-            event.preventDefault();
-            const amount = document.getElementById("withdrawAmount").value;
-            const accountNumber = document.getElementById("accountNumber").innerText;
-
-            if (amount && accountNumber) {
-                // Make the withdraw amount negative
-                const negativeAmount = -Math.abs(amount);
-                makeTransaction(accountNumber, negativeAmount, "withdraw");
-            } else {
-                alert("Please enter a valid withdraw amount.");
-            }
-        });
-
-    }
-
-    if (transferButton) {
-        transferButton.addEventListener("click", function (event) {
-            const amount = document.getElementById("transferAmount").value;
-            const fromAccountNumber = document.getElementById("accountNumber").innerText;
-            const toAccountNumber = document.getElementById("transferTo").value;
-
-            if (amount && accountNumber) {
-
-                makeTransaction(toAccountNumber, amount, "receive");
-
-                const negativeAmount = -Math.abs(amount);
-                makeTransaction(fromAccountNumber, negativeAmount, "send");
-            }
-        });
-    }
-
-    function makeTransaction(accountNumber, amount, type) {       
-        const apiUrl = `/transaction`;
-
-        const data = {
-            accountNumber: accountNumber,
-            amount: parseFloat(amount),
-            type: type
-        };
-
-        fetch(apiUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        })
-        .then(response => response.json())
-        .then(result => {
-            if (result.success) {
-                alert(`${type.charAt(0).toUpperCase() + type.slice(1)} successful!`);
+    fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            alert(`${type.charAt(0).toUpperCase() + type.slice(1)} successful!`);
                
-                loadUserAccount();
-            } else {
-                alert(`Error during ${type}: ${result.message}`);
-            }
-        })
-        .catch(error => {
-            console.error(`${type} failed`, error);
-            alert(`Error during ${type}. Please try again.`);
-        });
-    }
-});
+            loadUserAccount();
+        } else {
+            alert(`Error during ${type}: ${result.message}`);
+        }
+    })
+    .catch(error => {
+        console.error(`${type} failed`, error);
+        alert(`Error during ${type}. Please try again.`);
+    });
+}
+
 function loadAccountHistory(acctNo, startDate, endDate) {
     const apiUrl = `/loadhistory/${acctNo}?startDate=${startDate}&endDate=${endDate}`;
 
@@ -562,34 +463,6 @@ function loadAccountHistory(acctNo, startDate, endDate) {
         });
 }
 
-
-document.addEventListener("DOMContentLoaded", function () {
-    const showAll = document.getElementById("showAll");
-
-    if (showAll) {
-        showAll.addEventListener("click", function (event) {
-            event.preventDefault();
-
-            const accountNumber = document.getElementById('accountNumber').innerText;
-            loadAccountHistory(accountNumber);
-        });
-    }
-});
-
-
-
-document.addEventListener("DOMContentLoaded", function () {
-    const filterButton = document.getElementById("filterTransactions");
-
-    if (filterButton) {
-        filterButton.addEventListener("click", function (event) {
-            event.preventDefault();
-
-            const accountNumber = document.getElementById('accountNumber').innerText;
-            filterTransactionsByDateRange(accountNumber);
-        });
-    }
-});
 function filterTransactionsByDateRange(accountNumber) {
     console.log("Filter button clicked for Account:", accountNumber);
 
@@ -634,61 +507,175 @@ function filterTransactionsByDateRange(accountNumber) {
         });
 }
 
-
-
-
-
-
-
-
-
-
-
-
-if (saveProfileButton) {
-    saveProfileButton.onclick = function (event) {
-        event.preventDefault(); // Prevent default form submission
-        saveProfile();
-    }
-}
-
-// When the user clicks on the "Update Profile" text in the image, open the modal
-if (openModalButton) {
-    openModalButton.onclick = function () {
-        modal.style.display = "block";
-
-        // Ensure viewProfile is displayed and editProfileForm is hidden (Added)
-        var viewProfileDiv = document.getElementById('viewProfile');
-        var editProfileForm = document.getElementById('editProfileForm');
-        if (viewProfileDiv) viewProfileDiv.style.display = "block";
-        if (editProfileForm) editProfileForm.style.display = "none";
-    }
-}
-
-// Add event listener to "Edit" button (Added)
-if (editProfileButton) {
-    editProfileButton.onclick = function () {
-        // Hide the viewProfile section and show the editProfileForm
-        var viewProfileDiv = document.getElementById('viewProfile');
-        var editProfileForm = document.getElementById('editProfileForm');
-
-        if (viewProfileDiv) viewProfileDiv.style.display = "none";
-        if (editProfileForm) editProfileForm.style.display = "block";
-
-        // Populate the edit form fields with current user data        
-    }
-}
-
-// When the user clicks on <span> (x), close the modal
-if (closeModalButton) {
-    closeModalButton.onclick = function () {
-        modal.style.display = "none";
-    }
-}
-
 //When the user clicks anywhere outside of the modal, close it
 window.onclick = function (event) {
     if (event.target == modal) {
         modal.style.display = "none";
+    }
+}
+
+
+function attachLoginEventListeners() {
+    const container = document.getElementById('container');
+
+    const signUpButton = document.getElementById('signUp');
+    if (signUpButton) {
+        signUpButton.addEventListener('click', () =>
+            container.classList.add('right-panel-active'));
+    }
+
+    const signInButton = document.getElementById('signIn');
+    if (signInButton) {
+        signInButton.addEventListener('click', () =>
+            container.classList.remove('right-panel-active'));
+    }
+
+    const loginButton = document.getElementById('loginButton');
+    if (loginButton) {
+        loginButton.addEventListener('click', performAuth);
+    }
+
+    const modal = document.getElementById("myModal");
+
+    const saveProfileButton = document.getElementById("saveButton");
+    if (saveProfileButton) {
+        saveProfileButton.onclick = function (event) {
+            event.preventDefault(); // Prevent default form submission
+            saveProfile();
+        }
+    }
+
+    // Event listener to trigger profile creation when the sign-up button is clicked
+    if (document.getElementById('addAccountButton')) {
+        document.getElementById('addAccountButton').onclick = function (event) {
+            event.preventDefault();
+            createAccount();
+
+        };
+    }
+
+    // Event listener to trigger profile creation when the sign-up button is clicked
+    if (document.getElementById('signUpButton')) {
+        document.getElementById('signUpButton').onclick = function (event) {
+            event.preventDefault();
+            createProfile();
+        };
+    }
+
+    // When the user clicks on the "Update Profile" text in the image, open the modal
+    const openModalButton = document.getElementById("openModal");    
+    if (openModalButton) {
+        openModalButton.onclick = function () {
+            modal.style.display = "block";
+
+            // Ensure viewProfile is displayed and editProfileForm is hidden (Added)
+            var viewProfileDiv = document.getElementById('viewProfile');
+            var editProfileForm = document.getElementById('editProfileForm');
+            if (viewProfileDiv) viewProfileDiv.style.display = "block";
+            if (editProfileForm) editProfileForm.style.display = "none";
+        }
+    }
+
+    // Add event listener to "Edit" button (Added)
+    const editProfileButton = document.getElementById("editProfileButton");
+    if (editProfileButton) {
+        editProfileButton.onclick = function () {
+            // Hide the viewProfile section and show the editProfileForm
+            var viewProfileDiv = document.getElementById('viewProfile');
+            var editProfileForm = document.getElementById('editProfileForm');
+
+            if (viewProfileDiv) viewProfileDiv.style.display = "none";
+            if (editProfileForm) editProfileForm.style.display = "block";
+
+            // Populate the edit form fields with current user data        
+        }
+    }
+
+    // When the user clicks on <span> (x), close the modal
+    const closeModalButton = document.getElementsByClassName("close")[0];
+    if (closeModalButton) {
+        closeModalButton.onclick = function () {
+            modal.style.display = "none";
+        }
+    }
+
+    const logoutButton = document.getElementById("logoutBtn");
+    if (logoutButton) {
+        document.getElementById("logoutBtn").addEventListener("click", function () {
+            document.cookie = "SessionID=; expires=Wed, 02 Oct 2024 00:00:00 UTC; path=/;";
+
+            loadView('', 'login', '');
+        });
+    }
+
+    const showAll = document.getElementById("showAll");
+    if (showAll) {
+        showAll.addEventListener("click", function (event) {
+            event.preventDefault();
+
+            const accountNumber = document.getElementById('accountNumber').innerText;
+            loadAccountHistory(accountNumber);
+        });
+    }
+
+    const filterButton = document.getElementById("filterTransactions");
+    if (filterButton) {
+        filterButton.addEventListener("click", function (event) {
+            event.preventDefault();
+
+            const accountNumber = document.getElementById('accountNumber').innerText;
+            filterTransactionsByDateRange(accountNumber);
+        });
+    }
+
+
+    const depositButton = document.querySelector(".depositButton");
+    if (depositButton) {
+        depositButton.addEventListener("click", function (event) {
+            event.preventDefault();
+            const amount = document.getElementById("depositAmount").value;
+            const accountNumber = document.getElementById("accountNumber").innerText;
+
+            if (amount && accountNumber) {
+                makeTransaction(accountNumber, amount, "deposit");
+            } else {
+                alert("Please enter a valid deposit amount.");
+            }
+        });
+    }
+
+    const withdrawButton = document.querySelector(".withdrawButton");
+    if (withdrawButton) {
+        withdrawButton.addEventListener("click", function (event) {
+            event.preventDefault();
+            const amount = document.getElementById("withdrawAmount").value;
+            const accountNumber = document.getElementById("accountNumber").innerText;
+
+            if (amount && accountNumber) {
+                // Make the withdraw amount negative
+                const negativeAmount = -Math.abs(amount);
+                makeTransaction(accountNumber, negativeAmount, "withdraw");
+            } else {
+                alert("Please enter a valid withdraw amount.");
+            }
+        });
+
+    }
+
+    const transferButton = document.querySelector(".transferButton");
+    if (transferButton) {
+        transferButton.addEventListener("click", function (event) {
+            const amount = document.getElementById("transferAmount").value;
+            const fromAccountNumber = document.getElementById("accountNumber").innerText;
+            const toAccountNumber = document.getElementById("transferTo").value;
+
+            if (amount && accountNumber) {
+
+                makeTransaction(toAccountNumber, amount, "receive");
+
+                const negativeAmount = -Math.abs(amount);
+                makeTransaction(fromAccountNumber, negativeAmount, "send");
+            }
+        });
     }
 }
