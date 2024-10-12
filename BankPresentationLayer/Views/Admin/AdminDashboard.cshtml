@@ -85,7 +85,7 @@
 
                     <!-- View User Bank Account -->
                     <div id="viewAccountProfile" style="display:block">
-                        <p>Acct No: <span id="viewAdccountNo"></span></p>
+                        <p>Acct No: <span id="viewAccountNo"></span></p>
                         <p>Type: <span id="viewAccountType"></span></p>
                         <p>Owner: <span id="viewAccountOwner"></span></p>
                         <p>Balance: <span id="viewAccountBalance"></span></p>
@@ -99,6 +99,22 @@
                         <label for="editAccountBalance">Balance:</label><br>
                         <input type="number" id="editAccountBalance" name="balance"><br><br>
                         <button type="button" id="saveAccountButton" class="btn">Save</button>
+                    </form>
+
+                    <!-- Create User Account -->
+                    <form id="createAccountForm" style="display:none;">
+                        <label for="createAccountType">Type:</label><br>
+                        <select id="createAccountType" name="AccountType" required>
+                            <option value="Checking">Checking</option>
+                            <option value="Savings">Savings</option>
+                        </select>
+                        <label for="createAccountBalance">Balance:</label><br>
+                        <input type="number" id="createAccountBalance" name="balance"><br><br>
+                        <label for="createUserId">Balance:</label><br>
+                        <select id="createUserId" name="userId">
+                            <!-- Options will be dynamically populated -->
+                        </select><br><br>
+                        <button type="button" id="saveCreateButton" class="btn">Save</button>
                     </form>
                 </div>
             </div>

@@ -44,6 +44,45 @@ namespace DataTierWebServer.Controllers
             return Ok(histories);
         }
 
+        // GET: api/admin/byno/2135
+        [HttpGet("byno/{acctNo}")]
+        public async Task<ActionResult> GetAccountByNo(uint acctNo)
+        {
+            try
+            {
+                Log($"Attempt to get account details: '{acctNo}'", LogLevel.Information);
+                if (_context.Accounts == null)
+                {
+                    throw new DataGenerationFailException("Accounts");
+                }
+                var account = await _context.Accounts.FirstOrDefaultAsync(up => up.AcctNo == acctNo);
+
+                if (account == null)
+                {
+                    throw new MissingAccountException($"'{acctNo}'");
+                }
+
+                Log($"Successful retrieval of account details: '{acctNo}'", LogLevel.Information);
+                return Ok(account);
+            }
+            catch (DataGenerationFailException ex)
+            {
+                Log(ex.Message, LogLevel.Critical);
+                return NotFound();
+            }
+            catch (MissingAccountException ex)
+            {
+                Log(ex.Message, LogLevel.Warning);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                //Catch other unkown exceptions
+                Log(ex.Message, LogLevel.Critical);
+                return BadRequest();
+            }
+        }
+
         // GET: api/admin/byname/Mike
         [HttpGet("byname/{name}")]
         public async Task<ActionResult<Admin>> GetadminByName(string name)

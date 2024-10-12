@@ -9,6 +9,7 @@ using DataTierWebServer.Models;
 using DataTierWebServer.Data;
 using Microsoft.CodeAnalysis.Scripting;
 using System.Xml.Linq;
+using DataTierWebServer.Models.Exceptions;
 
 namespace DataTierWebServer.Controllers
 {
@@ -17,10 +18,29 @@ namespace DataTierWebServer.Controllers
     public class AccountController : Controller
     {        
         private readonly DBManager _context;
+        private readonly ILogger<AccountController> _logger;
+        private static readonly object _logLock = new object();
 
-        public AccountController(DBManager context)
+        public AccountController(ILogger<AccountController> logger, DBManager context)
         {
+            _logger = logger;
             _context = context;
+        }
+
+        private void Log(string? message, LogLevel logLevel, Exception? ex)
+        {
+            lock (_logLock)
+            {
+                if (ex != null)
+                {
+                    _logger.Log(logLevel, ex, $"{DateTime.Now}:");
+                }
+                else
+                {
+                    string logEntry = $"{DateTime.Now}: {message}";
+                    _logger.Log(logLevel, logEntry);
+                }
+            }
         }
 
         // GET: api/account
@@ -194,7 +214,7 @@ namespace DataTierWebServer.Controllers
         // POST: api/account
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Account>> PostAccount([FromBody]Account account)
+        public async Task<ActionResult<Account>> PostAccount([FromBody] Account account)
         {
             if (_context.Accounts == null)
             {
@@ -227,11 +247,147 @@ namespace DataTierWebServer.Controllers
             return NoContent();
         }
 
+        /*================================From Business admin controller=================================*/
+        [HttpPut("fromadmin/{acctNo}")]
+        public async Task<IActionResult> AdminPutAccount(uint acctNo, [FromBody] Account account)
+        {
+            try
+            {
+                Log($"Attempt to add account to database: {account.AcctNo}", LogLevel.Warning, null);
+                if (_context.Accounts == null)
+                {
+                    throw new DataGenerationFailException("Accounts");
+                }
+
+                if (acctNo != account.AcctNo)
+                {
+                    Log("Account didn't pass through", LogLevel.Warning, null);
+                    throw new MissingAccountException("");
+                }
+
+                _context.Entry(account).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+                return Ok();
+            }
+            catch (DataGenerationFailException ex)
+            {
+                Log(null, LogLevel.Critical, ex);
+                return NotFound();
+            }
+            catch (MissingAccountException ex)
+            {
+                Log(null, LogLevel.Warning, ex);
+                return BadRequest();
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                Log(null, LogLevel.Warning, ex);
+                return StatusCode(StatusCodes.Status409Conflict, "Concurrency conflict");
+            }
+            catch (Exception ex)
+            {
+                Log(null, LogLevel.Critical, ex);
+                //Catch other unkown exceptions
+                return BadRequest();
+            }
+        }
+        // POST: api/account/new
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPost("addaccount")]
+        public async Task<IActionResult> AddNewAccount([FromBody] Account account)
+        {
+            try
+            {
+                Log($"Attempt to add account to database: {account.AcctNo}", LogLevel.Warning, null);
+                if (_context.Accounts == null)
+                {
+                    throw new DataGenerationFailException("Accounts");
+                }
+
+                if (account == null)
+                {
+                    Log("Account didn't pass through", LogLevel.Warning, null);
+                    throw new MissingAccountException("");
+                }
+
+                _context.Accounts.Add(account);
+                await _context.SaveChangesAsync();
+                return Ok();
+            }
+            catch (DataGenerationFailException ex)
+            {
+                Log(null, LogLevel.Warning, ex);
+                return NotFound();
+            }
+            catch (MissingAccountException ex)
+            {
+                Log(null, LogLevel.Warning, ex);
+                return BadRequest();
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                Log(null, LogLevel.Warning, ex);
+                return StatusCode(StatusCodes.Status409Conflict, "Concurrency conflict");
+            }
+            catch (Exception ex)
+            {
+                Log(null, LogLevel.Critical, ex);
+                //Catch other unkown exceptions
+                return BadRequest();
+            }
+        }
+
+        // DELETE: api/account/5
+        [HttpDelete("fromadmin/{acctNo}")]
+        public async Task<IActionResult> DeleteAccountFromAdmin(uint acctNo)
+        {
+            try
+            {
+                if (_context.Accounts == null)
+                {
+                    throw new DataGenerationFailException("Accounts");
+                }
+
+                var account = await _context.Accounts.FindAsync(acctNo);
+                if (account == null)
+                {
+                    throw new MissingAccountException($"'{acctNo}'");
+                }
+
+                _context.Accounts.Remove(account);
+                await _context.SaveChangesAsync();
+                return Ok();
+            }
+            catch (DataGenerationFailException)
+            {
+                return NotFound();
+            }
+            catch (MissingAccountException)
+            {
+                return BadRequest();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (AccountExists(acctNo))
+                {
+                    return StatusCode(StatusCodes.Status409Conflict, "Concurrency conflict");
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+            catch (Exception)
+            {
+                //Catch other unkown exceptions
+                return BadRequest();
+            }
+        }
+        /*================================From Business admin controller=================================*/
+
         private bool AccountExists(uint acctNo)
         {
             return (_context.Accounts?.Any(e => e.AcctNo == acctNo)).GetValueOrDefault();
         }
     }
 }
-
-
