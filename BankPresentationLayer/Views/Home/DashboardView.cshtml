@@ -2,14 +2,6 @@
     Layout = null;
 }
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bank Dashboard</title>
-    <link rel="stylesheet" href="~/css/site.css?v=1.0">
-</head>
 <body onload="loadUserProfile(); loadUserAccount();" >
     <header>
         <div class="container">
@@ -123,17 +115,17 @@
             <section class="moneyTransfer">
                 <h2>Money Transfer</h2>
                 <form id="deposit">
-                    <input type="text" id="depositAmount" placeholder="Enter the deposit">
+                    <input type="text" id="depositAmount" placeholder="Enter the deposit" >
                     <button type="submit" class="depositButton">Deposit</button>
                 </form>
                 <form id="withdraw">
-                    <input type="text" id="withdrawAmount" placeholder="Enter the amount to withdraw">
+                    <input type="text" id="withdrawAmount" placeholder="Enter the amount to withdraw" >
                     <button type="submit" class="withdrawButton">Withdraw</button>
                 </form>
                 <form id="transfer">
-                    <input type="text" id="transferTo" placeholder="Transfer To(Account Number)">
-                    <input type="text" id="transferAmount" placeholder="Amount">
-                    <input type="text" id="transferDetails" placeholder="Transfer Description">
+                    <input type="text" id="transferTo" placeholder="Transfer To(Account Number)" >
+                    <input type="text" id="transferAmount" placeholder="Amount" >
+                    <input type="text" id="transferDetails" placeholder="Transfer Description" >
                     <button type="submit" class="transferButton">Transfer</button>
                 </form>
             </section>
@@ -142,4 +134,3 @@
 
     <script src="~/js/site.js"></script>
 </body>
-</html>
