@@ -1,4 +1,4 @@
-﻿
+﻿let adminName = "";
 function adminSetInputError(inputElement, errorMessage) {
     // Set the placeholder to show the error message
     inputElement.placeholder = errorMessage;
@@ -108,6 +108,7 @@ function loadProfileDetails(user) {
 
             if (data.auth) {
                 console.log("Data retrieval was successful!");
+                adminName = user;
                 // Set the retrieved data to the corresponding HTML elements
                 document.getElementById('adminName').innerText = `${data.fName} ${data.lName}`;
                 document.getElementById('adminEmail').innerText = `Email: ${data.email}`;
@@ -178,7 +179,7 @@ function saveAdminChanges() {
         ProfilePictureUrl: "",
         Password: pass
     };
-    const apiUrl = `/updateadmin/${2}`;
+    const apiUrl = `/updateadmin/${adminName}`;
 
     const headers = {
         'Content-Type': 'application/json'
