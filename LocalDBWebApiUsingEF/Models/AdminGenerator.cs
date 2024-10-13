@@ -1,15 +1,26 @@
-﻿using System.Text;
+﻿/* 
+ * Module: AdminGenerator
+ * Description: Contains the AdminGenerator class for generating random admin data
+ * Author: Moukhtada
+ * ID: 20640266
+ * Version: 1.0.0.1
+ */
+
+using System.Text;
 
 namespace DataTierWebServer.Models
 {
     public class AdminGenerator
     {
+        // Random number generator 
         private static readonly Random _random = new Random(1234);
+
+        // HashSets in which we store the generated data to different attributes of the account
         private static HashSet<string> emailStrings = new HashSet<string>();
         private static HashSet<string> usernameStrings = new HashSet<string>();
         private static HashSet<string> passwordStrings = new HashSet<string>();
 
-        // Lists of actual names
+        // List of first names
         private static readonly List<string> _firstNames = new List<string>
         {
             "James", "Mary", "John", "Patricia", "Robert", "Jennifer", "Michael", "Linda",
@@ -27,6 +38,7 @@ namespace DataTierWebServer.Models
             "Dennis", "Ruth", "Jerry", "Maria"
         };
 
+        // List of last names
         private static readonly List<string> _lastNames = new List<string>
         {
             "Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis",
@@ -44,16 +56,33 @@ namespace DataTierWebServer.Models
             "Long", "Ross", "Foster", "Jimenez"
         };
 
+        /* 
+         * Method: GetFirstname
+         * Description: Retrieves a random first name from the predefined list
+         * Params: None
+         */
         private static string GetFirstname()
         {
             return _firstNames[_random.Next(_firstNames.Count)];
         }
 
+        /* 
+         * Method: GetLastname
+         * Description: Retrieves a random last name from the predefined list
+         * Params: None
+         */
         private static string GetLastname()
         {
             return _lastNames[_random.Next(_lastNames.Count)];
         }
 
+        /* 
+         * Method: GetUniqueEmail
+         * Description: Generates a unique email address for an admin
+         * Params: 
+         *   firstName:The admin's first name
+         *   lastName: The admin's last name
+         */
         private static string GetUniqueEmail(string firstName, string lastName)
         {
             string randomEmail;
@@ -67,6 +96,13 @@ namespace DataTierWebServer.Models
             return randomEmail;
         }
 
+        /* 
+         * Method: GetUniqueUsername
+         * Description: Generates a unique username for an admin
+         * Params: 
+         *   firstName: The admin's first name
+         *   lastName: The admin's last name
+         */
         private static string GetUniqueUsername(string firstName, string lastName)
         {
             string randomEmail;
@@ -78,21 +114,43 @@ namespace DataTierWebServer.Models
             return randomEmail;
         }
 
+        /* 
+         * Method: GetRandomString
+         * Description: Generates a random string based on first name and last name
+         * Params: 
+         *   firstName: The admin's first name
+         *   lastName: The admin's last name
+         */
         private static string GetRandomString(string firstName, string lastName)
         {
             return firstName + "." + lastName + _random.Next(1, 1000);
         }
 
+        /* 
+         * Method: GetAge
+         * Description: Generates a random age for an admin between 18 and 109
+         * Params: None
+         */
         private static uint GetAge()
         {
             return (uint)_random.Next(18, 110);
         }
 
+        /* 
+         * Method: GetPhoneNumber
+         * Description: Generates a random phone number for an admin
+         * Params: None
+         */
         private static string GetPhoneNumber()
         {
             return "+961" + _random.Next(100, 1000) + _random.Next(1000, 10000);
         }
 
+        /* 
+         * Method: GetAddress
+         * Description: Generates a random address for an admin
+         * Params: None
+         */
         private static string GetAddress()
         {
             int houseNumber = _random.Next(1, 1000);
@@ -101,6 +159,12 @@ namespace DataTierWebServer.Models
             return houseNumber + " " + street;
         }
 
+        /* 
+         * Method: GetUniquePassword
+         * Description: Generates a unique random password of specified length
+         * Params: 
+         *   length: The desired length of the password
+         */
         public static string GetUniquePassword(int length)
         {
             string randomString;
@@ -114,6 +178,12 @@ namespace DataTierWebServer.Models
             return randomString;
         }
 
+        /* 
+         * Method: GenerateRandomPassword
+         * Description: Generates a random password of specified length
+         * Params: 
+         *   length: The desired length of the password
+         */
         private static string GenerateRandomPassword(int length)
         {
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -125,6 +195,11 @@ namespace DataTierWebServer.Models
             return result.ToString();
         }
 
+        /* 
+         * Method: GetNextAdmin
+         * Description: Generates a new Admin instance with randomly generated data
+         * Params: None
+         */
         public static Admin GetNextAdmin()
         {
             Admin admin = new Admin();

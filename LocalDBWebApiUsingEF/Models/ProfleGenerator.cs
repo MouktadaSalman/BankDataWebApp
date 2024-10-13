@@ -1,4 +1,12 @@
-﻿using System.Text;
+﻿/* 
+ * Module: Profile Generator (There is a typo in the name of this file but I am afraid it may mess some stuff up)
+ * Description: Contains the ProfileGenerator class for generating random user profile data
+ * Author: Ahmed, Moukhtada, Jauhar
+ * ID: 21467369, 20640266, 21494299
+ * Version: 1.0.0.1
+ */
+
+using System.Text;
 using System;
 
 namespace DataTierWebServer.Models
@@ -45,16 +53,33 @@ namespace DataTierWebServer.Models
             "Long", "Ross", "Foster", "Jimenez"
         };
 
+        /* 
+         * Method: GetFirstname
+         * Description: Retrieves a random first name from the predefined list
+         * Params: None
+         */
         private static string GetFirstname()
         {
             return _firstNames[_random.Next(_firstNames.Count)];
         }
 
+        /* 
+         * Method: GetLastname
+         * Description: Retrieves a random last name from the predefined list
+         * Params: None
+         */
         private static string GetLastname()
         {
             return _lastNames[_random.Next(_lastNames.Count)];
         }
 
+        /* 
+         * Method: GetUniqueEmail
+         * Description: Generates a unique email address for a user
+         * Params: 
+         *   firstName: The user's first name
+         *   lastName: The user's last name
+         */
         private static string GetUniqueEmail(string firstName, string lastName)
         {
             string randomEmail;
@@ -68,6 +93,13 @@ namespace DataTierWebServer.Models
             return randomEmail;
         }
 
+        /* 
+         * Method: GetUniqueUsername
+         * Description: Generates a unique username for a user
+         * Params: 
+         *   firstName: The user's first name
+         *   lastName: The user's last name
+         */
         private static string GetUniqueUsername(string firstName, string lastName)
         {
             string randomEmail;
@@ -79,22 +111,44 @@ namespace DataTierWebServer.Models
             return randomEmail;
         }
 
+        /* 
+         * Method: GetRandomString
+         * Description: Generates a random string based on first name and last name
+         * Params: 
+         *   firstName: The user's first name
+         *   lastName: The user's last name
+         */
         private static string GetRandomString(string firstName, string lastName)
         {
             return firstName + "." + lastName + _random.Next(1, 1000);
         }
 
+        /* 
+         * Method: GetAge
+         * Description: Generates a random age for a user between 18 and 109
+         * Params: None
+         */
         private static uint GetAge()
         {
             return (uint)_random.Next(18, 110);
         }
 
+        /* 
+         * Method: GetPhoneNumber
+         * Description: Generates a random phone number for a user
+         * Params: None
+         */
         private static string GetPhoneNumber()
         {
             return "+961" + _random.Next(100, 1000) + _random.Next(1000, 10000);
         }
 
-        private static string GetAddress() 
+        /* 
+         * Method: GetAddress
+         * Description: Generates a random address for a user
+         * Params: None
+         */
+        private static string GetAddress()
         {
             int houseNumber = _random.Next(1, 1000);
             string street = _firstNames[_random.Next(_firstNames.Count)] + " " + _lastNames[_random.Next(_lastNames.Count)] + " St.";
@@ -102,6 +156,12 @@ namespace DataTierWebServer.Models
             return houseNumber + " " + street;
         }
 
+        /* 
+         * Method: GetUniquePassword
+         * Description: Generates a unique random password of specified length
+         * Params: 
+         *   length: The desired length of the password
+         */
         public static string GetUniquePassword(int length)
         {
             string randomString;
@@ -115,6 +175,12 @@ namespace DataTierWebServer.Models
             return randomString;
         }
 
+        /* 
+         * Method: GenerateRandomPassword
+         * Description: Generates a random password of specified length
+         * Params: 
+         *   length: The desired length of the password
+         */
         private static string GenerateRandomPassword(int length)
         {
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -126,6 +192,11 @@ namespace DataTierWebServer.Models
             return result.ToString();
         }
 
+        /* 
+         * Method: GetNextAccount
+         * Description: Generates a new UserProfile instance with randomly generated data
+         * Params: None
+         */
         public static UserProfile GetNextAccount()
         {
             UserProfile userProfile = new UserProfile();
@@ -136,12 +207,17 @@ namespace DataTierWebServer.Models
             userProfile.PhoneNumber = GetPhoneNumber();
             userProfile.Username = GetUniqueUsername(userProfile.FName, userProfile.LName);
             userProfile.Email = GetUniqueEmail(userProfile.FName, userProfile.LName);
-            userProfile.Address = GetAddress(); 
+            userProfile.Address = GetAddress();
             userProfile.Password = GetUniquePassword(12);
 
             return userProfile;
         }
 
+        /* 
+         * Method: NumOfUserProfiles
+         * Description: Generates a random number of user profiles between 10 and 99
+         * Params: None
+         */
         public int NumOfUserProfiles()
         {
             return _random.Next(10, 100);

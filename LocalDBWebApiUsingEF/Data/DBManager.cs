@@ -1,24 +1,48 @@
-﻿using DataTierWebServer.Models;
+﻿/* 
+ * Module: DBManager
+ * Description: Manages the database context and seeding for the Bank application
+ * Author: Ahmed, Moukhtada, Jauhar
+ * ID: 21467369, 20640266, 21494299
+ * Version: 1.0.0.3
+ */
+
+using DataTierWebServer.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataTierWebServer.Data
 {
     public class DBManager : DbContext
     {
+        /* 
+         * Method: OnConfiguring
+         * Description: Configures the database connection
+         * Params:
+         *   optionsBuilder: The DbContextOptionsBuilder to configure
+         */
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlite(@"Data Source = Bank.db;");
         }
 
+        // DbSet for UserProfile entities
         public DbSet<UserProfile> UserProfiles { get; set; }
 
+        // DbSet for Account entities
         public DbSet<Account> Accounts { get; set; }
 
+        // DbSet for UserHistory entities
         public DbSet<UserHistory> UserHistories { get; set; }
 
+        // DbSet for Admin entities
         public DbSet<Admin> Admins { get; set; }
 
 
+        /* 
+         * Method: OnModelCreating
+         * Description: Seeds the database with initial data
+         * Params:
+         *   modelBuilder: The ModelBuilder to use for configuring the model
+         */
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             List<UserProfile> userProfiles = new List<UserProfile>();
@@ -32,6 +56,7 @@ namespace DataTierWebServer.Data
 
             Admin admin;
 
+            // Generate admin data
             for (int i = 0; i < 3; i++)
             {
                 admin = AdminGenerator.GetNextAdmin();
@@ -39,6 +64,7 @@ namespace DataTierWebServer.Data
                 admins.Add(admin);
             }
 
+            // Generate user and account data
             for (int i = 0; i < 10; i++)
             {
                 user = new UserProfile();
@@ -53,10 +79,12 @@ namespace DataTierWebServer.Data
                 accounts.Add(account);
             }
 
+            // Using a random generator for creating some random transactions
             Random random = new Random(1234);
             int randomIndex;
             string[] transactionTypes = { "deposit", "withdraw", "send", "receive" };
 
+            // Generate transaction history
             for (int i = 0; i < 10; i++)
             {
                 int randomAmount = random.Next(-1000, 1000);
@@ -73,6 +101,8 @@ namespace DataTierWebServer.Data
                     accounts[randomIndex].Balance -= Math.Abs(randomAmount);
                 }
 
+
+                // Create a new history entry
                 var historyEntry = new UserHistory
                 {
                     Transaction = i + 1,  // Primary key for UserHistory
@@ -83,6 +113,8 @@ namespace DataTierWebServer.Data
                            selectedType == "send" ? "Send" : "Receive",
                     DateTime = DateTime.Now,
                     Sender = (selectedType == "send" || selectedType == "receive") ? accounts[random.Next(0, 10)].AcctNo : accounts[randomIndex].AcctNo,
+
+                    // Generate a formatted history string based on the transaction type
                     HistoryString = (selectedType == "receive") ?
                         $"Account ID: {accounts[randomIndex].AcctNo} --- " +
                         $"Received: ${Math.Abs(randomAmount):F2} --- " +
@@ -103,6 +135,7 @@ namespace DataTierWebServer.Data
                 userHistory.Add(historyEntry);
             }
 
+            // Seed the data to the tables
             modelBuilder.Entity<UserProfile>().HasData(userProfiles);
             modelBuilder.Entity<Account>().HasData(accounts);
             modelBuilder.Entity<UserHistory>().HasData(userHistory);

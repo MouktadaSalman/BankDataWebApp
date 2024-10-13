@@ -4,6 +4,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+// Using the DBManager class to add the tables and data upon the running of the program
 builder.Services.AddDbContext<DBManager>();
 
 var app = builder.Build();
