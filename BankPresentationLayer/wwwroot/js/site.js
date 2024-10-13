@@ -3,7 +3,6 @@
 
 // Write your JavaScript code.
 
-
 function loadView(status, cssName, name) {
 
     const cssLink = document.getElementById('dynamic-css');
@@ -13,8 +12,12 @@ function loadView(status, cssName, name) {
 
     if (status === 'authenticated')
         apiUrl = `/authenticate/${name}`;
+    if (status === 'adminLogin')
+        apiUrl = '/admin/adminLogin';
+    if (status === 'adminAuthenticated')
+        apiUrl = `/authenticated/${name}`;
     if (status === 'error')
-        apiUrl = '/loginerror';
+        apiUrl = '/defaultview';
 
     console.log("Navigate to:  " + apiUrl);
 
@@ -28,7 +31,17 @@ function loadView(status, cssName, name) {
         .then(data => {
             document.getElementById('main').innerHTML = data;
 
-            attachLoginEventListeners(); // attach the event listeners
+            if (status === 'adminLogin') {
+                attachAdminLoginEventListeners();
+            }
+            else if (status === 'adminAuthenticated'){
+                attachDashboardLoginEventListeners();
+                loadProfileDetails(name);
+                //fetchAllTransactions();
+            }
+            else {
+                attachLoginEventListeners(); // attach the event listeners
+            }
 
             if (status === 'authenticated') {
                 loadUserProfile(); // load the user profile here
@@ -38,9 +51,8 @@ function loadView(status, cssName, name) {
         .catch(error => {
             console.error('Fetch error:', error);
         });
-
-    //window.location.href = apiUrl;
 }
+
 function performAuth() {
     console.log('performAuth function called'); // Debug log
 
@@ -79,7 +91,7 @@ function performAuth() {
                 //window.location.href = `/authenticate/${name}`;
             }
             else {
-                loadView('error', '');
+                loadView('error', 'login', ' ');
             }
         })
         .catch(error => {
@@ -507,15 +519,15 @@ function filterTransactionsByDateRange(accountNumber) {
         });
 }
 
-//When the user clicks anywhere outside of the modal, close it
-window.onclick = function (event) {
-    if (event.target == modal) {
-        modal.style.display = "none";
-    }
-}
-
-
 function attachLoginEventListeners() {
+
+    //When the user clicks anywhere outside of the modal, close it
+    window.onclick = function (event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+
     const container = document.getElementById('container');
 
     const signUpButton = document.getElementById('signUp');
@@ -549,7 +561,7 @@ function attachLoginEventListeners() {
     if (document.getElementById('addAccountButton')) {
         document.getElementById('addAccountButton').onclick = function (event) {
             event.preventDefault();
-            createAccount();
+            createAccount(uAccountList);
 
         };
     }
@@ -676,6 +688,15 @@ function attachLoginEventListeners() {
                 const negativeAmount = -Math.abs(amount);
                 makeTransaction(fromAccountNumber, negativeAmount, "send");
             }
+        });
+    }
+
+    const adminLoginButton = document.getElementById('adminLoginButton');
+    if (adminLoginButton) {
+        adminLoginButton.addEventListener('click', function (event) {
+            event.preventDefault();
+
+            loadView('adminLogin', 'adminlogin', ' ');
         });
     }
 }
