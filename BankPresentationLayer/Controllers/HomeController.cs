@@ -150,16 +150,19 @@ namespace BankPresentationLayer.Controllers
 
             try
             {
+                _logger.LogInformation($"sent data: {request.Type}/{request.AccountNumber}/{request.Amount}");
                 RestClient client = new RestClient(_dataServerApiUrl);
                 RestRequest transactionRequest = new RestRequest($"/api/bankaccount/{request.Type}/{request.AccountNumber}/{request.Amount}", Method.Put);
                 RestResponse response = await client.ExecuteAsync(transactionRequest);
 
                 if (response.IsSuccessful)
                 {
-                    return Ok(new { success = true });
+                    _logger.LogInformation("Transaction Successful");
+                    return Json(new { success = true });
                 }
                 else
                 {
+                    _logger.LogInformation("Transaction Failed");
                     return StatusCode(500, new { success = false, message = "Transaction failed" });
                 }
             }
