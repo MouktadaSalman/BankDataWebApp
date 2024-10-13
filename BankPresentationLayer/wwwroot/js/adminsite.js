@@ -1,4 +1,4 @@
-﻿
+﻿let adminName = "";
 function adminSetInputError(inputElement, errorMessage) {
     // Set the placeholder to show the error message
     inputElement.placeholder = errorMessage;
@@ -108,6 +108,7 @@ function loadProfileDetails(user) {
 
             if (data.auth) {
                 console.log("Data retrieval was successful!");
+                adminName = user;
                 // Set the retrieved data to the corresponding HTML elements
                 document.getElementById('adminName').innerText = `${data.fName} ${data.lName}`;
                 document.getElementById('adminEmail').innerText = `Email: ${data.email}`;
@@ -158,6 +159,7 @@ function saveAdminChanges() {
 
     console.log("An update attempt has been made")
 
+    const adminActivityList = document.getElementById('adminActivityLogs');
     var fName = document.getElementById('editAdminFName').value;
     var lName = document.getElementById('editAdminLName').value;
     var email = document.getElementById('editAdminEmail').value;
@@ -177,7 +179,7 @@ function saveAdminChanges() {
         ProfilePictureUrl: "",
         Password: pass
     };
-    const apiUrl = `/updateadmin/${2}`;
+    const apiUrl = `/updateadmin/${adminName}`;
 
     const headers = {
         'Content-Type': 'application/json'
@@ -201,6 +203,7 @@ function saveAdminChanges() {
                 //Successful updated
                 console.log('Update successful');
                 reloadWithUpdated(data.name, data.password);
+                checkLogUpdates(adminActivityList);
             }
             else {
                 //Show the error
@@ -214,6 +217,7 @@ function saveAdminChanges() {
 }
 
 function saveAccountChanges(uAccountList, uAccountButtons) {
+    const adminActivityList = document.getElementById('adminActivityLogs');
     var acctNo = document.getElementById('viewAccountNo').innerText;
     var type = document.getElementById('editAccountType').value;
     var bal = document.getElementById('editAccountBalance').value;
@@ -250,6 +254,7 @@ function saveAccountChanges(uAccountList, uAccountButtons) {
                 //Successful updated
                 console.log('Update successful');
                 fetchAccountsByIdentifier(uAccountList, uAccountButtons);
+                checkLogUpdates(adminActivityList);
             }
             else {
                 //Show the error
@@ -265,6 +270,7 @@ function saveAccountChanges(uAccountList, uAccountButtons) {
 function createAccountAdmin(uAccountList, uAccountButtons) {
     const apiUrl = `/admin/createaccount`;
 
+    const adminActivityList = document.getElementById('adminActivityLogs');
     var type = document.getElementById('createAccountType').value;
     var balance = document.getElementById('createAccountBalance').value;
     var userId = document.getElementById('createUserId').value;
@@ -299,6 +305,7 @@ function createAccountAdmin(uAccountList, uAccountButtons) {
                 //Successful updated
                 console.log('Creation successful');
                 fetchAccountsByIdentifier(uAccountList, uAccountButtons);
+                checkLogUpdates(adminActivityList);
             }
             else {
                 //Show the error
@@ -312,6 +319,7 @@ function createAccountAdmin(uAccountList, uAccountButtons) {
 }
 
 function deleteAccount(uAccountList, uAccountButtons) {
+    const adminActivityList = document.getElementById('adminActivityLogs');
     var acctNo = document.getElementById('viewAccountNo').innerText;
 
     const apiUrl = `/deleteaccount/${acctNo}`;
@@ -324,6 +332,7 @@ function deleteAccount(uAccountList, uAccountButtons) {
         .then(response => {
             if (response.ok) {
                 fetchAccountsByIdentifier(uAccountList, uAccountButtons);
+                checkLogUpdates(adminActivityList);
             }
             else {
                 throw new Error('Network response was not ok');
@@ -564,8 +573,8 @@ function loadTransactions(transactions) {
     }
 }
 
+let previousAdminLogs = [];
 function checkLogUpdates(adminActivityList) {
-    let previousAdminLogs = [];
 
     const apiUrl = `/adminlogs`;
     console.log(`Get admin logs`);
@@ -777,7 +786,7 @@ function attachDashboardLoginEventListeners() {
             return; // Exit the function if the account number is not found
         }
 
-        deleteAccount();
+        deleteAccount(uAccountList, uAccountButtons);
     }
 
     uManageCreateButt.onclick = function () {
@@ -850,7 +859,7 @@ function attachDashboardLoginEventListeners() {
         }
 
         if (isValid) {
-            saveAccountChanges(uAccountList);
+            saveAccountChanges(uAccountList, uAccountButtons);
             accProfMod.style.display = "none";
         }
     }
@@ -881,7 +890,7 @@ function attachDashboardLoginEventListeners() {
         }
 
         if (isValid) {
-            createAccountAdmin(uAccountList);
+            createAccountAdmin(uAccountList, uAccountButtons);
             accProfMod.style.display = "none";
         }
     }

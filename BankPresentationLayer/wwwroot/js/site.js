@@ -185,9 +185,6 @@ function createProfile() {
             if (data.success) {
                 alert('Profile created successfully!');
 
-
-                return RedirectToAction("Login");
-
             } else {
                 alert('Error creating profile: ' + data.message);
             }
@@ -199,6 +196,7 @@ function createProfile() {
 }
 
 function saveProfile() {
+    const modal = document.getElementById('myModal');
     var name = document.getElementById("editName").value;
     var email = document.getElementById("editEmail").value;
     var phone = document.getElementById("editPhone").value;
@@ -575,7 +573,7 @@ function attachLoginEventListeners() {
     if (document.getElementById('addAccountButton')) {
         document.getElementById('addAccountButton').onclick = function (event) {
             event.preventDefault();
-            createAccount(uAccountList);
+            createAccount();
 
         };
     }
