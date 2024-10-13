@@ -27,18 +27,18 @@ namespace BankPresentationLayer.Controllers
 
         public IActionResult Login()
 		{
-			return View("~/Views/Home/LoginView.cshtml"); // Ensure a view named "Login.cshtml" is present under Views/Home
+			return PartialView("~/Views/Home/LoginView.cshtml"); // Ensure a view named "Login.cshtml" is present under Views/Home
 		}
 
 		// Render the Dashboard page after successful login
 		public IActionResult Dashboard()
         {
-            return View("~/Views/Home/DashboardView.cshtml");
+            return PartialView("~/Views/Home/DashboardView.cshtml");
         }
 
         public IActionResult LoginError()
         {
-            return View();
+            return PartialView("LoginView");
         }
 
         public IActionResult LogOut()
@@ -243,7 +243,6 @@ namespace BankPresentationLayer.Controllers
                     var sessionID = Guid.NewGuid().ToString(); // Generate ubnique session ID
                     Response.Cookies.Append("SessionID", sessionID, new CookieOptions
                     {
-                        Secure = true, // Only send over HTTPS
                         HttpOnly = true, // Prevent JavaScript access
                         SameSite = SameSiteMode.Strict, // Protect against CSRF
                         Expires = DateTimeOffset.UtcNow.AddHours(1)

@@ -1,11 +1,4 @@
-﻿const loginB = document.getElementById('aLoginButton');
-const lModal = document.getElementById('loginModal');
-const lSpan = document.getElementById('lClose');
-
-if (loginB) {
-    loginB.addEventListener('click', validateForm)
-}
-
+﻿
 function setInputError(inputElement, errorMessage) {
     // Set the placeholder to show the error message
     inputElement.placeholder = errorMessage;
@@ -21,12 +14,6 @@ function resetInputError(inputElement) {
 }
 
 //Clear errors once user begins typing
-document.getElementById('aName').addEventListener('input', function () {
-    resetInputError(this);
-});
-document.getElementById('aPass').addEventListener('input', function () {
-    resetInputError(this);
-});
 
 function validateForm() {
     var uName = document.getElementById('aName');
@@ -90,7 +77,7 @@ function performLogin() {
             if (data.login) {
                 //Successful login
                 console.log('Login successful');
-                window.location.href = `/authenticated/${uName}`;
+                loadView('adminAuthenticated', 'dashboard', uName);
             }
             else {
                 //Show the error message modal
@@ -103,14 +90,42 @@ function performLogin() {
         });
 }
 
-//Close the error modal when the user clicks on <span> (x)
-lSpan.onclick = function () {
-    lModal.style.display = "none";
-}
+function attachAdminLoginEventListeners() {
 
-//Close the modal if the user clicks outside of it
-window.onclick = function (event) {
-    if (event.target == lModal) {
+    document.getElementById('aName').addEventListener('input', function () {
+        resetInputError(this);
+    });
+
+    document.getElementById('aPass').addEventListener('input', function () {
+        resetInputError(this);
+    });
+
+    const lModal = document.getElementById('loginModal');
+
+    //Close the error modal when the user clicks on <span> (x)
+    const lSpan = document.getElementById('lClose');
+    lSpan.onclick = function () {
         lModal.style.display = "none";
+    }
+
+    //Close the modal if the user clicks outside of it
+    window.onclick = function (event) {
+        if (event.target == lModal) {
+            lModal.style.display = "none";
+        }
+    }
+
+    const loginB = document.getElementById('aLoginButton');
+    if (loginB) {
+        loginB.addEventListener('click', validateForm)
+    }
+
+    const backButton = document.getElementById('backHomeButton');
+    if (backButton) {
+        console.log("back to user login!!");
+        backButton.addEventListener('click', function (event) {
+            event.preventDefault();
+            loadView(' ', 'login', ' ');
+        });        
     }
 }

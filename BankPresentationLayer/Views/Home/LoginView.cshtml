@@ -2,10 +2,10 @@
     Layout = null;
 }
 
-<div>
+<body>
     <!-- Navigation for Admin Login -->
     <nav class="admin-nav">
-        <a href="/admin/adminlogin" class="admin-link">
+        <a id="adminLoginButton" class="admin-link">
             <i class="fas fa-user-md"></i>
         </a>
     </nav>
@@ -32,7 +32,6 @@
             <div class="form-container sign-in-container">
                 <form action="#">
                     <h1>Sign in</h1>
-
                     
                     <input type="text" id="Name" name="SName" placeholder="Enter Username" required />
                     <input type="password" id="Pass" name="SPass" placeholder="Enter Password" required />
@@ -49,7 +48,6 @@
                         <button class="ghost mt-5" id="signIn">Sign In</button>
                     </div>
 
-
                     <div class="overlay-panel overlay-right">
                         <h1>Create, Account!</h1>
                         <p>Don't have an account? You can Sign up now! </p>
@@ -61,4 +59,6 @@
     </section>
 
     <script src="/js/site.js"></script>
-</div>
+    <script src="/js/adminlogin.js"></script>
+    <script src="/js/adminsite.js"></script>
+</body>

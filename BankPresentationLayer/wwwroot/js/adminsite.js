@@ -1,279 +1,4 @@
-﻿console.log("Script is loaded");
-
-const logoutButt = document.getElementById('logoutBtn');
-const editButt = document.getElementById('openAdminProfile');
-const aProfMod = document.getElementById('adminProfileModal');
-const accProfMod = document.getElementById('accountProfileModal');
-const uAccountList = document.getElementById('userAccountList');
-const uAccountButtons = document.getElementById('userAccountsButtonsContainer');
-const transactionList = document.getElementById('transactionList');
-const adminActivityList = document.getElementById('adminActivityLogs');
-const startDateInput = document.getElementById('transactionStartDate');
-const endDateInput = document.getElementById('transactionEndDate');
-
-/* Button declarations */
-var editProfileButt = document.getElementById('editAdminProfileButton');
-var saveProfileButt = document.getElementById('saveAdminProfileButton');
-var modalClose = document.getElementById('aClose');
-var modalClose2 = document.getElementById('accClose');
-var searchUserForm = document.getElementById('searchUserForm');
-var uManageEditButt = document.getElementById('editAccountButton');
-var uManageCreateButt = document.getElementById('createAccountButton');
-var uManageDeleteButt = document.getElementById('deleteAccountButton');
-var filterButton = document.getElementById('filterTransactions');
-var editAccountButton = document.getElementById('editAccountButtonM');
-var saveAccountButton = document.getElementById('saveAccountButton');
-var saveCreateButton = document.getElementById('saveCreateButton');
-
-/* Reset inputs and remove error mask when typing */
-document.getElementById('editAdminFName').addEventListener('input', function () {
-    adminResetInputError(this);
-});
-document.getElementById('editAdminLName').addEventListener('input', function () {
-    adminResetInputError(this);
-});
-document.getElementById('editAdminEmail').addEventListener('input', function () {
-    adminResetInputError(this);
-});
-document.getElementById('editAdminPassword').addEventListener('input', function () {
-    adminResetInputError(this);
-});
-document.getElementById('editAccountType').addEventListener('input', function () {
-    adminResetInputError(this);
-});
-document.getElementById('editAccountBalance').addEventListener('input', function () {
-    adminResetInputError(this);
-});
-document.getElementById('createAccountType').addEventListener('input', function () {
-    adminResetInputError(this);
-});
-document.getElementById('createAccountBalance').addEventListener('input', function () {
-    adminResetInputError(this);
-});
-document.getElementById('createUserId').addEventListener('input', function () {
-    adminResetInputError(this);
-});
-
-/* Button onclick behaviours */
-// Logout button
-logoutButt.onclick = function () {
-    window.location.href = '/admin/logout';
-}
-// Edit button (outside of modal)
-editButt.onclick = function () {
-    aProfMod.style.display = "flex";
-
-    // Ensure viewProfile is displayed and editProfileForm is hidden (Added)
-    var viewProfileDiv = document.getElementById('viewAdminProfile');
-    var editProfileForm = document.getElementById('editAdminProfileForm');
-    if (viewProfileDiv) viewProfileDiv.style.display = "block";
-    if (editProfileForm) editProfileForm.style.display = "none";
-}
-// Edit button (inside of modal)
-editProfileButt.onclick = function () {
-    // Ensure viewProfile is displayed and editProfileForm is hidden (Added)
-    var viewProfileDiv = document.getElementById('viewAdminProfile');
-    var editProfileForm = document.getElementById('editAdminProfileForm');
-    if (viewProfileDiv) viewProfileDiv.style.display = "none";
-    if (editProfileForm) editProfileForm.style.display = "block";
-}
-// Save button (inside of modal)
-saveProfileButt.onclick = function () {
-    var fName = document.getElementById('editAdminFName');
-    var lName = document.getElementById('editAdminLName');
-    var email = document.getElementById('editAdminEmail');
-    var pass = document.getElementById('editAdminPassword');
-
-    let isValid = true;
-
-    // Reset input error
-    adminResetInputError(fName);
-    adminResetInputError(lName);
-    adminResetInputError(email);
-    adminResetInputError(pass);
-
-    if (!fName || !fName.value) {
-        adminSetInputError(fName, "Required");
-        isValid = false;
-    }
-
-    if (!lName || !lName.value) {
-        adminSetInputError(lName, "Required");
-        isValid = false;
-    }
-
-    if (!pass || !pass.value) {
-        adminSetInputError(pass, "Required");
-        isValid = false;
-    }
-
-    if (!email || !email.value) {
-        adminSetInputError(email, "Required");
-        isValid = false;
-    }
-
-    if (isValid) {
-        aProfMod.style.display = "none";
-        saveAdminChanges();
-    }
-}
-
-/* Close modal when either 'x' pressed or outside of modal */
-modalClose.onclick = function () {
-    aProfMod.style.display = "none";
-}
-
-window.onclick = function (event) {
-    if (event.target == aProfMod) {
-        aProfMod.style.display = "none";
-    }
-    if (event.target == accProfMod) {
-        accProfMod.style.display = "none";
-    }
-}
-
-/* User Account Management Button Click Handlers */
-searchUserForm.onsubmit = function (event) {
-    event.preventDefault();
-    fetchAccountsByIdentifier();
-}
-
-uManageDeleteButt.onclick = function () {
-    // Ensure that the account number exists before attempting to delete
-    var acctNoElement = document.getElementById('viewAccountNo');
-    if (!acctNoElement || !acctNoElement.innerText) {
-        console.error('Account number not found!');
-        alert('Unable to delete: No account selected');
-        return; // Exit the function if the account number is not found
-    }
-
-    deleteAccount();
-}
-
-uManageCreateButt.onclick = function () {
-    // Load up user options for account owners
-    fetchUsers();
-
-    // Load up modal
-    accProfMod.style.display = "flex";
-    var viewAccountProfile = document.getElementById('viewAccountProfile');
-    var editAccountForm = document.getElementById('editAccountForm');
-    var createAccountForm = document.getElementById('createAccountForm');
-
-    if (viewAccountProfile) viewAccountProfile.style.display = "none";
-    if (editAccountForm) editAccountForm.style.display = "none";
-    if (createAccountForm) createAccountForm.style.display = "block";
-}
-
-uManageEditButt.onclick = function () {
-    // Ensure that the account number exists before attempting to delete
-    var acctNoElement = document.getElementById('viewAccountNo');
-    if (!acctNoElement || !acctNoElement.innerText) {
-        console.error('Account number not found!');
-        alert('Unable to edit: No account selected');
-        return; // Exit the function if the account number is not found
-    }
-
-    accProfMod.style.display = "flex";
-    var viewAccountProfile = document.getElementById('viewAccountProfile');
-    var editAccountForm = document.getElementById('editAccountForm');
-    var createAccountForm = document.getElementById('createAccountForm');
-
-    if (viewAccountProfile) viewAccountProfile.style.display = "block";
-    if (editAccountForm) editAccountForm.style.display = "none";
-    if (createAccountForm) createAccountForm.style.display = "none";
-}
-editAccountButton.onclick = function () {
-    var viewAccountProfile = document.getElementById('viewAccountProfile');
-    var editAccountForm = document.getElementById('editAccountForm');
-    var createAccountForm = document.getElementById('createAccountForm');
-
-    if (viewAccountProfile) viewAccountProfile.style.display = "none";
-    if (editAccountForm) editAccountForm.style.display = "block";
-    if (createAccountForm) createAccountForm.style.display = "none";
-}
-saveAccountButton.onclick = function () {
-
-    // Ensure that the account number exists before attempting to delete
-    var acctNoElement = document.getElementById('viewAccountNo');
-    var type = document.getElementById('editAccountType');
-    var balance = document.getElementById('editAccountBalance');
-
-    let isValid = true;
-
-    // Reset input error
-    adminResetInputError(type);
-    adminResetInputError(balance);
-
-    if (!acctNoElement || !acctNoElement.innerText) {
-        console.error('Account number not found!');
-        alert('Unable to update: Account number not found.');
-        return;
-    }
-    if (!type || !type.value) {
-        adminSetInputError(type, "Account type required");
-        isValid = false;
-    }
-    if (!balance || !balance.value) {
-        adminSetInputError(balance, "Balance required");
-        isValid = false;
-    }
-
-    if (isValid) {
-        saveAccountChanges();
-        accProfMod.style.display = "none";
-    }
-}
-
-saveCreateButton.onclick = function () {
-    var type = document.getElementById('createAccountType');
-    var balance = document.getElementById('createAccountBalance');
-    var userId = document.getElementById('createUserId');
-
-    let isValid = true;
-
-    // Reset input error
-    adminResetInputError(type);
-    adminResetInputError(balance);
-    adminResetInputError(userId);
-
-    if (!type || !type.value) {
-        adminSetInputError(type, "Account type required");
-        isValid = false;
-    }
-    if (!balance || !balance.value) {
-        adminSetInputError(balance, "Balance required");
-        isValid = false;
-    }
-    if (!userId || !userId.value) {
-        adminSetInputError(userId, "Account owner required");
-        isValid = false;
-    }
-
-    if (isValid) {
-        createAccount();
-        accProfMod.style.display = "none";
-    }
-}
-
-/* Close modal when either 'x' pressed or outside of modal */
-modalClose2.onclick = function () {
-    accProfMod.style.display = "none";
-}
-
-/* Transaction Button Clicks */
-filterButton.onclick = function () {
-    var startDate = startDateInput.value ? new Date(startDateInput.value).toISOString() : null;
-    var endDate = endDateInput.value ? new Date(endDateInput.value).toISOString() : null;
-
-    if (startDate == null && endDate == null) {
-        fetchAllTransactions();
-    }
-    else {
-        fetchTransactionsByFilter(startDate, endDate);
-    }
-}
-
+﻿
 function adminSetInputError(inputElement, errorMessage) {
     // Set the placeholder to show the error message
     inputElement.placeholder = errorMessage;
@@ -287,30 +12,6 @@ function adminResetInputError(inputElement) {
     // Remove the error styling
     inputElement.classList.remove('input-error');
 }
-
-document.addEventListener('DOMContentLoaded', function () {
-    // Get the full path
-    var path = decodeURIComponent(window.location.pathname);
-
-    console.log('Decoded path:', path);
-    // Use a regular expression to extract the identifier
-    const regex = /admin=([^-\s]+)-([^-\s]+)/; // Matches 'admin={identifier}-{lName}'
-    const match = regex.exec(path);
-
-    if (match && match.length === 3) {
-        const identifier = match[1]; // This will get 'John'
-        const lName = match[2]; // This will get 'Sanders'
-
-        // Load profile details with the identifier
-        loadProfileDetails(identifier);
-    } else {
-        console.error('Failed to extract identifier from URL');
-    }
-
-    fetchAllAccounts();
-    fetchAllTransactions();
-    checkLogUpdates();
-});
 
 /* Function In Relation To Lists */
 function extractAccountInfo(item) {
@@ -346,7 +47,8 @@ function extractAccountInfo(item) {
         console.error("Expected spans are not found in the item:", item);
     }
 }
-function adjustAccountListInteractions() {
+
+function adjustAccountListInteractions(uAccountList, uAccountButtons) {
     // Disable hover effect if there's <= 1 item
     if (uAccountList.children.length <= 1) {
 
@@ -437,22 +139,22 @@ function loadProfileDetails(user) {
 }
 
 function saveAdminChanges() {
-    console.log("Extract admin id via path");
-    // Get the full path
-    var path = decodeURIComponent(window.location.pathname);
+    //console.log("Extract admin id via path");
+    //// Get the full path
+    //var path = decodeURIComponent(window.location.pathname);
 
-    // Use a regular expression to extract the identifier (matches id directly after 'admindashboard/')
-    const regex = /admindashboard\/(\d+)/; // Matches 'admindashboard/{id}/'
-    const match = regex.exec(path);
-    var identifier = null;
+    //// Use a regular expression to extract the identifier (matches id directly after 'admindashboard/')
+    //const regex = /admindashboard\/(\d+)/; // Matches 'admindashboard/{id}/'
+    //const match = regex.exec(path);
+    //var identifier = null;
 
-    if (match && match.length === 2) { // Check if we have a match and the ID group
-        identifier = match[1]; // This will get the 'id'
-        console.log("Identifier extracted:", identifier);
-    } else {
-        console.error('Failed to extract identifier from URL');
-        return; // Exit the function if identifier extraction fails
-    }
+    //if (match && match.length === 2) { // Check if we have a match and the ID group
+    //    identifier = match[1]; // This will get the 'id'
+    //    console.log("Identifier extracted:", identifier);
+    //} else {
+    //    console.error('Failed to extract identifier from URL');
+    //    return; // Exit the function if identifier extraction fails
+    //}
 
     console.log("An update attempt has been made")
 
@@ -464,7 +166,7 @@ function saveAdminChanges() {
     var pass = document.getElementById('editAdminPassword').value;
 
     var data = {
-        Id: parseInt(identifier, 10),
+        Id: 2,
         FName: fName,
         LName: lName,
         Email: email,
@@ -475,7 +177,7 @@ function saveAdminChanges() {
         ProfilePictureUrl: "",
         Password: pass
     };
-    const apiUrl = `/updateadmin/${identifier}`;
+    const apiUrl = `/updateadmin/${2}`;
 
     const headers = {
         'Content-Type': 'application/json'
@@ -511,7 +213,7 @@ function saveAdminChanges() {
         });
 }
 
-function saveAccountChanges() {
+function saveAccountChanges(uAccountList, uAccountButtons) {
     var acctNo = document.getElementById('viewAccountNo').innerText;
     var type = document.getElementById('editAccountType').value;
     var bal = document.getElementById('editAccountBalance').value;
@@ -547,7 +249,7 @@ function saveAccountChanges() {
             if (data.check) {
                 //Successful updated
                 console.log('Update successful');
-                fetchAccountsByIdentifier();
+                fetchAccountsByIdentifier(uAccountList, uAccountButtons);
             }
             else {
                 //Show the error
@@ -560,7 +262,7 @@ function saveAccountChanges() {
         });
 }
 
-function createAccount() {
+function createAccountAdmin(uAccountList, uAccountButtons) {
     const apiUrl = `/admin/createaccount`;
 
     var type = document.getElementById('createAccountType').value;
@@ -596,7 +298,7 @@ function createAccount() {
             if (data.success) {
                 //Successful updated
                 console.log('Creation successful');
-                fetchAccountsByIdentifier();
+                fetchAccountsByIdentifier(uAccountList, uAccountButtons);
             }
             else {
                 //Show the error
@@ -609,7 +311,7 @@ function createAccount() {
         });
 }
 
-function deleteAccount() {
+function deleteAccount(uAccountList, uAccountButtons) {
     var acctNo = document.getElementById('viewAccountNo').innerText;
 
     const apiUrl = `/deleteaccount/${acctNo}`;
@@ -621,7 +323,7 @@ function deleteAccount() {
     fetch(apiUrl, requestOption)
         .then(response => {
             if (response.ok) {
-                fetchAccountsByIdentifier();
+                fetchAccountsByIdentifier(uAccountList, uAccountButtons);
             }
             else {
                 throw new Error('Network response was not ok');
@@ -662,7 +364,7 @@ function reloadWithUpdated(identifier, password) {
             if (data.login) {
                 //Successful login
                 console.log('Successful updated retrieval');
-                window.location.href = `/authenticated/${identifier}`;
+                loadView('adminAuthenticated', 'dashboard', identifier);
             }
             else {
                 //Show the error
@@ -704,7 +406,7 @@ function fetchUsers() {
         });
 }
 
-function fetchAllAccounts() {
+function fetchAllAccounts(uAccountList, uAccountButtons) {
     const apiUrl = `/getaccounts`;
 
     const requestOption = {
@@ -719,15 +421,15 @@ function fetchAllAccounts() {
             return response.json();
         })
         .then(data => {
-            loadAccounts(data);
-            adjustAccountListInteractions();
+            loadAccounts(data, uAccountList);
+            adjustAccountListInteractions(uAccountList, uAccountButtons);
         })
         .catch(error => {
             console.error('Fetch error:', error);
         });
 }
 
-function fetchAccountsByIdentifier() {
+function fetchAccountsByIdentifier(uAccountList, uAccountButtons) {
     var identifier = document.getElementById('searchUser').value;
     console.log(`Fetch accounts via: ${identifier}`);
 
@@ -746,15 +448,15 @@ function fetchAccountsByIdentifier() {
         })
         .then(data => {
             console.log(`Send to load`);
-            loadAccounts(data);
-            adjustAccountListInteractions();
+            loadAccounts(data, uAccountList);
+            adjustAccountListInteractions(uAccountList, uAccountButtons);
         })
         .catch(error => {
             console.error('Fetch error:', error);
         });
 }
 
-function loadAccounts(accounts) {
+function loadAccounts(accounts, uAccountList) {
     console.log(`Reset list`);
     // Clear the current list
     uAccountList.innerHTML = '';
@@ -862,9 +564,9 @@ function loadTransactions(transactions) {
     }
 }
 
-let previousAdminLogs = [];
+function checkLogUpdates(adminActivityList) {
+    let previousAdminLogs = [];
 
-function checkLogUpdates() {
     const apiUrl = `/adminlogs`;
     console.log(`Get admin logs`);
 
@@ -888,7 +590,7 @@ function checkLogUpdates() {
                 // Update the previous list
                 previousAdminLogs = [...data];
                 // Handle the updated list (e.g., update UI)
-                loadAdminLogs(data);
+                loadAdminLogs(data, adminActivityList);
             }
         })
         .catch(error => {
@@ -896,7 +598,7 @@ function checkLogUpdates() {
         });
 }
 
-function loadAdminLogs(logs) {
+function loadAdminLogs(logs, adminActivityList) {
     console.log(`Reset admin logs`);
     // Clear the current list
     adminActivityList.innerHTML = '';
@@ -918,10 +620,300 @@ function loadAdminLogs(logs) {
     }
 }
 
-function checkForUpdates() {
-    fetchAccountsByIdentifier();
+function checkForUpdates(uAccountList, uAccountButtons, adminActivityList) {
+    fetchAccountsByIdentifier(uAccountList, uAccountButtons);
     fetchTransactionsByFilter();
-    checkLogUpdates();
+    checkLogUpdates(adminActivityList);
 }
 
-setInterval(checkForUpdates, 5000); // Poll the server every 5 seconds
+function attachDashboardLoginEventListeners() {
+    
+    console.log("Script is loaded");
+
+    const logoutButt = document.getElementById('logoutBtn');
+    const editButt = document.getElementById('openAdminProfile');
+    const aProfMod = document.getElementById('adminProfileModal');
+    const accProfMod = document.getElementById('accountProfileModal');
+    const uAccountList = document.getElementById('userAccountList');
+    const uAccountButtons = document.getElementById('userAccountsButtonsContainer');
+    const transactionList = document.getElementById('transactionList');
+    const adminActivityList = document.getElementById('adminActivityLogs');
+    const startDateInput = document.getElementById('transactionStartDate');
+    const endDateInput = document.getElementById('transactionEndDate');
+
+    /* Button declarations */
+    var editProfileButt = document.getElementById('editAdminProfileButton');
+    var saveProfileButt = document.getElementById('saveAdminProfileButton');
+    var modalClose = document.getElementById('aClose');
+    var modalClose2 = document.getElementById('accClose');
+    var searchUserForm = document.getElementById('searchUserForm');
+    var uManageEditButt = document.getElementById('editAccountButton');
+    var uManageCreateButt = document.getElementById('createAccountButton');
+    var uManageDeleteButt = document.getElementById('deleteAccountButton');
+    var filterButton = document.getElementById('filterTransactions');
+    var editAccountButton = document.getElementById('editAccountButtonM');
+    var saveAccountButton = document.getElementById('saveAccountButton');
+    var saveCreateButton = document.getElementById('saveCreateButton');
+
+    /* Reset inputs and remove error mask when typing */
+    document.getElementById('editAdminFName').addEventListener('input', function () {
+        adminResetInputError(this);
+    });
+    document.getElementById('editAdminLName').addEventListener('input', function () {
+        adminResetInputError(this);
+    });
+    document.getElementById('editAdminEmail').addEventListener('input', function () {
+        adminResetInputError(this);
+    });
+    document.getElementById('editAdminPassword').addEventListener('input', function () {
+        adminResetInputError(this);
+    });
+    document.getElementById('editAccountType').addEventListener('input', function () {
+        adminResetInputError(this);
+    });
+    document.getElementById('editAccountBalance').addEventListener('input', function () {
+        adminResetInputError(this);
+    });
+    document.getElementById('createAccountType').addEventListener('input', function () {
+        adminResetInputError(this);
+    });
+    document.getElementById('createAccountBalance').addEventListener('input', function () {
+        adminResetInputError(this);
+    });
+    document.getElementById('createUserId').addEventListener('input', function () {
+        adminResetInputError(this);
+    });
+
+    /* Button onclick behaviours */
+    // Logout button
+    logoutButt.onclick = function () {
+        loadView(' ', 'login', ' ');
+    }
+    // Edit button (outside of modal)
+    editButt.onclick = function () {
+        aProfMod.style.display = "flex";
+
+        // Ensure viewProfile is displayed and editProfileForm is hidden (Added)
+        var viewProfileDiv = document.getElementById('viewAdminProfile');
+        var editProfileForm = document.getElementById('editAdminProfileForm');
+        if (viewProfileDiv) viewProfileDiv.style.display = "block";
+        if (editProfileForm) editProfileForm.style.display = "none";
+    }
+    // Edit button (inside of modal)
+    editProfileButt.onclick = function () {
+        // Ensure viewProfile is displayed and editProfileForm is hidden (Added)
+        var viewProfileDiv = document.getElementById('viewAdminProfile');
+        var editProfileForm = document.getElementById('editAdminProfileForm');
+        if (viewProfileDiv) viewProfileDiv.style.display = "none";
+        if (editProfileForm) editProfileForm.style.display = "block";
+    }
+    // Save button (inside of modal)
+    saveProfileButt.onclick = function () {
+        var fName = document.getElementById('editAdminFName');
+        var lName = document.getElementById('editAdminLName');
+        var email = document.getElementById('editAdminEmail');
+        var pass = document.getElementById('editAdminPassword');
+
+        let isValid = true;
+
+        // Reset input error
+        adminResetInputError(fName);
+        adminResetInputError(lName);
+        adminResetInputError(email);
+        adminResetInputError(pass);
+
+        if (!fName || !fName.value) {
+            adminSetInputError(fName, "Required");
+            isValid = false;
+        }
+
+        if (!lName || !lName.value) {
+            adminSetInputError(lName, "Required");
+            isValid = false;
+        }
+
+        if (!pass || !pass.value) {
+            adminSetInputError(pass, "Required");
+            isValid = false;
+        }
+
+        if (!email || !email.value) {
+            adminSetInputError(email, "Required");
+            isValid = false;
+        }
+
+        if (isValid) {
+            aProfMod.style.display = "none";
+            saveAdminChanges();
+        }
+    }
+
+    /* Close modal when either 'x' pressed or outside of modal */
+    modalClose.onclick = function () {
+        aProfMod.style.display = "none";
+    }
+
+    window.onclick = function (event) {
+        if (event.target == aProfMod) {
+            aProfMod.style.display = "none";
+        }
+        if (event.target == accProfMod) {
+            accProfMod.style.display = "none";
+        }
+    }
+
+    /* User Account Management Button Click Handlers */
+    searchUserForm.onsubmit = function (event) {
+        event.preventDefault();
+        fetchAccountsByIdentifier(uAccountList, uAccountButtons);
+    }
+
+    uManageDeleteButt.onclick = function () {
+        // Ensure that the account number exists before attempting to delete
+        var acctNoElement = document.getElementById('viewAccountNo');
+        if (!acctNoElement || !acctNoElement.innerText) {
+            console.error('Account number not found!');
+            alert('Unable to delete: No account selected');
+            return; // Exit the function if the account number is not found
+        }
+
+        deleteAccount();
+    }
+
+    uManageCreateButt.onclick = function () {
+        // Load up user options for account owners
+        fetchUsers();
+
+        // Load up modal
+        accProfMod.style.display = "flex";
+        var viewAccountProfile = document.getElementById('viewAccountProfile');
+        var editAccountForm = document.getElementById('editAccountForm');
+        var createAccountForm = document.getElementById('createAccountForm');
+
+        if (viewAccountProfile) viewAccountProfile.style.display = "none";
+        if (editAccountForm) editAccountForm.style.display = "none";
+        if (createAccountForm) createAccountForm.style.display = "block";
+    }
+
+    uManageEditButt.onclick = function () {
+        // Ensure that the account number exists before attempting to delete
+        var acctNoElement = document.getElementById('viewAccountNo');
+        if (!acctNoElement || !acctNoElement.innerText) {
+            console.error('Account number not found!');
+            alert('Unable to edit: No account selected');
+            return; // Exit the function if the account number is not found
+        }
+
+        accProfMod.style.display = "flex";
+        var viewAccountProfile = document.getElementById('viewAccountProfile');
+        var editAccountForm = document.getElementById('editAccountForm');
+        var createAccountForm = document.getElementById('createAccountForm');
+
+        if (viewAccountProfile) viewAccountProfile.style.display = "block";
+        if (editAccountForm) editAccountForm.style.display = "none";
+        if (createAccountForm) createAccountForm.style.display = "none";
+    }
+    editAccountButton.onclick = function () {
+        var viewAccountProfile = document.getElementById('viewAccountProfile');
+        var editAccountForm = document.getElementById('editAccountForm');
+        var createAccountForm = document.getElementById('createAccountForm');
+
+        if (viewAccountProfile) viewAccountProfile.style.display = "none";
+        if (editAccountForm) editAccountForm.style.display = "block";
+        if (createAccountForm) createAccountForm.style.display = "none";
+    }
+    saveAccountButton.onclick = function () {
+
+        // Ensure that the account number exists before attempting to delete
+        var acctNoElement = document.getElementById('viewAccountNo');
+        var type = document.getElementById('editAccountType');
+        var balance = document.getElementById('editAccountBalance');
+
+        let isValid = true;
+
+        // Reset input error
+        adminResetInputError(type);
+        adminResetInputError(balance);
+
+        if (!acctNoElement || !acctNoElement.innerText) {
+            console.error('Account number not found!');
+            alert('Unable to update: Account number not found.');
+            return;
+        }
+        if (!type || !type.value) {
+            adminSetInputError(type, "Account type required");
+            isValid = false;
+        }
+        if (!balance || !balance.value) {
+            adminSetInputError(balance, "Balance required");
+            isValid = false;
+        }
+
+        if (isValid) {
+            saveAccountChanges(uAccountList);
+            accProfMod.style.display = "none";
+        }
+    }
+
+    saveCreateButton.onclick = function () {
+        var type = document.getElementById('createAccountType');
+        var balance = document.getElementById('createAccountBalance');
+        var userId = document.getElementById('createUserId');
+
+        let isValid = true;
+
+        // Reset input error
+        adminResetInputError(type);
+        adminResetInputError(balance);
+        adminResetInputError(userId);
+
+        if (!type || !type.value) {
+            adminSetInputError(type, "Account type required");
+            isValid = false;
+        }
+        if (!balance || !balance.value) {
+            adminSetInputError(balance, "Balance required");
+            isValid = false;
+        }
+        if (!userId || !userId.value) {
+            adminSetInputError(userId, "Account owner required");
+            isValid = false;
+        }
+
+        if (isValid) {
+            createAccountAdmin(uAccountList);
+            accProfMod.style.display = "none";
+        }
+    }
+
+    // Get the full path
+
+    fetchAllAccounts(uAccountList, uAccountButtons);
+    fetchAllTransactions();
+    checkLogUpdates(adminActivityList);
+
+    /* Close modal when either 'x' pressed or outside of modal */
+    modalClose2.onclick = function () {
+        accProfMod.style.display = "none";
+    }
+
+    /* Transaction Button Clicks */
+    filterButton.onclick = function () {
+        var startDate = startDateInput.value ? new Date(startDateInput.value).toISOString() : null;
+        var endDate = endDateInput.value ? new Date(endDateInput.value).toISOString() : null;
+
+        if (startDate == null && endDate == null) {
+            fetchAllTransactions();
+        }
+        else {
+            fetchTransactionsByFilter(startDate, endDate);
+        }
+    }
+
+}
+
+// Poll the server every 5 seconds
+    //function intervalUpdate() {
+    //    checkForUpdates(uAccountList, uAccountButtons, adminActivityList)
+    //}
+    //setInterval(intervalUpdate, 5000);

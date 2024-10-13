@@ -214,7 +214,7 @@ namespace BankPresentationLayer.Controllers
         public IActionResult AdminLogin()
         {
             Log("Navigate to the admin login page", LogLevel.Information, null);
-            return View("~/Views/Admin/AdminLoginView.cshtml");
+            return PartialView("~/Views/Admin/AdminLoginView.cshtml");
         }
 
         [HttpGet("admindashboard/{id}/authorized/admin={identifier}-{lName}")]
@@ -222,11 +222,11 @@ namespace BankPresentationLayer.Controllers
         {
             if (!IsUserAuthorized(identifier)) // Your authorization logic here
             {
-                return RedirectToAction("LoginError"); // Redirect if not authorized
+                return PartialView("LoginError"); // Redirect if not authorized
             }
 
             Log("Navigate to the admin dashboard page", LogLevel.Information, null);
-            return View("~/Views/Admin/AdminDashboard.cshtml");
+            return PartialView("~/Views/Admin/AdminDashboard.cshtml");
         }
 
         public IActionResult LoginError()

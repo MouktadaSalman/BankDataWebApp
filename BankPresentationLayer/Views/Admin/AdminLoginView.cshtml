@@ -2,15 +2,6 @@
     Layout = null;
 }
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <title>Log in</title>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
-    <link rel="stylesheet" href="~/css/adminlogin.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-</head>
 <body>
     <!-- Pop-up to indicate login failed -->
     <div id="loginModal" class="modal">
@@ -25,7 +16,7 @@
 
     <!-- Log In Form Section -->
     <section>
-        <div class="container" id="container">
+        <div class="container" id="containerB">
             <div class="form-container sign-in-container">
                 <form action="#">
                     <h1>Sign in</h1>
@@ -37,13 +28,14 @@
                     
                     <!-- Back to the home login -->
                     <nav class="home-nav">
-                        <a href="/home/index" class="home-link">Back</a>
+                        <a id="backHomeButton" class="home-link">Back</a>
                     </nav>
                 </form>
             </div>
         </div>
     </section>
 
+    <script src="/js/site.js"></script>
     <script src="/js/adminlogin.js"></script>
+    <script src="/js/adminsite.js"></script>
 </body>
-</html>
