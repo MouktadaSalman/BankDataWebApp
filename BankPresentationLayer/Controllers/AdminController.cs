@@ -430,9 +430,18 @@ namespace BankPresentationLayer.Controllers
                     Log($"Retrieved username: {value.FName}, password: {value.Password}", LogLevel.Information, null);
 
                     AdminLog($"ADMIN AUTHENTICATE: Attempt to authenticate Admin {value.Id}");
+                    int usernameId = 0;
+
+                    if (admin.Username != null)
+                    {
+                        if (!int.TryParse(admin.Username, out usernameId))
+                        {
+                            usernameId = 0; // or any default value you want to set
+                        }
+                    }
 
                     //Check if either email/first name matches and see if password matches
-                    if((value.FName.Equals(admin.Username) || value.Email.Equals(admin.Username)) 
+                    if ((value.FName.Equals(admin.Username) || value.Email.Equals(admin.Username) || value.Id == usernameId)
                         && value.Password.Equals(admin.Password))
                     {
                         Log($"Authentication of admin account successful: '{admin.Username}'", LogLevel.Information, null);
@@ -491,10 +500,18 @@ namespace BankPresentationLayer.Controllers
                 var sessionId = Request.Cookies["SessionID"];
                 Log($"User is authenticated with SessionID", LogLevel.Information, null);
 
+                int identifierInteger = 0;
+
+                if(!int.TryParse(identifier, out identifierInteger))
+                {
+                    identifierInteger = 0;
+                }
+
                 if (adminsInSession.TryGetValue(sessionId, out Admin? currentAdmin))
                 {
                     if ((currentAdmin.FName != null && currentAdmin.FName.Equals(identifier)) || 
-                        (currentAdmin.Email != null && currentAdmin.Email.Equals(identifier)))
+                        (currentAdmin.Email != null && currentAdmin.Email.Equals(identifier)) ||
+                        currentAdmin.Id == identifierInteger)
                     {
                         Log("Admin found and authenticated", LogLevel.Information, null);
                         return RedirectToAction("AdminDashboard", new { id = currentAdmin.Id, identifier = currentAdmin.FName, lName = currentAdmin.LName});
