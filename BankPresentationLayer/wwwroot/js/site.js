@@ -308,9 +308,10 @@ function createAccount() {
         },
         body: JSON.stringify(Account)
     })
-        .then(response => {
+        .then(async response => {
             if (!response.ok) {
-                return response.json().then(err => { throw new Error(err.message); });
+                const err = await response.json();
+                throw new Error(err.message);
             }
             return response.json();
         })
@@ -325,10 +326,10 @@ function createAccount() {
                 alert('Error creating Account: ' + data.message);
             }
         })
-        .catch(error => {
-            console.error('Error creating Account:', error.message);
-            alert('Unable to create Account. Error: ' + error.message);
-        });
+    .catch(error => {
+        console.error('Error creating Account:', error.message);
+        alert('Unable to create Account. Error: ' + error.message);
+    });
 }
 
 function loadUserAccount() {
@@ -401,7 +402,11 @@ function loadAccountDetails(accountNumber, accountBalance) {
 }
 
 function makeTransaction(accountNumber, amount, type) {       
-    const apiUrl = `/transaction`;
+    const apiUrl = '/transaction';
+
+    const headers = {
+        'Content-Type': 'application/json',
+    };
 
     const data = {
         accountNumber: accountNumber,
@@ -409,26 +414,35 @@ function makeTransaction(accountNumber, amount, type) {
         type: type
     };
 
-    fetch(apiUrl, {
+    const requestOptions = {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-    })
-    .then(response => response.json())
-    .then(result => {
-        if (result.success) {
-            alert(`${type.charAt(0).toUpperCase() + type.slice(1)} successful!`);
+        headers: headers,
+        body: JSON.stringify(data) // Convert the data object to a JSON string
+    };
+
+    fetch(apiUrl, requestOptions)
+        .then(async response => {
+            console.log('Raw response:', response);
+            if (!response.ok) {
+                throw new Error(`Error`);
+            }
+            return response.json()
+        })
+        .then(result => {
+            if (result.success) {
+                alert(`${type.charAt(0).toUpperCase() + type.slice(1)} successful!`);
                
-            loadUserAccount();
-        } else {
-            alert(`Error during ${type}: ${result.message}`);
-        }
-    })
+                loadUserAccount();
+            } else {
+                alert(`Error during ${type}: ${result.message}`);
+            }
+        })
     .catch(error => {
         console.error(`${type} failed`, error);
-        alert(`Error during ${type}. Please try again.`);
+
+        // Display a more detailed alert message
+        const errorMessage = error.message || 'Unknown error occurred';
+        alert(`Error during ${type}: ${errorMessage}. Please check the console for more details.`);
     });
 }
 
@@ -676,20 +690,32 @@ function attachLoginEventListeners() {
 
     const transferButton = document.querySelector(".transferButton");
     if (transferButton) {
-        transferButton.addEventListener("click", function (event) {
+        transferButton.addEventListener("click", async function (event) {
+            event.preventDefault(); // Prevent form submission if it's inside a form
+
             const amount = document.getElementById("transferAmount").value;
             const fromAccountNumber = document.getElementById("accountNumber").innerText;
             const toAccountNumber = document.getElementById("transferTo").value;
 
-            if (amount && accountNumber) {
+            if (amount && fromAccountNumber && toAccountNumber) {
+                try {
+                    // Perform 'send' transaction first (withdraw)
+                    const negativeAmount = -Math.abs(amount);
+                    await makeTransaction(fromAccountNumber, negativeAmount, 'send');
 
-                makeTransaction(toAccountNumber, amount, "receive");
-
-                const negativeAmount = -Math.abs(amount);
-                makeTransaction(fromAccountNumber, negativeAmount, "send");
+                    // Perform 'receive' transaction only if the first one succeeded
+                    await makeTransaction(toAccountNumber, amount, 'receive');
+                    alert('Transfer completed successfully');
+                } catch (error) {
+                    console.error('Transfer failed:', error);
+                    alert('Transfer failed. Please try again.');
+                }
+            } else {
+                alert('Please fill in all required fields.');
             }
         });
     }
+
 
     const adminLoginButton = document.getElementById('adminLoginButton');
     if (adminLoginButton) {
