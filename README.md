@@ -63,9 +63,9 @@ The admin dashboard provides functionalities for bank administrators to manage u
 
 ## Technologies Used
 - **Backend:** ASP.NET Core MVC, ASP.NET Web API, Entity Framework
-- **Frontend:** HTML, CSS, JavaScript (Fetch API, Axios)
+- **Frontend:** HTML, CSS, JavaScript (Fetch API)
 - **Database:** SQL Server (via Entity Framework)
-- **API Client Library:** RestSharp (or equivalent)
+- **API Client Library:** RestSharp
 
 ## Future Enhancements
 - Implement two-factor authentication for added security.
